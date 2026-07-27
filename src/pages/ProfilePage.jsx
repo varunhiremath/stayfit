@@ -5,6 +5,7 @@ import { useWorkouts } from '../hooks/useWorkout.js';
 import { useCurrentBodyweight, useLifetimeStats } from '../hooks/useProgress.js';
 import { useStretchStats } from '../hooks/useStretches.js';
 import { fmtWeight, fmtVolume } from '../utils/units.js';
+import { fmtHeight } from '../utils/bmi.js';
 import useSettingsStore from '../store/settingsStore.js';
 import CountUp from '../components/fx/CountUp.jsx';
 import BrandMark from '../components/logo/BrandMark.jsx';
@@ -49,6 +50,7 @@ export default function ProfilePage() {
   const stretch = useStretchStats();
   const bodyweight = useCurrentBodyweight();
   const unit = useSettingsStore((s) => s.unit);
+  const heightUnit = useSettingsStore((s) => s.heightUnit);
 
   if (!loaded || !profile) return null;
 
@@ -56,7 +58,7 @@ export default function ProfilePage() {
   const identity = [
     age ? `${age} yrs` : null,
     profile.sex || null,
-    profile.height ? `${profile.height} cm` : null,
+    fmtHeight(profile.height, heightUnit),
     bodyweight != null ? fmtWeight(bodyweight, unit) : null,
   ].filter(Boolean);
 

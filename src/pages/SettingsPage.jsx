@@ -13,6 +13,7 @@ import { requestPermission, showNotification } from '../utils/notifications.js';
 import { exportData, importData, exportSetsCsv, exportPdf } from '../utils/dataActions.js';
 import { logBodyStat } from '../utils/healthActions.js';
 import { toDisplay, toKg, unitLabel } from '../utils/units.js';
+import { toCm, toFeetInches, calcBmi, bmiCategory } from '../utils/bmi.js';
 
 const SEXES = ['Male', 'Female', 'Other'];
 
@@ -43,6 +44,13 @@ function Row({ label, children }) {
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
+const BMI_HUE = {
+  under: 'var(--color-sage)',
+  healthy: 'var(--color-gold)',
+  over: 'var(--color-ember)',
+  obese: 'var(--color-ember)',
+};
+
 export default function SettingsPage() {
   const navigate = useNavigate();
   const [reset, setReset] = useState(false);
@@ -53,6 +61,8 @@ export default function SettingsPage() {
   const updateProfile = useUserStore((s) => s.updateProfile);
   const unit = useSettingsStore((s) => s.unit);
   const setUnit = useSettingsStore((s) => s.setUnit);
+  const heightUnit = useSettingsStore((s) => s.heightUnit);
+  const setHeightUnit = useSettingsStore((s) => s.setHeightUnit);
   const effects = useSettingsStore((s) => s.effects);
   const setEffects = useSettingsStore((s) => s.setEffects);
   const sound = useSettingsStore((s) => s.sound);
@@ -65,6 +75,9 @@ export default function SettingsPage() {
   const waterGoal = useSettingsStore((s) => s.waterGoal);
   const setWaterGoal = useSettingsStore((s) => s.setWaterGoal);
   const bodyweight = useCurrentBodyweight();
+  const ftin = toFeetInches(profile?.height);
+  const bmi = calcBmi(bodyweight, profile?.height);
+  const band = bmiCategory(bmi);
   const fileRef = useRef();
   const age = profile?.birthYear ? new Date().getFullYear() - profile.birthYear : '';
 
@@ -133,15 +146,59 @@ export default function SettingsPage() {
           />
         </Row>
 
-        <Row label="Height (cm)">
-          <input
-            defaultValue={profile?.height ?? ''}
-            onBlur={(e) => updateProfile({ height: e.target.value ? Number(e.target.value) : null })}
-            type="number" inputMode="decimal" placeholder="—"
-            className="w-24 rounded-lg px-3 py-1.5 text-right font-mono text-sm outline-none"
-            style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
-          />
-        </Row>
+        {/* Height — entered the same way you chose at setup, stored in cm. */}
+        <div className="flex items-center justify-between py-1.5">
+          <span className="font-sans text-sm" style={{ color: 'var(--color-text-primary)' }}>Height</span>
+          <div className="flex items-center gap-2">
+            <div className="flex overflow-hidden rounded-lg" style={{ background: 'var(--color-ivory)' }}>
+              {[{ v: 'cm', l: 'cm' }, { v: 'ftin', l: 'ft/in' }].map((o) => (
+                <button key={o.v} onClick={() => setHeightUnit(o.v)} className="px-2.5 py-1.5 font-sans text-xs font-medium"
+                  style={{ background: heightUnit === o.v ? 'var(--color-gold)' : 'transparent', color: heightUnit === o.v ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)' }}>
+                  {o.l}
+                </button>
+              ))}
+            </div>
+            {heightUnit === 'cm' ? (
+              <input
+                key={`cm-${profile?.height ?? ''}`}
+                defaultValue={profile?.height ? Math.round(profile.height) : ''}
+                onBlur={(e) => updateProfile({ height: e.target.value ? Number(e.target.value) : null })}
+                type="number" inputMode="decimal" placeholder="—"
+                className="w-20 rounded-lg px-3 py-1.5 text-right font-mono text-sm outline-none"
+                style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
+              />
+            ) : (
+              <div className="flex gap-1">
+                <input
+                  key={`ft-${profile?.height ?? ''}`}
+                  defaultValue={ftin?.feet ?? ''}
+                  onBlur={(e) => updateProfile({ height: toCm(e.target.value, ftin?.inches ?? 0) })}
+                  type="number" inputMode="numeric" placeholder="ft"
+                  className="w-12 rounded-lg px-2 py-1.5 text-right font-mono text-sm outline-none"
+                  style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
+                />
+                <input
+                  key={`in-${profile?.height ?? ''}`}
+                  defaultValue={ftin?.inches ?? ''}
+                  onBlur={(e) => updateProfile({ height: toCm(ftin?.feet ?? 0, e.target.value) })}
+                  type="number" inputMode="numeric" placeholder="in"
+                  className="w-12 rounded-lg px-2 py-1.5 text-right font-mono text-sm outline-none"
+                  style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* BMI, derived from the two figures above. */}
+        {bmi != null && (
+          <Row label="BMI">
+            <span className="flex items-center gap-2">
+              <span className="font-mono text-sm font-semibold" style={{ color: BMI_HUE[band.key] }}>{bmi}</span>
+              <span className="font-sans text-xs" style={{ color: 'var(--color-text-secondary)' }}>{band.label}</span>
+            </span>
+          </Row>
+        )}
 
         <Row label="Age">
           <input

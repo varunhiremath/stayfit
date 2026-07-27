@@ -7,7 +7,7 @@ const KEY = 'stayfit_prefs';
 // install that predates a rename keeps its units, equipment and onboarding.
 const LEGACY_KEYS = ['ludi_prefs', 'opus_prefs'];
 const DEFAULTS = {
-  unit: 'kg', onboarded: false, effects: true, sound: false, theme: 'system',
+  unit: 'kg', heightUnit: 'cm', onboarded: false, effects: true, sound: false, theme: 'system',
   tourSeen: false, stepGoal: 8000, waterGoal: 8, recapDismissedWeek: '', coachMarksSeen: {},
   // Session reminders: whether to nudge, the hour of day to do it (0–23), and
   // the last date a nudge fired (so it happens at most once a day).
@@ -28,7 +28,7 @@ const DEFAULTS = {
 
 // Persisted keys — anything not listed here is derived or transient.
 const PERSISTED = [
-  'unit', 'onboarded', 'effects', 'sound', 'theme', 'tourSeen',
+  'unit', 'heightUnit', 'onboarded', 'effects', 'sound', 'theme', 'tourSeen',
   'stepGoal', 'waterGoal', 'recapDismissedWeek', 'coachMarksSeen',
   'inventory', 'reminderEnabled', 'reminderHour', 'lastRemindedDate', 'stretchPrompts',
   'lastBriefedDate',
@@ -97,6 +97,12 @@ const useSettingsStore = create((set, get) => ({
   },
   setUnit(unit) {
     set({ unit });
+    get().persist();
+  },
+  // How height reads back to you — 'cm' or 'ftin'. Height itself is always
+  // stored in cm; this only picks the display.
+  setHeightUnit(heightUnit) {
+    set({ heightUnit });
     get().persist();
   },
   setEffects(effects) {
