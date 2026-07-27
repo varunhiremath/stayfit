@@ -1,64 +1,120 @@
 import { useState } from 'react';
-import { X, StickyNote, Link2, ChevronUp, ChevronDown, Repeat } from 'lucide-react';
+import { X, StickyNote, Link2, Check, ChevronDown, Info } from 'lucide-react';
 import SetLogger from './SetLogger.jsx';
 import CardioLogger from './CardioLogger.jsx';
 import OverloadNudge from './OverloadNudge.jsx';
 import ExerciseInfoModal from './ExerciseInfoModal.jsx';
 import ExerciseDemo from './ExerciseDemo.jsx';
+import SwapSuggestions from './SwapSuggestions.jsx';
 import useSettingsStore from '../../store/settingsStore.js';
 import { useExerciseNote } from '../../hooks/useExercises.js';
 import { toDisplay, unitLabel, fmtVolume } from '../../utils/units.js';
+import { summarise } from '../../utils/sessionFlow.js';
 
 const MUSCLE_HUE = {
-  chest: '#D4622A', triceps: '#D4622A', 'front-deltoids': '#D4622A',
-  biceps: '#C9A84C', forearm: '#C9A84C',
-  'upper-back': '#6B8F71', 'lower-back': '#6B8F71', trapezius: '#6B8F71', 'back-deltoids': '#6B8F71',
-  quadriceps: '#8A8780', hamstring: '#8A8780', gluteal: '#8A8780', calves: '#8A8780',
-  abs: '#C9A84C', obliques: '#C9A84C',
+  chest: '#EA580C', triceps: '#EA580C', 'front-deltoids': '#EA580C',
+  biceps: '#CA8A04', forearm: '#CA8A04',
+  'upper-back': '#0D9488', 'lower-back': '#0D9488', trapezius: '#0D9488', 'back-deltoids': '#0D9488',
+  quadriceps: '#64748B', hamstring: '#64748B', gluteal: '#64748B', calves: '#64748B',
+  abs: '#CA8A04', obliques: '#CA8A04',
 };
 
-export default function ExerciseSection({ exercise, muscleGroup, isBodyweight, isCardio, onSetLogged, onRemove, onSwap, canLink, linked, onToggleSuperset, onMoveUp, onMoveDown, canMoveUp, canMoveDown }) {
-  const hue = MUSCLE_HUE[muscleGroup] ?? '#8A8780';
+export default function ExerciseSection({
+  exercise, muscleGroup, isBodyweight, isCardio, onSetLogged, onRemove, onSwap,
+  canLink, linked, onToggleSuperset,
+  expanded = true, onToggleExpand, isDone = false, sessionIds = [],
+}) {
+  const hue = MUSCLE_HUE[muscleGroup] ?? '#64748B';
   const unit = useSettingsStore((s) => s.unit);
   const note = useExerciseNote(exercise.exerciseId);
   const [infoOpen, setInfoOpen] = useState(false);
 
-  // Live per-exercise tally for this session.
-  const working = exercise.sets.filter((s) => !s.isWarmup);
-  const setCount = working.length;
-  const totalReps = working.reduce((a, s) => a + (s.reps || 0), 0);
-  const volKg = working.reduce((a, s) => a + (s.weight || 0) * (s.reps || 0), 0);
+  const { sets: setCount, reps: totalReps, volumeKg: volKg } = summarise(exercise);
   const targetSets = exercise.targetSets || null;
   const progress = targetSets ? Math.min(setCount / targetSets, 1) : null;
 
-  // Cardio session totals for the header/tally.
   const cardioKcal = exercise.sets.reduce((a, s) => a + (s.calories || 0), 0);
   const cardioMin = Math.round(exercise.sets.reduce((a, s) => a + (s.durationSec || 0), 0) / 60);
 
+  const tally = isCardio
+    ? (cardioKcal > 0 ? `${cardioMin} min · ${cardioKcal} kcal` : null)
+    : setCount > 0
+      ? `${setCount} set${setCount === 1 ? '' : 's'}${targetSets ? ` / ${targetSets}` : ''}${totalReps ? ` · ${totalReps} reps` : ''}${volKg ? ` · ${fmtVolume(volKg, unit)}` : ''}`
+      : targetSets
+        ? `Target ${targetSets}×${exercise.targetReps ?? '—'}`
+        : null;
+
+  // ── Collapsed: one tappable row. Done rows are quieter still. ──────────────
+  if (!expanded) {
+    return (
+      <div
+        className="mb-2 rounded-2xl"
+        style={{
+          background: isDone ? 'transparent' : 'var(--color-chalk)',
+          border: `1px solid ${isDone ? 'var(--color-ivory)' : 'var(--color-ivory)'}`,
+          opacity: isDone ? 0.85 : 1,
+        }}
+      >
+        <button onClick={onToggleExpand} className="flex w-full items-center gap-3 px-4 py-3 text-left">
+          <span
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full"
+            style={{ background: isDone ? 'var(--color-gold)' : hue + '1F' }}
+          >
+            {isDone
+              ? <Check size={15} strokeWidth={3} style={{ color: 'var(--color-text-inverse)' }} />
+              : <span className="h-2 w-2 rounded-full" style={{ background: hue }} />}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span
+              className="block truncate font-sans text-sm font-semibold"
+              style={{ color: 'var(--color-text-primary)', textDecoration: isDone ? 'none' : 'none' }}
+            >
+              {exercise.name}
+            </span>
+            <span className="block truncate font-sans text-xs capitalize" style={{ color: 'var(--color-text-secondary)' }}>
+              {tally ?? (muscleGroup ?? '').replace(/-/g, ' ')}
+            </span>
+          </span>
+          <ChevronDown size={16} style={{ color: 'var(--color-ash)' }} />
+        </button>
+
+        {/* Alternatives are only worth offering for something you haven't started. */}
+        {!isDone && setCount === 0 && onSwap && (
+          <div className="px-4 pb-3">
+            <SwapSuggestions muscleGroup={muscleGroup} sessionIds={sessionIds} onSwap={onSwap} />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Expanded: the full logging card ───────────────────────────────────────
   return (
     <div
-      className="mb-4 rounded-2xl px-4 pb-4 pt-3"
-      style={{ background: 'var(--color-chalk)', border: '1px solid var(--color-ivory)' }}
+      className="anim-fade-in mb-3 rounded-2xl px-4 pb-4 pt-3"
+      style={{ background: 'var(--color-chalk)', border: '1px solid var(--color-gold)' }}
     >
-      {/* Header */}
       <div className="flex items-start justify-between">
-        <div>
-          <button
-            onClick={() => setInfoOpen(true)}
-            className="block text-left font-sans text-base font-semibold"
-            style={{
-              color: 'var(--color-gold)',
-              textDecoration: 'underline',
-              textDecorationColor: 'color-mix(in srgb, var(--color-gold) 40%, transparent)',
-              textUnderlineOffset: 3,
-            }}
-            title={`About ${exercise.name}`}
-          >
-            {exercise.name}
-          </button>
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setInfoOpen(true)}
+              className="min-w-0 text-left font-sans text-base font-semibold"
+              style={{
+                color: 'var(--color-gold)',
+                textDecoration: 'underline',
+                textDecorationColor: 'color-mix(in srgb, var(--color-gold) 40%, transparent)',
+                textUnderlineOffset: 3,
+              }}
+              title={`About ${exercise.name}`}
+            >
+              {exercise.name}
+            </button>
+            <Info size={12} style={{ color: 'var(--color-ash)', flexShrink: 0 }} />
+          </div>
           <span
-            className="mt-0.5 inline-block rounded-full px-2 py-0.5 font-sans text-xs capitalize"
-            style={{ background: hue + '22', color: hue }}
+            className="mt-1 inline-block rounded-full px-2 py-0.5 font-sans text-xs capitalize"
+            style={{ background: hue + '1F', color: hue }}
           >
             {(muscleGroup ?? '').replace(/-/g, ' ')}
           </span>
@@ -70,24 +126,6 @@ export default function ExerciseSection({ exercise, muscleGroup, isBodyweight, i
           )}
         </div>
         <div className="ml-2 flex flex-shrink-0 items-center gap-2">
-          <div className="flex flex-col">
-            <button
-              onClick={onMoveUp}
-              disabled={!canMoveUp}
-              aria-label="Move exercise up"
-              style={{ opacity: canMoveUp ? 1 : 0.25 }}
-            >
-              <ChevronUp size={16} style={{ color: 'var(--color-ash)' }} />
-            </button>
-            <button
-              onClick={onMoveDown}
-              disabled={!canMoveDown}
-              aria-label="Move exercise down"
-              style={{ opacity: canMoveDown ? 1 : 0.25 }}
-            >
-              <ChevronDown size={16} style={{ color: 'var(--color-ash)' }} />
-            </button>
-          </div>
           {canLink && !isCardio && (
             <button
               onClick={onToggleSuperset}
@@ -101,16 +139,6 @@ export default function ExerciseSection({ exercise, muscleGroup, isBodyweight, i
               <Link2 size={12} /> {linked ? 'Superset' : 'Link'}
             </button>
           )}
-          {onSwap && (
-            <button
-              onClick={onSwap}
-              className="flex h-7 w-7 items-center justify-center rounded-full"
-              style={{ background: 'var(--color-ivory)' }}
-              aria-label="Swap exercise"
-            >
-              <Repeat size={13} style={{ color: 'var(--color-ash)' }} />
-            </button>
-          )}
           <button
             onClick={onRemove}
             className="flex h-7 w-7 items-center justify-center rounded-full"
@@ -119,10 +147,17 @@ export default function ExerciseSection({ exercise, muscleGroup, isBodyweight, i
           >
             <X size={13} style={{ color: 'var(--color-ash)' }} />
           </button>
+          <button
+            onClick={onToggleExpand}
+            className="flex h-7 w-7 items-center justify-center rounded-full"
+            style={{ background: 'var(--color-ivory)' }}
+            aria-label="Collapse exercise"
+          >
+            <ChevronDown size={14} style={{ color: 'var(--color-ash)', transform: 'rotate(180deg)' }} />
+          </button>
         </div>
       </div>
 
-      {/* How-to picture + video, inline under the name */}
       <ExerciseDemo name={exercise.name} />
 
       {note && (
@@ -166,6 +201,10 @@ export default function ExerciseSection({ exercise, muscleGroup, isBodyweight, i
           </div>
 
           <SetLogger exerciseId={exercise.exerciseId} onSetLogged={() => onSetLogged?.(exercise.exerciseId)} isBodyweight={isBodyweight} />
+
+          {setCount === 0 && onSwap && (
+            <SwapSuggestions muscleGroup={muscleGroup} sessionIds={sessionIds} onSwap={onSwap} />
+          )}
         </>
       )}
 

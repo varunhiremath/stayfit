@@ -5,6 +5,7 @@ import useWorkoutStore from '../store/workoutStore.js';
 import ExerciseSection from '../components/workout/ExerciseSection.jsx';
 import ExercisePicker from '../components/workout/ExercisePicker.jsx';
 import RestTimer from '../components/workout/RestTimer.jsx';
+import SessionTimer from '../components/workout/SessionTimer.jsx';
 import EndWorkoutModal from '../components/workout/EndWorkoutModal.jsx';
 import TemplateCard from '../components/template/TemplateCard.jsx';
 import Particles from '../components/fx/Particles.jsx';
@@ -16,24 +17,10 @@ import { maybePromptPermission, notifyPR } from '../utils/notifications.js';
 import { saveWorkoutAsRoutine, advanceProgression } from '../utils/templateActions.js';
 import { playChime } from '../utils/sound.js';
 import { supersetRuns, noRestIds } from '../utils/supersets.js';
+import { partitionSession, nextUpId, advanceFrom, summarise } from '../utils/sessionFlow.js';
 import useUIStore from '../store/uiStore.js';
 
-function ElapsedTimer({ startedAt }) {
-  const [secs, setSecs] = useState(Math.round((Date.now() - startedAt) / 1000));
-  useEffect(() => {
-    const id = setInterval(() => setSecs(Math.round((Date.now() - startedAt) / 1000)), 1000);
-    return () => clearInterval(id);
-  }, [startedAt]);
-  const m = Math.floor(secs / 60);
-  const h = Math.floor(m / 60);
-  return (
-    <span className="mt-1 block font-mono text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-      {h > 0 ? `${h}h ${m % 60}m` : `${m}m`}
-    </span>
-  );
-}
-
-function ExerciseSectionWrapper({ ex, onSetLogged, onRemove, onSwap, canLink, linked, onToggleSuperset, onMoveUp, onMoveDown, canMoveUp, canMoveDown }) {
+function ExerciseSectionWrapper({ ex, onSetLogged, onRemove, onSwap, canLink, linked, onToggleSuperset, expanded, onToggleExpand, isDone, sessionIds }) {
   const exerciseData = useExercise(ex.exerciseId);
   const muscleGroup = exerciseData?.muscleGroup ?? null;
   return (
@@ -48,26 +35,27 @@ function ExerciseSectionWrapper({ ex, onSetLogged, onRemove, onSwap, canLink, li
       canLink={canLink}
       linked={linked}
       onToggleSuperset={onToggleSuperset}
-      onMoveUp={onMoveUp}
-      onMoveDown={onMoveDown}
-      canMoveUp={canMoveUp}
-      canMoveDown={canMoveDown}
+      expanded={expanded}
+      onToggleExpand={onToggleExpand}
+      isDone={isDone}
+      sessionIds={sessionIds}
     />
   );
 }
 
 export default function WorkoutPage() {
-  const { activeWorkout, resumed, dismissResumed, startWorkout, startFromTemplate, addExercise, removeExercise, swapExercise, discardWorkout, completeWorkout, setWorkoutName, setEnergy, setWorkoutNotes, toggleSuperset, moveExercise } = useWorkoutStore();
+  const { activeWorkout, resumed, dismissResumed, startWorkout, startFromTemplate, addExercise, removeExercise, swapExercise, discardWorkout, completeWorkout, setWorkoutName, setEnergy, setWorkoutNotes, toggleSuperset } = useWorkoutStore();
   const navigate = useNavigate();
   const templates = useTemplatesWithExercises();
 
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [swapId, setSwapId] = useState(null); // exercise being swapped, or null
   const [endOpen, setEndOpen] = useState(false);
   const [showRest, setShowRest] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
   const [restKey, setRestKey] = useState(0);
+  // Which card is open. null until the session loads, then the first unstarted.
+  const [openId, setOpenId] = useState(null);
   const restDuration = useSettingsStore((s) => s.restDuration);
   const setRestDuration = useSettingsStore((s) => s.setRestDuration);
   const nameRef = useRef();
@@ -85,8 +73,30 @@ export default function WorkoutPage() {
   const alreadyAdded = activeWorkout?.exercises.map((e) => e.exerciseId) ?? [];
 
   const exercises = activeWorkout?.exercises ?? [];
-  const runs = supersetRuns(exercises);
   const noRest = noRestIds(exercises);
+
+  // Open the first unstarted exercise when the session appears or the open one
+  // disappears (removed or swapped out).
+  useEffect(() => {
+    if (!exercises.length) { if (openId !== null) setOpenId(null); return; }
+    if (openId == null || !exercises.some((e) => e.exerciseId === openId)) {
+      setOpenId(nextUpId(exercises) ?? exercises[0].exerciseId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exercises.length, openId]);
+
+  const { todo, done } = partitionSession(exercises, openId);
+  const runs = supersetRuns(todo);
+  const sessionIds = exercises.map((e) => e.exerciseId);
+  const sessionTotals = exercises.reduce(
+    (acc, e) => { const t = summarise(e); acc.sets += t.sets; acc.volumeKg += t.volumeKg; return acc; },
+    { sets: 0, volumeKg: 0 }
+  );
+
+  // Collapsing the card you just finished moves you on to the next one.
+  function toggleOpen(id) {
+    setOpenId((cur) => (cur === id ? advanceFrom(exercises, id) : id));
+  }
 
   function handleSetLogged(exerciseId) {
     setRestKey((k) => k + 1);
@@ -250,7 +260,6 @@ export default function WorkoutPage() {
               </h1>
             </button>
           )}
-          <ElapsedTimer startedAt={activeWorkout.startedAt} />
         </div>
         <div className="ml-4 flex gap-2">
           <button
@@ -269,6 +278,15 @@ export default function WorkoutPage() {
           </button>
         </div>
       </div>
+
+      {/* Session clock */}
+      <SessionTimer
+        startedAt={activeWorkout.startedAt}
+        sets={sessionTotals.sets}
+        volumeKg={sessionTotals.volumeKg}
+        done={done.length}
+        total={exercises.length}
+      />
 
       {/* Energy check-in */}
       {activeWorkout.energy == null && (
@@ -304,7 +322,12 @@ export default function WorkoutPage() {
         </div>
       )}
 
-      {/* Exercise sections (grouped into superset brackets) */}
+      {/* Up next — one card open at a time, the rest collapsed to a row */}
+      {todo.length > 0 && (
+        <p className="mb-2 mt-1 font-sans text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-text-secondary)' }}>
+          {done.length > 0 ? 'Up next' : 'Your exercises'}
+        </p>
+      )}
       {runs.map((run) => {
         const renderEx = (ex) => {
           const idx = exercises.indexOf(ex);
@@ -315,14 +338,13 @@ export default function WorkoutPage() {
               ex={ex}
               canLink={idx > 0}
               linked={linked}
+              expanded={openId === ex.exerciseId}
+              onToggleExpand={() => toggleOpen(ex.exerciseId)}
+              sessionIds={sessionIds}
               onSetLogged={handleSetLogged}
               onRemove={() => removeExercise(ex.exerciseId)}
-              onSwap={() => { setSwapId(ex.exerciseId); setPickerOpen(true); }}
+              onSwap={(pick) => swapExercise(ex.exerciseId, pick)}
               onToggleSuperset={() => toggleSuperset(ex.exerciseId)}
-              onMoveUp={() => moveExercise(ex.exerciseId, -1)}
-              onMoveDown={() => moveExercise(ex.exerciseId, 1)}
-              canMoveUp={idx > 0}
-              canMoveDown={idx < exercises.length - 1}
             />
           );
         };
@@ -330,7 +352,7 @@ export default function WorkoutPage() {
         return (
           <div
             key={`ss-${run[0].exerciseId}`}
-            className="mb-4 rounded-2xl py-1 pl-2"
+            className="mb-3 rounded-2xl py-1 pl-2"
             style={{ borderLeft: '3px solid var(--color-gold)' }}
           >
             <p className="mb-1 pl-2 pt-1 font-sans text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'var(--color-gold)' }}>
@@ -340,6 +362,27 @@ export default function WorkoutPage() {
           </div>
         );
       })}
+
+      {/* Done — finished work, folded away */}
+      {done.length > 0 && (
+        <>
+          <p className="mb-2 mt-5 flex items-center gap-1.5 font-sans text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-text-secondary)' }}>
+            Done · {done.length}
+          </p>
+          {done.map((ex) => (
+            <ExerciseSectionWrapper
+              key={ex.exerciseId}
+              ex={ex}
+              expanded={false}
+              isDone
+              onToggleExpand={() => toggleOpen(ex.exerciseId)}
+              sessionIds={sessionIds}
+              onSetLogged={handleSetLogged}
+              onRemove={() => removeExercise(ex.exerciseId)}
+            />
+          ))}
+        </>
+      )}
 
       {/* Add exercise */}
       <button
@@ -362,8 +405,8 @@ export default function WorkoutPage() {
 
       <ExercisePicker
         isOpen={pickerOpen}
-        onClose={() => { setPickerOpen(false); setSwapId(null); }}
-        onSelect={(ex) => { playChime('tap'); if (swapId) swapExercise(swapId, ex); else addExercise(ex); }}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(ex) => { playChime('tap'); addExercise(ex); }}
         alreadyAdded={alreadyAdded}
       />
 
