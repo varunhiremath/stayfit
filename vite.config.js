@@ -11,7 +11,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['lifter.png', 'robots.txt'],
+      includeAssets: ['icon.svg', 'favicon-32.png', 'apple-touch-icon.png', 'robots.txt'],
       manifest: {
         name: "StayFit",
         short_name: 'StayFit',
@@ -23,9 +23,9 @@ export default defineConfig({
         start_url: '/stayfit/',
         scope: '/stayfit/',
         icons: [
-          { src: '/stayfit/lifter.png', sizes: '192x192', type: 'image/png' },
-          { src: '/stayfit/lifter.png', sizes: '512x512', type: 'image/png' },
-          { src: '/stayfit/lifter.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+          { src: '/stayfit/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/stayfit/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/stayfit/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {

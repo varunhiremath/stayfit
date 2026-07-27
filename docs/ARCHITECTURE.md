@@ -52,7 +52,7 @@ Tested utils: units, plateCalc, overload, volume, restStats, oneRepMax, superset
 - template: TemplateCard, TemplateBuilder, WeeklyPlanner, RoutineGeneratorModal, WeekPlannerModal, ProgramsModal
 - library: LibraryPage hosts both halves — Exercises (search + BodyPicker muscle map + favourites + add-custom, reusing `exercise/*`) and Stretches (routines by phase, then all stretches filtered by type/body-area/search, plus the stretch log)
 - progress: VolumeChart, TrendChart, MuscleFrequency, Heatmap, MonthCalendar, RecoveryMap, ActivityRings, WeeklyRecap, ActivityForm, BodyStatsForm, SleepForm, PRBadge, ProgressPhotos
-- fx: Particles, CountUp · logo: **BrandMark** (static emerald check; replaces the level-evolving OpusMark), LoadingScreen · ui: Modal, UiHost · coach: CoachMark · tour: Tour
+- fx: Particles, CountUp · logo: **BrandMark** ("Pulse" — a weight-plate ring with a movement wave; matches the installed app icon exactly), LoadingScreen · ui: Modal, UiHost · coach: CoachMark · tour: Tour
 
 ## Design system
 `src/styles/tokens.css` is the single source of truth (mirrored by `tailwind.config.js`). Semantic CSS vars, so the whole app re-skins from one file.
@@ -61,6 +61,13 @@ Tested utils: units, plateCalc, overload, volume, restStats, oneRepMax, superset
 - Accents **`--color-gold` #10B981 (primary emerald)** · `--color-ember` #FB7185 (energy/stretch) · `--color-sage` #0D9488 · `--color-ash` #94A3B8
 - Type: `font-display` Plus Jakarta Sans (bold headings) · `font-sans` DM Sans · `font-mono` DM Mono. The old Cormorant serif is gone.
 - **Contrast rule:** text on a `--color-gold`/`ember`/`sage` background must be `--color-text-inverse`, never `--color-obsidian`.
+
+## App icons (`public/`)
+All generated from the same "Pulse" artwork as `BrandMark`: `icon-192.png`, `icon-512.png`,
+`icon-maskable-512.png` (full-bleed, artwork inset to Android's safe zone), `apple-touch-icon.png`
+(180), `favicon-32.png` and a scalable `icon.svg`. Wired in `index.html` + the `vite.config.js`
+manifest; `notifications.js` uses `icon-192.png`. Regenerate by re-rendering the SVG in
+`BrandMark.jsx` at each size — the old 1 MB `lifter.png` photo is gone.
 
 ## Deliberately absent
 Kept out to stay focused on training — do not re-add without being asked:
