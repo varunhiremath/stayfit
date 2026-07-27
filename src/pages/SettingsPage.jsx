@@ -219,11 +219,11 @@ export default function SettingsPage() {
             About
           </span>
         </div>
-        <p className="font-display text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>LUDI</p>
-        <p className="font-sans text-sm" style={{ color: 'var(--color-text-secondary)' }}>Let's do it — plan, train, recover.</p>
+        <p className="font-display text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>StayFit</p>
+        <p className="font-sans text-sm" style={{ color: 'var(--color-text-secondary)' }}>Plan, train, recover.</p>
         <p className="mt-1 font-mono text-xs" style={{ color: 'var(--color-ash)' }}>v4.0.0</p>
         <a
-          href="https://github.com/varunhiremath/LUDI"
+          href="https://github.com/varunhiremath/stayfit"
           target="_blank"
           rel="noopener noreferrer"
           className="mt-3 flex items-center gap-2 font-sans text-sm font-medium"
@@ -296,7 +296,7 @@ export default function SettingsPage() {
                 return;
               }
               try {
-                await showNotification('LUDI', { body: "Test notification — you're all set." });
+                await showNotification('StayFit', { body: "Test notification — you're all set." });
               } catch {
                 useUIStore.getState().showToast("Couldn't send a notification — check OS settings.", { type: 'error' });
               }
@@ -315,7 +315,7 @@ export default function SettingsPage() {
           </button>
         </div>
         <p className="mt-2 font-sans text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-          Notifications show while LUDI is open or installed; a fully offline app can't push in the background.
+          Notifications show while StayFit is open or installed; a fully offline app can't push in the background.
         </p>
       </section>
 

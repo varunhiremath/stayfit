@@ -84,7 +84,7 @@ export default function HomePage() {
             {greeting}{profile?.name ? `, ${profile.name}` : ''}
           </p>
           <h1 className="font-display text-3xl font-bold leading-tight" style={{ color: 'var(--color-text-primary)' }}>
-            Let's do it
+            StayFit
           </h1>
         </div>
         <div className="flex flex-shrink-0 items-center gap-2">

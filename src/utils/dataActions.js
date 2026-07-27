@@ -36,12 +36,12 @@ export async function exportData() {
     if (EXPORT_SKIP.has(t.name)) continue;
     data[t.name] = await t.toArray();
   }
-  const payload = { app: 'LUDI', version: 2, exportedAt: new Date().toISOString(), data };
+  const payload = { app: 'STAYFIT', version: 3, exportedAt: new Date().toISOString(), data };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `ludi-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `stayfit-backup-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -63,7 +63,7 @@ export async function exportSetsCsv(unit = 'kg') {
       };
     })
     .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : (a.setNumber ?? 0) - (b.setNumber ?? 0)));
-  download(setsToCsv(rows, unit), `ludi-sets-${new Date().toISOString().slice(0, 10)}.csv`, 'text/csv;charset=utf-8');
+  download(setsToCsv(rows, unit), `stayfit-sets-${new Date().toISOString().slice(0, 10)}.csv`, 'text/csv;charset=utf-8');
 }
 
 // Opens a clean, printable training report in a new window (Save as PDF from
@@ -80,7 +80,7 @@ export async function exportPdf(unit = 'kg') {
     `<tr><td>${w.date ?? ''}</td><td>${escapeHtml(w.name ?? 'Workout')}</td><td class="n">${fmt(w.totalVolume)}</td><td class="n">${w.totalSets ?? 0}</td></tr>`
   ).join('');
 
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>LUDI — Training Report</title>
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>StayFit — Training Report</title>
 <style>
   body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#1a1a1a;margin:40px;}
   h1{font-size:28px;margin:0;}
@@ -93,7 +93,7 @@ export async function exportPdf(unit = 'kg') {
   td.n,th.n{text-align:right;}
   @media print{body{margin:0;}}
 </style></head><body>
-  <h1>LUDI — Training Report</h1>
+  <h1>StayFit — Training Report</h1>
   <div class="sub">Generated ${new Date().toLocaleDateString()}</div>
   <div class="stats">
     <div class="stat"><div class="v">${workouts.length}</div><div class="l">Workouts</div></div>

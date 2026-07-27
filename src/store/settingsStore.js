@@ -2,8 +2,10 @@ import { create } from 'zustand';
 
 import { applyTheme } from '../utils/theme.js';
 
-const KEY = 'ludi_prefs';
-const LEGACY_KEY = 'opus_prefs';
+const KEY = 'stayfit_prefs';
+// Earlier names for the same prefs blob, newest first. Read once on load so an
+// install that predates a rename keeps its units, equipment and onboarding.
+const LEGACY_KEYS = ['ludi_prefs', 'opus_prefs'];
 const DEFAULTS = {
   barWeight: 20, unit: 'kg', onboarded: false, effects: true, sound: false, theme: 'system',
   tourSeen: false, restDuration: 90, stepGoal: 8000, waterGoal: 8, recapDismissedWeek: '', coachMarksSeen: {},
@@ -30,10 +32,12 @@ const PERSISTED = [
 
 function load() {
   try {
-    // Read the LUDI key, falling back to the legacy OPUS prefs once so existing
-    // installs keep their units, equipment and onboarding state.
-    const raw = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY_KEY) ?? '{}';
-    const saved = JSON.parse(raw);
+    let raw = localStorage.getItem(KEY);
+    for (const k of LEGACY_KEYS) {
+      if (raw != null) break;
+      raw = localStorage.getItem(k);
+    }
+    const saved = JSON.parse(raw ?? '{}');
     const merged = { ...DEFAULTS };
     for (const k of PERSISTED) if (k in saved) merged[k] = saved[k];
     return merged;

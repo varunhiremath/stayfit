@@ -99,8 +99,8 @@ export default function ReminderSettings({ isOpen, onClose }) {
       <div className="flex gap-2 rounded-xl px-3 py-2.5" style={{ background: 'var(--color-ivory)' }}>
         <Info size={14} className="mt-0.5 flex-shrink-0" style={{ color: 'var(--color-ash)' }} />
         <p className="font-sans text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-          LUDI is fully offline with no server, so reminders fire when the app is open or installed on
-          your phone. Add LUDI to your home screen for the most reliable nudges.
+          StayFit is fully offline with no server, so reminders fire when the app is open or installed on
+          your phone. Add StayFit to your home screen for the most reliable nudges.
         </p>
       </div>
     </Modal>

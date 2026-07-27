@@ -96,7 +96,7 @@ describe('reminderText', () => {
     const info = nextSession({ templates: plan, now: monday });
     expect(reminderText(info)).toEqual({
       title: "Today's session",
-      body: "Push is on your plan. Let's do it.",
+      body: "Push is on your plan. Let's get it done.",
     });
   });
 

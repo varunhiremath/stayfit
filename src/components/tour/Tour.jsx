@@ -5,8 +5,8 @@ import { Dumbbell, CalendarCheck, Bell, Activity, BookOpen, TrendingUp, Palette 
 import useSettingsStore from '../../store/settingsStore.js';
 
 const STEPS = [
-  { icon: CalendarCheck, title: 'Plan your week', body: 'Start in Plan: choose a split like Push/Pull/Legs, or install a ready-made program. LUDI assigns each routine to a day so you always know what\'s next.' },
-  { icon: Bell, title: 'Get reminded', body: 'Turn on session reminders and LUDI nudges you on training days only — never on a planned rest day.' },
+  { icon: CalendarCheck, title: 'Plan your week', body: 'Start in Plan: choose a split like Push/Pull/Legs, or install a ready-made program. StayFit assigns each routine to a day so you always know what\'s next.' },
+  { icon: Bell, title: 'Get reminded', body: 'Turn on session reminders and StayFit nudges you on training days only — never on a planned rest day.' },
   { icon: Dumbbell, title: 'Log your workouts', body: 'Tap the center ➕ to start. Add exercises — reorder them or chain supersets — and log sets with the plate calculator, RPE and rest timer. Get interrupted? Your session is saved.' },
   { icon: Activity, title: 'Warm up and cool down', body: 'The Stretch tab has guided pre- and post-workout routines. Follow the timer and your stretch time is logged for you.' },
   { icon: BookOpen, title: 'Exercise & stretch library', body: 'Browse every movement, add your own, favourite the ones you use, and keep coaching notes that follow you into each session.' },

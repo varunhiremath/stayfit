@@ -1,14 +1,14 @@
-# LUDI
+# StayFit
 
-> Let's do it — plan, train, recover.
+> Plan, train, recover.
 
-**Live:** https://varunhiremath.github.io/LUDI/
+**Live:** https://varunhiremath.github.io/stayfit/
 
 A free, offline-first Progressive Web App for gym training. Plan your week around a split you actually like, log your sessions, warm up and cool down properly, and watch your numbers move. No games, no subscriptions, no ads, no cloud — everything lives on your device.
 
 ## Features
 
-- **Weekly scheduler** — pick a split (Push/Pull/Legs, Upper/Lower, Arnold, Bro, Full Body) or install a classic program (StrongLifts 5×5, GZCLP, PPL, Upper/Lower, 5/3/1). LUDI assigns routines to weekdays so you always know what's next.
+- **Weekly scheduler** — pick a split (Push/Pull/Legs, Upper/Lower, Arnold, Bro, Full Body) or install a classic program (StrongLifts 5×5, GZCLP, PPL, Upper/Lower, 5/3/1). StayFit assigns routines to weekdays so you always know what's next.
 - **Session reminders** — a nudge on training days only, at the hour you choose. Never on a planned rest day.
 - **Workout logging** — sets, reps, RPE, warmups, rest timer, plate calculator, supersets, reorder, swap, resume-after-reload.
 - **Pre & post-workout stretching** — guided warm-up and cool-down routines with a follow-along timer, coaching cues and how-to videos. Your stretch time is logged automatically.
@@ -38,13 +38,13 @@ npm test         # unit tests (vitest)
 
 Pushes to `main` build and deploy to GitHub Pages via GitHub Actions (`.github/workflows/deploy.yml`).
 
-The app is served under the `/LUDI/` base path (set by `base` in `vite.config.js`, matching the repository name).
+The app is served under the `/stayfit/` base path (set by `base` in `vite.config.js`, matching the repository name).
 
 ## Data & privacy
 
 All data is stored locally in IndexedDB — nothing is sent to a server, because there is no server. Back up or move your data anytime via Settings → Data → Export / Import, or wipe it via Settings → Danger zone.
 
-Because LUDI is fully offline with no backend, reminders fire while the app is open or installed on your phone; add it to your home screen for the most reliable nudges.
+Because StayFit is fully offline with no backend, reminders fire while the app is open or installed on your phone; add it to your home screen for the most reliable nudges.
 
 ## Documentation
 

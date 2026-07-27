@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // LUDI light health palette. Names kept for source compatibility with
+        // StayFit light health palette. Names kept for source compatibility with
         // components that use Tailwind colour classes; values mirror tokens.css.
         canvas: '#F4F6F9',
         chalk: '#FFFFFF',

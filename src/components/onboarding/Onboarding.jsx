@@ -136,7 +136,7 @@ export default function Onboarding() {
   return (
     <div className="fixed inset-0 z-[55] flex flex-col items-center overflow-y-auto px-8 py-10" style={{ background: 'var(--color-obsidian)' }}>
       <BrandMark size={80} animate />
-      <h1 className="mt-6 font-display text-4xl font-bold" style={{ color: 'var(--color-text-inverse)' }}>Welcome to LUDI</h1>
+      <h1 className="mt-6 font-display text-4xl font-bold" style={{ color: 'var(--color-text-inverse)' }}>Welcome to StayFit</h1>
       <p className="mt-1 mb-6 font-sans text-sm" style={{ color: 'var(--color-ash)' }}>Set up your character.</p>
 
       <div className="w-full max-w-xs">

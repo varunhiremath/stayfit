@@ -1,6 +1,6 @@
 import BrandMark from './BrandMark.jsx';
 
-// Short, light splash for LUDI. Snappy — no cinematic RPG intro.
+// Short, light splash for StayFit. Snappy — no cinematic RPG intro.
 export default function LoadingScreen({ fadingOut = false }) {
   return (
     <div
@@ -27,7 +27,7 @@ export default function LoadingScreen({ fadingOut = false }) {
           animation: 'fadeSlideUp 600ms var(--ease-out) 500ms both',
         }}
       >
-        LUDI
+        StayFit
       </h1>
 
       <p
@@ -42,7 +42,7 @@ export default function LoadingScreen({ fadingOut = false }) {
           animation: 'fadeIn 500ms var(--ease-out) 800ms both',
         }}
       >
-        Let's do it
+        Plan · Train · Recover
       </p>
     </div>
   );

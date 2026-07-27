@@ -1,13 +1,13 @@
-# CLAUDE.md — LUDI project memory
+# CLAUDE.md — StayFit project memory
 
-> **LUDI** ("Let's Do It") is a **free, offline-first gym-training PWA** — plan, train, recover. No games.
+> **StayFit** is a **free, offline-first gym-training PWA** — plan, train, recover. No games.
 > React 18 + Vite + Tailwind v3 · Dexie/IndexedDB · Zustand · React Router · Recharts ·
 > html2canvas · vite-plugin-pwa. 100% local, no backend.
 >
-> **v4.0.0 renamed OPUS → LUDI and removed the entire RPG layer** (XP/levels/quests/achievements/
+> **v4.0.0 renamed OPUS → StayFit (briefly LUDI) and removed the entire RPG layer** (XP/levels/quests/achievements/
 > economy/dungeon/companion). Do not reintroduce game mechanics.
 > **Data-safety invariant:** the Dexie DB stays named `OpusDB` — renaming it orphans existing users'
-> workout history. It is internal and never user-visible. Repo + Vite `base` are `LUDI` / `/LUDI/`.
+> workout history. It is internal and never user-visible. Repo + Vite `base` are `stayfit` / `/stayfit/`.
 
 ## ⛔ FOCUS: PWA ONLY — native app is ON HOLD (set 2026-07-19)
 **Work exclusively in the web/PWA app (`src/`, `docs/`, root config). The native app is paused by the user's explicit instruction.**
@@ -54,11 +54,11 @@ Keep `docs/STATE.md` updated at the end of every sprint, and update `docs/ARCHIT
 - Detours are welcome and explicitly fine — capture them in STATE.md.
 
 ## Current state
-**v4.0.0 (LUDI)** shipped: rebrand + light design system, RPG layer removed, Plan tab (scheduler),
+**v4.0.0 (StayFit)** shipped: rebrand + light design system, RPG layer removed, Plan tab (scheduler),
 schedule-aware reminders, stretching (DB v10 + guided runner), stretch library. vitest 232 green.
 See `docs/STATE.md` for the full build log and `docs/ARCHITECTURE.md` for the map.
 
-## LUDI product rules
+## StayFit product rules
 - **No gamification.** No XP, levels, titles, quests, achievements, currencies, streak rewards or mascots.
   A plain consecutive-day streak counter is fine; rewards attached to it are not.
 - The five tabs are **Home · Plan · Workout · Stretch · Progress**. Keep the surface small and legible.

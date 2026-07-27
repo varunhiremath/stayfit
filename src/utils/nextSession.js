@@ -98,7 +98,7 @@ export function nextSession({ templates = [], now = new Date(), trainedToday = f
 export function reminderText(info) {
   if (!info?.hasSchedule) return null;
   if (info.today && !info.today.done) {
-    return { title: "Today's session", body: `${info.today.routine.name} is on your plan. Let's do it.` };
+    return { title: "Today's session", body: `${info.today.routine.name} is on your plan. Let's get it done.` };
   }
   if (info.next && info.next.offset === 1) {
     return { title: 'Tomorrow', body: `${info.next.routine.name} is up tomorrow — get some rest.` };

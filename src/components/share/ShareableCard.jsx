@@ -35,7 +35,7 @@ const ShareableCard = forwardRef(function ShareableCard({ data, theme = DEFAULT_
           <div style={{ width: 60, height: 60, borderRadius: '50%', border: `4px solid ${accent}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ width: 18, height: 18, borderRadius: '50%', background: accent }} />
           </div>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 52, fontWeight: 800, letterSpacing: 6, color: text }}>LUDI</span>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 52, fontWeight: 800, letterSpacing: 6, color: text }}>StayFit</span>
         </div>
         <div style={{ textAlign: 'right' }}>
           {d.athlete && (
@@ -67,7 +67,7 @@ const ShareableCard = forwardRef(function ShareableCard({ data, theme = DEFAULT_
       )}
 
       <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
-        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 36, fontWeight: 500, color: sub }}>Let&apos;s do it.</span>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 36, fontWeight: 500, color: sub }}>Plan, train, recover.</span>
       </div>
     </div>
   );

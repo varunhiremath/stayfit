@@ -7,7 +7,7 @@ import { inQuietHours } from './notifications.js';
 export function pickReminders({
   settings, now, today, weekKey, lastWorkoutDate, streak = 0, staleRoutine = null, markers = {},
   // Schedule awareness: when the user has a weekly plan, the generic daily
-  // nudge only fires on days they actually have a session — otherwise LUDI
+  // nudge only fires on days they actually have a session — otherwise StayFit
   // would nag on planned rest days.
   hasSchedule = false, scheduledToday = false,
 }) {

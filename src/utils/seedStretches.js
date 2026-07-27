@@ -1,4 +1,4 @@
-// LUDI stretch & mobility catalogue.
+// StayFit stretch & mobility catalogue.
 //
 // `type`     'dynamic' (pre-workout, movement-based) | 'static' (post-workout,
 //            hold-and-breathe) | 'mobility' (joint prep, either phase).

@@ -12,7 +12,7 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
   timeout: 30_000,
   use: {
-    baseURL: 'http://localhost:4173/LUDI/',
+    baseURL: 'http://localhost:4173/stayfit/',
     ...devices['Pixel 7'],
     isMobile: true,
     hasTouch: true,
@@ -21,7 +21,7 @@ export default defineConfig({
   },
   webServer: {
     command: 'npm run preview -- --port 4173 --strictPort',
-    url: 'http://localhost:4173/LUDI/',
+    url: 'http://localhost:4173/stayfit/',
     reuseExistingServer: true,
     timeout: 60_000,
   },

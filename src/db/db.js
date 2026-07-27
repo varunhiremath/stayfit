@@ -81,7 +81,7 @@ db.version(9).stores({
     '++id, date, category',
 });
 
-// v10 (LUDI): stretching & mobility.
+// v10 (StayFit): stretching & mobility.
 // - `stretches`      the stretch catalogue (seeded + custom). Unindexed:
 //                    durationSec, description, difficulty, secondaryAreas.
 // - `stretchRoutines` ordered sequences. Unindexed: items [{stretchId,durationSec}].

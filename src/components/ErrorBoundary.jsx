@@ -25,7 +25,7 @@ export default class ErrorBoundary extends React.Component {
           className="mt-6 rounded-xl px-8 py-3 font-sans text-sm font-semibold"
           style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}
         >
-          Reload LUDI
+          Reload StayFit
         </button>
       </div>
     );

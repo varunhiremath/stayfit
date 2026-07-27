@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { Home, CalendarDays, Plus, Activity, BarChart3 } from 'lucide-react';
 
-// LUDI's five pillars: today, your plan, log a session, recover, review.
+// StayFit's five pillars: today, your plan, log a session, recover, review.
 const tabs = [
   { to: '/home', label: 'Home', Icon: Home },
   { to: '/plan', label: 'Plan', Icon: CalendarDays },
