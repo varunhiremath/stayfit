@@ -51,8 +51,6 @@ export default function SettingsPage() {
   const { profile } = useProfile();
 
   const updateProfile = useUserStore((s) => s.updateProfile);
-  const barWeight = useSettingsStore((s) => s.barWeight);
-  const setBarWeight = useSettingsStore((s) => s.setBarWeight);
   const unit = useSettingsStore((s) => s.unit);
   const setUnit = useSettingsStore((s) => s.setUnit);
   const effects = useSettingsStore((s) => s.effects);
@@ -164,17 +162,6 @@ export default function SettingsPage() {
               </button>
             ))}
           </div>
-        </Row>
-
-        <Row label={`Barbell weight (${unitLabel(unit)})`}>
-          <input
-            key={`${unit}-${barWeight}`}
-            defaultValue={toDisplay(barWeight, unit)}
-            onBlur={(e) => setBarWeight(toKg(Number(e.target.value) || 0, unit))}
-            type="number" inputMode="decimal"
-            className="w-24 rounded-lg px-3 py-1.5 text-right font-mono text-sm outline-none"
-            style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
-          />
         </Row>
 
         <button

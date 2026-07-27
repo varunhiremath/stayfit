@@ -13,10 +13,8 @@ const LOCATIONS = [
 
 export default function EquipmentModal({ isOpen, onClose }) {
   const unit = useSettingsStore((s) => s.unit);
-  const barWeight = useSettingsStore((s) => s.barWeight);
   const inventory = useSettingsStore((s) => s.inventory);
   const setInventoryActive = useSettingsStore((s) => s.setInventoryActive);
-  const setInventoryBar = useSettingsStore((s) => s.setInventoryBar);
   const setInventoryPlates = useSettingsStore((s) => s.setInventoryPlates);
   const [custom, setCustom] = useState('');
 
@@ -52,18 +50,6 @@ export default function EquipmentModal({ isOpen, onClose }) {
         ))}
       </div>
 
-      {/* Bar weight for this location */}
-      <div className="mt-4 flex items-center justify-between rounded-xl px-3 py-2.5" style={{ background: 'var(--color-ivory)' }}>
-        <span className="font-sans text-sm" style={{ color: 'var(--color-text-primary)' }}>Bar weight ({u})</span>
-        <input
-          key={`${loc}-${unit}-${data.barKg ?? 'def'}`}
-          defaultValue={toDisplay(data.barKg ?? barWeight, unit)}
-          onBlur={(e) => setInventoryBar(loc, toKg(Number(e.target.value) || 0, unit))}
-          type="number" inputMode="decimal"
-          className="w-24 rounded-lg px-2 py-1.5 text-right font-mono text-sm outline-none"
-          style={{ background: 'var(--color-chalk)', color: 'var(--color-text-primary)' }}
-        />
-      </div>
 
       {/* Owned plates */}
       <p className="mb-2 mt-4 font-sans text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-text-secondary)' }}>

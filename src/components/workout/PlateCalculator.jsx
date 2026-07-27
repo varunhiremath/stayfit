@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
 import { calcPlates, PLATES_KG, PLATES_LB } from '../../utils/plateCalc.js';
 import { effectivePlates } from '../../utils/inventory.js';
+import { defaultBarDisplay } from '../../utils/barbell.js';
 import useSettingsStore from '../../store/settingsStore.js';
 import { toDisplay, unitLabel } from '../../utils/units.js';
 
@@ -12,10 +13,9 @@ const PLATE_BG = {
 // `weight` is already in the display unit (from the SetLogger input).
 export default function PlateCalculator({ weight, onClose }) {
   const unit = useSettingsStore((s) => s.unit);
-  const barWeightKg = useSettingsStore((s) => s.barWeight);
   const inventory = useSettingsStore((s) => s.inventory);
   const loc = inventory?.[inventory?.active] ?? {};
-  const bar = Math.round(toDisplay(loc.barKg ?? barWeightKg, unit) * 10) / 10;
+  const bar = defaultBarDisplay(unit);
   const plateSet = effectivePlates(loc, unit, unit === 'lbs' ? PLATES_LB : PLATES_KG);
   const u = unitLabel(unit);
   const plates = calcPlates(weight, bar, plateSet);

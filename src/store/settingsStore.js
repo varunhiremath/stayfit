@@ -7,27 +7,31 @@ const KEY = 'stayfit_prefs';
 // install that predates a rename keeps its units, equipment and onboarding.
 const LEGACY_KEYS = ['ludi_prefs', 'opus_prefs'];
 const DEFAULTS = {
-  barWeight: 20, unit: 'kg', onboarded: false, effects: true, sound: false, theme: 'system',
+  unit: 'kg', onboarded: false, effects: true, sound: false, theme: 'system',
   tourSeen: false, restDuration: 90, stepGoal: 8000, waterGoal: 8, recapDismissedWeek: '', coachMarksSeen: {},
   // Session reminders: whether to nudge, the hour of day to do it (0–23), and
   // the last date a nudge fired (so it happens at most once a day).
   reminderEnabled: true, reminderHour: 17, lastRemindedDate: '',
+  // Daily briefing: the last date the once-a-day open summary was shown.
+  lastBriefedDate: '',
   // Stretching: prompt for a warm-up / cool-down around workouts.
   stretchPrompts: true,
-  // Equipment per location. barKg null → use global barWeight; plates null → standard
-  // set for the current unit; plates are display-unit numbers stamped with `unit`.
+  // Plate inventory per location. plates null → the standard set for the
+  // current unit; plates are display-unit numbers stamped with `unit`.
+  // The bar itself is not configurable (see utils/barbell.js).
   inventory: {
     active: 'gym',
-    gym: { barKg: null, plates: null, unit: null },
-    home: { barKg: null, plates: null, unit: null },
+    gym: { plates: null, unit: null },
+    home: { plates: null, unit: null },
   },
 };
 
 // Persisted keys — anything not listed here is derived or transient.
 const PERSISTED = [
-  'barWeight', 'unit', 'onboarded', 'effects', 'sound', 'theme', 'tourSeen',
+  'unit', 'onboarded', 'effects', 'sound', 'theme', 'tourSeen',
   'restDuration', 'stepGoal', 'waterGoal', 'recapDismissedWeek', 'coachMarksSeen',
   'inventory', 'reminderEnabled', 'reminderHour', 'lastRemindedDate', 'stretchPrompts',
+  'lastBriefedDate',
 ];
 
 function load() {
@@ -56,10 +60,6 @@ const useSettingsStore = create((set, get) => ({
   },
   setInventoryActive(active) {
     set((s) => ({ inventory: { ...s.inventory, active } }));
-    get().persist();
-  },
-  setInventoryBar(loc, barKg) {
-    set((s) => ({ inventory: { ...s.inventory, [loc]: { ...s.inventory[loc], barKg } } }));
     get().persist();
   },
   setInventoryPlates(loc, plates, unit) {
@@ -99,10 +99,6 @@ const useSettingsStore = create((set, get) => ({
     get().persist();
     applyTheme(theme);
   },
-  setBarWeight(barWeight) {
-    set({ barWeight });
-    get().persist();
-  },
   setUnit(unit) {
     set({ unit });
     get().persist();
@@ -125,6 +121,10 @@ const useSettingsStore = create((set, get) => ({
   },
   markReminded(dateKey) {
     set({ lastRemindedDate: dateKey });
+    get().persist();
+  },
+  markBriefed(dateKey) {
+    set({ lastBriefedDate: dateKey });
     get().persist();
   },
   setStretchPrompts(stretchPrompts) {

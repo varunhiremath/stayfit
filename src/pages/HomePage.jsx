@@ -11,6 +11,7 @@ import WeeklyRecap from '../components/progress/WeeklyRecap.jsx';
 import ActivityRings from '../components/progress/ActivityRings.jsx';
 import CountUp from '../components/fx/CountUp.jsx';
 import BrandMark from '../components/logo/BrandMark.jsx';
+import DailyBriefing from '../components/home/DailyBriefing.jsx';
 import useWorkoutStore from '../store/workoutStore.js';
 
 function TodayCard({ icon: Icon = Play, title, subtitle, onClick }) {
@@ -77,6 +78,9 @@ export default function HomePage() {
 
   return (
     <div className="anim-fade-slide-up px-5 pb-24 pt-6">
+      {/* Once-a-day catch-up: where you left off, what's on today, and swaps. */}
+      <DailyBriefing />
+
       {/* Header */}
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="min-w-0">
