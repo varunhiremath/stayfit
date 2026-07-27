@@ -165,13 +165,13 @@ export default function HomePage() {
           icon={Activity}
           label="Warm up"
           sub="Before you lift"
-          onClick={() => navigate('/stretch?phase=pre')}
+          onClick={() => navigate('/library?tab=stretches&phase=pre')}
         />
         <QuickAction
           icon={Timer}
           label="Cool down"
           sub="After training"
-          onClick={() => navigate('/stretch?phase=post')}
+          onClick={() => navigate('/library?tab=stretches&phase=post')}
         />
       </div>
 

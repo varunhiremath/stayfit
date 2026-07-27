@@ -10,8 +10,9 @@ The efficiency reference: what exists and where. Check here before grepping. Kee
 Vite 5 · React 18 · Tailwind v3 · Dexie.js (IndexedDB) · Zustand · React Router v6 · Recharts · react-body-highlighter · lucide-react · html2canvas · vite-plugin-pwa. Vitest (node env) for unit tests. Deploy: GitHub Pages via `.github/workflows/deploy.yml` (test job gates build-and-deploy).
 
 ## Routes (`src/router.jsx`)
-`/` Loading · **`/home`** · **`/plan`** · **`/workout`** · **`/stretch`** · **`/progress`** · `/history` · `/records` · `/exercises` · `/exercises/:id` · `/profile` · `/settings`. All under `AppLayout` (BottomNav + Onboarding/Tour/CoachMark/UiHost gates).
-The five bold routes are the bottom-nav tabs (`components/layout/BottomNav.jsx`), Workout being the raised centre FAB.
+`/` Loading · **`/home`** · **`/plan`** · **`/workout`** · **`/library`** · **`/progress`** · `/history` · `/records` · `/exercises/:id` · `/profile` · `/settings`. All under `AppLayout` (BottomNav + Onboarding/Tour/CoachMark/UiHost gates).
+The five bold routes are the bottom-nav tabs (`components/layout/BottomNav.jsx`); Workout is the raised centre FAB, drawn with the custom `components/icons/LifterIcon.jsx` (a figure pressing a barbell) rather than a lucide glyph.
+`/library` accepts `?tab=exercises|stretches` and `?phase=pre|post` — the warm-up/cool-down prompts on Workout and Home deep-link into it.
 
 ## DB (`src/db/db.js`) — Dexie, name `OpusDB`, current **v10**
 - v1–2: `exercises`(++id,name,muscleGroup,equipment,isCustom,difficulty; +favorite,color unindexed)
@@ -45,8 +46,10 @@ Tested utils: units, plateCalc, overload, volume, restStats, oneRepMax, superset
 - layout: AppLayout, BottomNav (5 tabs), PageWrapper, TopBar
 - workout: WorkoutPage, ExerciseSection, SetLogger, CardioLogger, RestTimer, PlateCalculator, ExercisePicker, EndWorkoutModal (+ cool-down prompt), WorkoutCard, ExerciseInfoModal
 - **plan**: ReminderSettings (on/off, hour, permission + offline caveat)
-- **stretch**: StretchRunner (full-screen guided player, portal, countdown ring), StretchLibraryModal (browse/filter/add/delete)
+- **stretch**: StretchRunner (full-screen guided player, portal, countdown ring), StretchRoutineModal (routine move-list + start), StretchDetailModal (single stretch: tags, how-to, video)
+- **icons**: LifterIcon (custom stroke SVG for the centre FAB)
 - template: TemplateCard, TemplateBuilder, WeeklyPlanner, RoutineGeneratorModal, WeekPlannerModal, ProgramsModal
+- library: LibraryPage hosts both halves — Exercises (search + BodyPicker muscle map + favourites + add-custom, reusing `exercise/*`) and Stretches (routines by phase, then all stretches filtered by type/body-area/search, plus the stretch log)
 - progress: VolumeChart, TrendChart, MuscleFrequency, Heatmap, MonthCalendar, RecoveryMap, ActivityRings, WeeklyRecap, ActivityForm, BodyStatsForm, SleepForm, PRBadge, ProgressPhotos
 - share: ShareSheet, ShareButton, ShareableCard (the one surviving card), themes.js
 - fx: Particles, CountUp · logo: **BrandMark** (static emerald check; replaces the level-evolving OpusMark), LoadingScreen · ui: Modal, UiHost, ColorPicker · coach: CoachMark · tour: Tour

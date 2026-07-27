@@ -11,8 +11,8 @@ A free, offline-first Progressive Web App for gym training. Plan your week aroun
 - **Weekly scheduler** — pick a split (Push/Pull/Legs, Upper/Lower, Arnold, Bro, Full Body) or install a classic program (StrongLifts 5×5, GZCLP, PPL, Upper/Lower, 5/3/1). StayFit assigns routines to weekdays so you always know what's next.
 - **Session reminders** — a nudge on training days only, at the hour you choose. Never on a planned rest day.
 - **Workout logging** — sets, reps, RPE, warmups, rest timer, plate calculator, supersets, reorder, swap, resume-after-reload.
-- **Pre & post-workout stretching** — guided warm-up and cool-down routines with a follow-along timer, coaching cues and how-to videos. Your stretch time is logged automatically.
-- **Exercise & stretch libraries** — ~70 exercises across every muscle group and ~30 stretches across every body area, both searchable, filterable, and extendable with your own.
+- **Pre & post-workout stretching** — 8 guided warm-up and cool-down routines with a follow-along timer and coaching cues, launched from the Library or straight from your workout. Your stretch time is logged automatically.
+- **One searchable Library** — ~80 exercises and ~30 stretches in a single browsable database, tagged by muscle, body area, equipment and difficulty. Tap anything to learn how to do it, with a demonstration video. Add your own too.
 - **Progressive overload** — three-lever coaching (reps → sets → weight), auto-advancing routine targets, and a deload signal.
 - **Progress & insight** — weekly volume, muscle focus, training calendar, recovery body-map, per-exercise trends, estimated 1RM, personal records.
 - **Health tracking** — body weight, measurements, sleep, pre-workout energy, daily steps & water, calories.

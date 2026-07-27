@@ -159,7 +159,7 @@ export default function WorkoutPage() {
 
         {/* Warm up first — a pre-workout stretch before you lift. */}
         <button
-          onClick={() => navigate('/stretch?phase=pre')}
+          onClick={() => navigate('/library?tab=stretches&phase=pre')}
           className="mt-6 flex w-full items-center gap-3 rounded-2xl px-4 py-3"
           style={{ background: 'var(--color-chalk)', border: '1px solid var(--color-ivory)' }}
         >
@@ -373,7 +373,7 @@ export default function WorkoutPage() {
         elapsedSecs={Math.round((Date.now() - activeWorkout.startedAt) / 1000)}
         onSave={handleSave}
         onClose={() => setEndOpen(false)}
-        onCooldown={() => { setEndOpen(false); navigate('/stretch?phase=post'); }}
+        onCooldown={() => { setEndOpen(false); navigate('/library?tab=stretches&phase=post'); }}
       />
     </div>
   );

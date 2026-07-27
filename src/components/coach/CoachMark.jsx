@@ -9,9 +9,8 @@ const TIPS = {
   '/home': "Home base — today's session, warm-up and cool-down shortcuts, and your week at a glance.",
   '/plan': 'Pick a split like Push/Pull/Legs, set which day each routine falls on, and turn on reminders.',
   '/workout': 'Start or continue a session here — log sets, chain exercises into supersets, and rest between.',
-  '/stretch': 'Guided warm-ups and cool-downs. Follow along and your stretch time is logged automatically.',
+  '/library': 'Every exercise and stretch, tagged by category. Tap any one to learn how to do it — or run a guided warm-up.',
   '/progress': 'All your charts: volume, PRs, estimated 1RM, body metrics, and your steps & water log.',
-  '/exercises': 'Your library — search, favorite ★, colour-code, and add coaching notes to any movement.',
   '/profile': 'Your training summary — lifetime stats, personal records, history and settings.',
 };
 

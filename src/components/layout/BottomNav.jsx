@@ -1,12 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import { Home, CalendarDays, Plus, Activity, BarChart3 } from 'lucide-react';
+import { Home, CalendarDays, BookOpen, BarChart3 } from 'lucide-react';
+import LifterIcon from '../icons/LifterIcon.jsx';
 
-// StayFit's five pillars: today, your plan, log a session, recover, review.
+// StayFit's five pillars: today, your plan, train, learn, review.
 const tabs = [
   { to: '/home', label: 'Home', Icon: Home },
   { to: '/plan', label: 'Plan', Icon: CalendarDays },
-  { to: '/workout', label: 'Workout', Icon: Plus, center: true },
-  { to: '/stretch', label: 'Stretch', Icon: Activity },
+  { to: '/workout', label: 'Workout', Icon: LifterIcon, center: true },
+  { to: '/library', label: 'Library', Icon: BookOpen },
   { to: '/progress', label: 'Progress', Icon: BarChart3 },
 ];
 

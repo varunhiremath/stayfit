@@ -118,7 +118,7 @@ export default function ProfilePage() {
       </h2>
       <NavRow icon={Trophy} label="Personal records" sub="Your best lifts" onClick={() => navigate('/records')} />
       <NavRow icon={CalendarDays} label="Workout history" sub={`${workouts.length} session${workouts.length === 1 ? '' : 's'} logged`} onClick={() => navigate('/history')} />
-      <NavRow icon={Dumbbell} label="Exercise library" sub="Browse and add exercises" onClick={() => navigate('/exercises')} />
+      <NavRow icon={Dumbbell} label="Library" sub="Exercises and stretches" onClick={() => navigate('/library')} />
       <NavRow icon={Settings} label="Settings" sub="Units, equipment, data" onClick={() => navigate('/settings')} />
     </div>
   );

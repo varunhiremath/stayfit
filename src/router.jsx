@@ -5,8 +5,7 @@ import HomePage from './pages/HomePage.jsx';
 import WorkoutPage from './pages/WorkoutPage.jsx';
 import HistoryPage from './pages/HistoryPage.jsx';
 import PlanPage from './pages/PlanPage.jsx';
-import StretchPage from './pages/StretchPage.jsx';
-import ExercisePage from './pages/ExercisePage.jsx';
+import LibraryPage from './pages/LibraryPage.jsx';
 import ExerciseDetailPage from './pages/ExerciseDetailPage.jsx';
 import ProgressPage from './pages/ProgressPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
@@ -22,11 +21,10 @@ export const router = createBrowserRouter(
         { path: '/home', element: <HomePage /> },
         { path: '/plan', element: <PlanPage /> },
         { path: '/workout', element: <WorkoutPage /> },
-        { path: '/stretch', element: <StretchPage /> },
+        { path: '/library', element: <LibraryPage /> },
         { path: '/progress', element: <ProgressPage /> },
         { path: '/history', element: <HistoryPage /> },
         { path: '/records', element: <HallOfRecordsPage /> },
-        { path: '/exercises', element: <ExercisePage /> },
         { path: '/exercises/:id', element: <ExerciseDetailPage /> },
         { path: '/profile', element: <ProfilePage /> },
         { path: '/settings', element: <SettingsPage /> },
