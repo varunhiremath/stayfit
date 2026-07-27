@@ -1,7 +1,4 @@
 import { db } from '../db/db.js';
-import { getLevelFromTotalXP, getTitle } from './rpg.js';
-import { ACHIEVEMENTS, reconcileAchievements } from './achievements.js';
-import { reconcileQuests } from './questActions.js';
 
 // Rebuild PR records for an exercise from its remaining (non-warmup) sets.
 export async function recomputePRs(exerciseId) {
@@ -19,19 +16,9 @@ export async function recomputePRs(exerciseId) {
   await add('volume', maxVol);
 }
 
-// Recompute profile XP/level/title + streak purely from remaining workouts.
-export async function recomputeProfile() {
+// Recompute the plain consecutive-days streak from remaining workouts.
+export async function recomputeStreak() {
   const workouts = await db.workouts.toArray();
-  const workoutXp = workouts.reduce((a, w) => a + (w.xpEarned ?? 0), 0);
-  // Achievement XP is permanent (not tied to a workout) — add it back in.
-  const unlocked = new Set((await db.achievements.toArray()).map((a) => a.key));
-  const achievementXp = ACHIEVEMENTS.reduce((a, def) => a + (unlocked.has(def.key) ? (def.xp || 0) : 0), 0);
-  // Claimed-quest XP is permanent too (not tied to a workout) — add it back in.
-  const questXp = (await db.questClaims.toArray()).reduce((a, c) => a + (c.xp || 0), 0);
-  const totalXp = workoutXp + achievementXp + questXp;
-  const level = getLevelFromTotalXP(totalXp);
-  const title = getTitle(level);
-
   const dates = [...new Set(workouts.map((w) => w.date))].sort();
   let streak = 0;
   let lastWorkoutDate = null;
@@ -48,15 +35,16 @@ export async function recomputeProfile() {
   const { default: useUserStore } = await import('../store/userStore.js');
   const store = useUserStore.getState();
   if (store.profile) {
-    await store.updateProfile({ xp: totalXp, totalXp, level, title, streak, lastWorkoutDate });
+    await store.updateProfile({ streak, lastWorkoutDate });
   } else {
     const profile = await db.userProfile.get(1);
-    if (profile) await db.userProfile.put({ ...profile, xp: totalXp, totalXp, level, title, streak, lastWorkoutDate });
+    if (profile) await db.userProfile.put({ ...profile, streak, lastWorkoutDate });
   }
 }
 
 // Deletes a workout and reverses everything it contributed:
-// its sets, energy log, PR records (recomputed), and XP/level/streak.
+// its sets, energy log, PR records (recomputed), any linked stretch logs, and
+// the streak counter.
 export async function deleteWorkout(workoutId) {
   const workout = await db.workouts.get(workoutId);
   if (!workout) return;
@@ -66,10 +54,14 @@ export async function deleteWorkout(workoutId) {
 
   await db.sets.where('workoutId').equals(workoutId).delete();
   await db.energyLogs.where('workoutId').equals(workoutId).delete();
+  // Stretch logs linked to this workout (table added in DB v10) — unlink so a
+  // deleted workout leaves no dangling reference.
+  if (db.stretchLogs) {
+    const linked = await db.stretchLogs.where('workoutId').equals(workoutId).toArray();
+    for (const l of linked) await db.stretchLogs.update(l.id, { workoutId: null });
+  }
   await db.workouts.delete(workoutId);
 
   for (const exId of affected) await recomputePRs(exId);
-  await reconcileAchievements();
-  await reconcileQuests();
-  await recomputeProfile();
+  await recomputeStreak();
 }

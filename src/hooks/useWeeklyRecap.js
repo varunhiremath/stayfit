@@ -1,9 +1,9 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db.js';
-import { weekKeyOf, weekStartMs } from '../utils/quests.js';
+import { weekKeyOf, weekStartMs } from '../utils/week.js';
 
 // This week's training summary (Monday-aligned) for the recap card: sessions,
-// volume, working sets, PRs, XP earned, and the highest-volume lift.
+// volume, working sets, PRs, and the highest-volume lift.
 export function useWeeklyRecap() {
   return useLiveQuery(async () => {
     const now = new Date();
@@ -33,9 +33,8 @@ export function useWeeklyRecap() {
       volumeKg: workouts.reduce((a, w) => a + (w.totalVolume || 0), 0),
       sets: sets.length,
       prCount: prs.length,
-      xp: workouts.reduce((a, w) => a + (w.xpEarned || 0), 0),
       topLift,
       hasData: workouts.length > 0,
     };
-  }, []) ?? { weekKey: '', sessions: 0, volumeKg: 0, sets: 0, prCount: 0, xp: 0, topLift: null, hasData: false };
+  }, []) ?? { weekKey: '', sessions: 0, volumeKg: 0, sets: 0, prCount: 0, topLift: null, hasData: false };
 }

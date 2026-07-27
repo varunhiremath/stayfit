@@ -4,7 +4,13 @@ import { inQuietHours } from './notifications.js';
 // the hook supplies current state and persists the returned markers so each
 // reminder fires at most once per its period. Respects per-type toggles and
 // quiet hours. (In-app toasts only — a static PWA can't push in the background.)
-export function pickReminders({ settings, now, today, weekKey, lastWorkoutDate, streak = 0, staleRoutine = null, markers = {} }) {
+export function pickReminders({
+  settings, now, today, weekKey, lastWorkoutDate, streak = 0, staleRoutine = null, markers = {},
+  // Schedule awareness: when the user has a weekly plan, the generic daily
+  // nudge only fires on days they actually have a session — otherwise LUDI
+  // would nag on planned rest days.
+  hasSchedule = false, scheduledToday = false,
+}) {
   const out = [];
   if (inQuietHours(settings, now)) return out;
 
@@ -23,7 +29,7 @@ export function pickReminders({ settings, now, today, weekKey, lastWorkoutDate, 
     out.push({
       type: 'weeklySummary',
       title: 'A fresh week',
-      body: 'New quests are live — and last week’s recap is waiting in Wrapped.',
+      body: 'A new week starts now — check your plan and last week’s numbers.',
       marker: { lastSummaryWeek: weekKey },
     });
   }
@@ -31,7 +37,8 @@ export function pickReminders({ settings, now, today, weekKey, lastWorkoutDate, 
   // One daily nudge at most, and only if you haven't trained today. The
   // streak-at-risk nudge takes priority in the evening.
   const trainedToday = lastWorkoutDate === today;
-  if (!trainedToday && markers.lastNudgeDay !== today) {
+  const isRestDay = hasSchedule && !scheduledToday;
+  if (!trainedToday && !isRestDay && markers.lastNudgeDay !== today) {
     const hour = now.getHours();
     if (settings.streakRisk && streak > 0 && hour >= 17) {
       out.push({

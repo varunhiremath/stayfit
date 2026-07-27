@@ -166,7 +166,7 @@ export default function ExerciseDetailPage() {
           </span>
         )}
         {exercise.isCustom && (
-          <span className="rounded-full px-2 py-0.5 font-sans text-xs" style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}>
+          <span className="rounded-full px-2 py-0.5 font-sans text-xs" style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}>
             Custom
           </span>
         )}

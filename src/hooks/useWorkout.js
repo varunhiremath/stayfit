@@ -1,6 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db.js';
-import { getLevelFromTotalXP } from '../utils/rpg.js';
 import useSettingsStore from '../store/settingsStore.js';
 
 // All completed workouts newest-first.
@@ -63,10 +62,8 @@ export function useShareData(workoutId) {
       duration: w.duration,
       totalVolume: w.totalVolume,
       totalSets: w.totalSets,
-      xpEarned: w.xpEarned,
       muscles: [...muscles],
       pr,
-      level: profile ? getLevelFromTotalXP(profile.totalXp) : 1,
       unit: useSettingsStore.getState().unit,
     };
   }, [workoutId]) ?? null;

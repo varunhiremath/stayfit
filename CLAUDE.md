@@ -1,8 +1,13 @@
-# CLAUDE.md — OPUS project memory
+# CLAUDE.md — LUDI project memory
 
-> OPUS is a **free, offline-first gym-tracking PWA with RPG progression**.
+> **LUDI** ("Let's Do It") is a **free, offline-first gym-training PWA** — plan, train, recover. No games.
 > React 18 + Vite + Tailwind v3 · Dexie/IndexedDB · Zustand · React Router · Recharts ·
-> html2canvas · vite-plugin-pwa. 100% local, no backend. Live: https://shubanms.github.io/opus/
+> html2canvas · vite-plugin-pwa. 100% local, no backend.
+>
+> **v4.0.0 renamed OPUS → LUDI and removed the entire RPG layer** (XP/levels/quests/achievements/
+> economy/dungeon/companion). Do not reintroduce game mechanics.
+> **Data-safety invariants:** the Dexie DB stays named `OpusDB`, and Vite `base` stays `/opus/` until
+> the GitHub repo is renamed to `LUDI` (then flip `base` to `/LUDI/`).
 
 ## ⛔ FOCUS: PWA ONLY — native app is ON HOLD (set 2026-07-19)
 **Work exclusively in the web/PWA app (`src/`, `docs/`, root config). The native app is paused by the user's explicit instruction.**
@@ -22,7 +27,7 @@ The `docs/` folder is the source of truth — read these first each session:
 Keep `docs/STATE.md` updated at the end of every sprint, and update `docs/ARCHITECTURE.md` when you add a table, store field, util, hook, route, or localStorage key.
 
 ## Workflow (how we ship)
-- Develop on branch **`claude/initial-repo-access-test-7Qz54`**; **one PR per sprint/feature**, squash-merged to `main`.
+- Develop on branch **`claude/gym-training-app-design-ebf8dz`**; **one PR per sprint/feature**, squash-merged to `main`.
 - CI `test` job (vitest, node env) gates every PR — wait for green, then merge. PRs that touch only build-and-deploy show `skipped` (expected).
 - After a merge: `git fetch origin main && git reset --hard origin/main` before the next sprint; push feature branch with `--force-with-lease`.
 - Commits: author **shubanms**, co-author Claude. **Never** commit the model identifier in any artifact.
@@ -49,5 +54,15 @@ Keep `docs/STATE.md` updated at the end of every sprint, and update `docs/ARCHIT
 - Detours are welcome and explicitly fine — capture them in STATE.md.
 
 ## Current state
-**v3.0.0** shipped. Roadmaps v1 (PRD 1–10), v2 (11–20), v3 (S1–S5, S7, S8; S6 dropped) all complete.
-See `docs/STATE.md` for the latest and `docs/RELEASES.md` for per-version detail.
+**v4.0.0 (LUDI)** shipped: rebrand + light design system, RPG layer removed, Plan tab (scheduler),
+schedule-aware reminders, stretching (DB v10 + guided runner), stretch library. vitest 232 green.
+See `docs/STATE.md` for the full build log and `docs/ARCHITECTURE.md` for the map.
+
+## LUDI product rules
+- **No gamification.** No XP, levels, titles, quests, achievements, currencies, streak rewards or mascots.
+  A plain consecutive-day streak counter is fine; rewards attached to it are not.
+- The five tabs are **Home · Plan · Workout · Stretch · Progress**. Keep the surface small and legible.
+- **Design tokens are the single source of truth** (`src/styles/tokens.css` + `tailwind.config.js`).
+  Text on a gold/ember/sage background must be `--color-text-inverse`, never `--color-obsidian`.
+- Reminders are **best-effort and honest**: no backend, so say plainly that background delivery is limited.
+- Stretching logs the time **actually performed**, even when a session is ended early.

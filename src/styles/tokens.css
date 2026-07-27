@@ -1,20 +1,26 @@
 :root {
-  /* Backgrounds */
-  --color-chalk: #f7f5f2;
-  --color-ivory: #edeae5;
-  --color-stone: #2c2c2c;
-  --color-obsidian: #111010;
+  /* LUDI — fresh, light, health-and-fitness palette.
+     Components reference these semantic vars (not raw Tailwind colours), so the
+     whole app re-skins from here. Names are kept stable; only values changed
+     from the old OPUS obsidian/gold theme. */
+
+  /* Surfaces */
+  --color-canvas: #f4f6f9; /* app background behind cards */
+  --color-chalk: #ffffff; /* primary surface / cards / inputs */
+  --color-ivory: #eef2f7; /* secondary surface / chips / inner fills / borders */
+  --color-stone: #1e293b; /* dark hairline / dark-on-dark border */
+  --color-obsidian: #0f172a; /* dark UI: high-contrast buttons, nav bg, inverse surface */
 
   /* Text */
-  --color-text-primary: #1a1a1a;
-  --color-text-secondary: #8a8780;
-  --color-text-inverse: #f7f5f2;
+  --color-text-primary: #0f172a; /* slate-900 */
+  --color-text-secondary: #64748b; /* slate-500 */
+  --color-text-inverse: #ffffff; /* text/icons on accent or dark surfaces */
 
   /* Accents */
-  --color-gold: #c9a84c;
-  --color-ember: #d4622a;
-  --color-sage: #6b8f71;
-  --color-ash: #8a8780;
+  --color-gold: #10b981; /* PRIMARY — emerald (CTAs, FAB, active state, highlights) */
+  --color-ember: #fb7185; /* energy — coral (streaks, recovery/stretch) */
+  --color-sage: #0d9488; /* calm teal — rest days, positive/secondary */
+  --color-ash: #94a3b8; /* muted icon/label — slate-400 */
 
   /* Spacing scale */
   --space-1: 4px;
@@ -41,12 +47,14 @@
   --dur-loading: 600ms;
 }
 
-/* Dark theme: only background/surface/text tokens flip. The literal palette
-   (stone, obsidian, accents, text-inverse) stays fixed so "light text/icon on
-   dark surface" usages keep their contrast. */
+/* Dark theme: surfaces/canvas/text flip; the accent palette and the dark
+   "obsidian" UI colour stay fixed so accent CTAs and dark chrome keep their
+   contrast in both themes. */
 :root[data-theme='dark'] {
-  --color-chalk: #1a1614;
-  --color-ivory: #262220;
-  --color-text-primary: #f3efe9;
-  --color-text-secondary: #a09a90;
+  --color-canvas: #0b1120;
+  --color-chalk: #151c2c;
+  --color-ivory: #202a3e;
+  --color-stone: #334155;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
 }

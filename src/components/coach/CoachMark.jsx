@@ -6,11 +6,13 @@ import useSettingsStore from '../../store/settingsStore.js';
 // First-use tip per tab. Shows once per route (localStorage seen-state) after
 // onboarding + the tour, above the bottom nav. Dismissed with "Got it".
 const TIPS = {
-  '/home': 'Home base — your week so far, quests, recovery map and daily rings, all at a glance.',
-  '/progress': 'All your charts: volume, PRs, estimated 1RM, body metrics, and your steps & water log.',
+  '/home': "Home base — today's session, warm-up and cool-down shortcuts, and your week at a glance.",
+  '/plan': 'Pick a split like Push/Pull/Legs, set which day each routine falls on, and turn on reminders.',
   '/workout': 'Start or continue a session here — log sets, chain exercises into supersets, and rest between.',
+  '/stretch': 'Guided warm-ups and cool-downs. Follow along and your stretch time is logged automatically.',
+  '/progress': 'All your charts: volume, PRs, estimated 1RM, body metrics, and your steps & water log.',
   '/exercises': 'Your library — search, favorite ★, colour-code, and add coaching notes to any movement.',
-  '/profile': 'Your character sheet — level & radar, trophies, Hall of Records, and shareable cards.',
+  '/profile': 'Your training summary — lifetime stats, personal records, history and settings.',
 };
 
 export default function CoachMark() {
@@ -28,16 +30,16 @@ export default function CoachMark() {
     >
       <div
         className="anim-fade-slide-up pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-2xl px-4 py-3"
-        style={{ background: 'var(--color-obsidian)', border: '1px solid var(--color-gold)' }}
+        style={{ background: 'var(--color-obsidian)', border: '1px solid var(--color-stone)' }}
       >
         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--color-gold)' }}>
-          <Lightbulb size={16} style={{ color: 'var(--color-obsidian)' }} />
+          <Lightbulb size={16} style={{ color: 'var(--color-text-inverse)' }} />
         </div>
         <p className="flex-1 font-sans text-xs leading-relaxed" style={{ color: 'var(--color-text-inverse)' }}>{tip}</p>
         <button
           onClick={() => markSeen(pathname)}
           className="flex-shrink-0 rounded-lg px-3 py-1.5 font-sans text-[11px] font-semibold"
-          style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}
+          style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}
         >
           Got it
         </button>

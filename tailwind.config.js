@@ -4,17 +4,20 @@ export default {
   theme: {
     extend: {
       colors: {
-        chalk: '#F7F5F2',
-        ivory: '#EDEAE5',
-        stone: '#2C2C2C',
-        obsidian: '#111010',
-        ash: '#8A8780',
-        gold: '#C9A84C',
-        ember: '#D4622A',
-        sage: '#6B8F71',
+        // LUDI light health palette. Names kept for source compatibility with
+        // components that use Tailwind colour classes; values mirror tokens.css.
+        canvas: '#F4F6F9',
+        chalk: '#FFFFFF',
+        ivory: '#EEF2F7',
+        stone: '#1E293B',
+        obsidian: '#0F172A',
+        ash: '#94A3B8',
+        gold: '#10B981', // primary — emerald
+        ember: '#FB7185', // energy — coral
+        sage: '#0D9488', // calm teal
       },
       fontFamily: {
-        display: ["'Cormorant Garamond'", 'serif'],
+        display: ["'Plus Jakarta Sans'", "'DM Sans'", 'sans-serif'],
         sans: ["'DM Sans'", 'sans-serif'],
         mono: ["'DM Mono'", 'monospace'],
       },

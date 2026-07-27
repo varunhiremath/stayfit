@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import OpusMark from '../logo/OpusMark.jsx';
+import BrandMark from '../logo/BrandMark.jsx';
 import useUserStore from '../../store/userStore.js';
 import useSettingsStore from '../../store/settingsStore.js';
 import { logBodyStat } from '../../utils/healthActions.js';
@@ -79,7 +79,7 @@ export default function Onboarding() {
   if (step === 1) {
     return (
       <div className="fixed inset-0 z-[55] flex flex-col items-center overflow-y-auto px-8 py-10" style={{ background: 'var(--color-obsidian)' }}>
-        <OpusMark size={72} animate />
+        <BrandMark size={64} animate />
         <h1 className="mt-6 font-display text-3xl font-bold" style={{ color: 'var(--color-text-inverse)' }}>Plan your week</h1>
         <p className="mt-1 mb-6 max-w-xs text-center font-sans text-sm" style={{ color: 'var(--color-ash)' }}>
           Pick a split and we'll build a full week of routines — fully editable after.
@@ -105,7 +105,7 @@ export default function Onboarding() {
           <div className="mt-2 flex gap-1 rounded-xl p-1" style={{ background: 'var(--color-stone)' }}>
             {split.days.map((d) => (
               <button key={d} onClick={() => setDays(d)} className="flex-1 rounded-lg py-2 font-sans text-xs font-medium"
-                style={{ background: days === d ? 'var(--color-gold)' : 'transparent', color: days === d ? 'var(--color-obsidian)' : 'var(--color-ash)' }}>
+                style={{ background: days === d ? 'var(--color-gold)' : 'transparent', color: days === d ? 'var(--color-text-inverse)' : 'var(--color-ash)' }}>
                 {d} days
               </button>
             ))}
@@ -115,14 +115,14 @@ export default function Onboarding() {
           <div className="mt-2 flex gap-1 rounded-xl p-1" style={{ background: 'var(--color-stone)' }}>
             {LEVELS.map((l) => (
               <button key={l} onClick={() => setLevel(l)} className="flex-1 rounded-lg py-2 font-sans text-xs font-medium capitalize"
-                style={{ background: level === l ? 'var(--color-gold)' : 'transparent', color: level === l ? 'var(--color-obsidian)' : 'var(--color-ash)' }}>
+                style={{ background: level === l ? 'var(--color-gold)' : 'transparent', color: level === l ? 'var(--color-text-inverse)' : 'var(--color-ash)' }}>
                 {l}
               </button>
             ))}
           </div>
 
           <button onClick={createWeek} disabled={busy} className="mt-8 w-full rounded-xl py-4 font-sans text-base font-semibold"
-            style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)', opacity: busy ? 0.5 : 1 }}>
+            style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)', opacity: busy ? 0.5 : 1 }}>
             Create my week
           </button>
           <button onClick={completeOnboarding} className="mt-2 mb-4 w-full py-2 font-sans text-sm font-medium" style={{ color: 'var(--color-ash)' }}>
@@ -135,8 +135,8 @@ export default function Onboarding() {
 
   return (
     <div className="fixed inset-0 z-[55] flex flex-col items-center overflow-y-auto px-8 py-10" style={{ background: 'var(--color-obsidian)' }}>
-      <OpusMark size={84} animate />
-      <h1 className="mt-6 font-display text-4xl font-bold" style={{ color: 'var(--color-text-inverse)' }}>Welcome to OPUS</h1>
+      <BrandMark size={80} animate />
+      <h1 className="mt-6 font-display text-4xl font-bold" style={{ color: 'var(--color-text-inverse)' }}>Welcome to LUDI</h1>
       <p className="mt-1 mb-6 font-sans text-sm" style={{ color: 'var(--color-ash)' }}>Set up your character.</p>
 
       <div className="w-full max-w-xs">
@@ -145,7 +145,7 @@ export default function Onboarding() {
         <div className="mt-2 flex overflow-hidden rounded-xl" style={{ background: 'var(--color-stone)' }}>
           {['kg', 'lbs'].map((u) => (
             <button key={u} onClick={() => setUnitLocal(u)} className="flex-1 py-2.5 font-sans text-sm font-medium"
-              style={{ background: unit === u ? 'var(--color-gold)' : 'transparent', color: unit === u ? 'var(--color-obsidian)' : 'var(--color-ash)' }}>
+              style={{ background: unit === u ? 'var(--color-gold)' : 'transparent', color: unit === u ? 'var(--color-text-inverse)' : 'var(--color-ash)' }}>
               {u}
             </button>
           ))}
@@ -179,7 +179,7 @@ export default function Onboarding() {
             <div className="mt-2 flex gap-1">
               {SEXES.map((s) => (
                 <button key={s} onClick={() => setSex(s)} className="flex-1 rounded-lg py-2 font-sans text-xs"
-                  style={{ background: sex === s ? 'var(--color-gold)' : 'var(--color-stone)', color: sex === s ? 'var(--color-obsidian)' : 'var(--color-ash)' }}>
+                  style={{ background: sex === s ? 'var(--color-gold)' : 'var(--color-stone)', color: sex === s ? 'var(--color-text-inverse)' : 'var(--color-ash)' }}>
                   {s[0]}
                 </button>
               ))}
@@ -192,7 +192,7 @@ export default function Onboarding() {
           className="mt-2 w-full rounded-xl px-4 py-3 font-mono text-sm outline-none" style={field} />
 
         <button onClick={begin} className="mt-8 mb-4 w-full rounded-xl py-4 font-sans text-base font-semibold"
-          style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}>
+          style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}>
           Begin
         </button>
       </div>

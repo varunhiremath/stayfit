@@ -1,12 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import { Home, BarChart3, Plus, Dumbbell, User } from 'lucide-react';
+import { Home, CalendarDays, Plus, Activity, BarChart3 } from 'lucide-react';
 
+// LUDI's five pillars: today, your plan, log a session, recover, review.
 const tabs = [
   { to: '/home', label: 'Home', Icon: Home },
-  { to: '/progress', label: 'Progress', Icon: BarChart3 },
+  { to: '/plan', label: 'Plan', Icon: CalendarDays },
   { to: '/workout', label: 'Workout', Icon: Plus, center: true },
-  { to: '/exercises', label: 'Exercises', Icon: Dumbbell },
-  { to: '/profile', label: 'Profile', Icon: User },
+  { to: '/stretch', label: 'Stretch', Icon: Activity },
+  { to: '/progress', label: 'Progress', Icon: BarChart3 },
 ];
 
 export default function BottomNav() {
@@ -14,7 +15,8 @@ export default function BottomNav() {
     <nav
       className="fixed bottom-0 left-1/2 z-40 flex w-full max-w-md -translate-x-1/2 items-center justify-around"
       style={{
-        background: 'var(--color-obsidian)',
+        background: 'var(--color-chalk)',
+        borderTop: '1px solid var(--color-ivory)',
         paddingTop: 'var(--space-3)',
         paddingBottom: 'calc(var(--space-3) + env(safe-area-inset-bottom))',
         borderTopLeftRadius: 'var(--radius-xl)',
@@ -27,7 +29,11 @@ export default function BottomNav() {
             {() => (
               <span
                 className="flex h-14 w-14 items-center justify-center rounded-full"
-                style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}
+                style={{
+                  background: 'var(--color-gold)',
+                  color: 'var(--color-text-inverse)',
+                  boxShadow: '0 6px 16px rgba(16,185,129,0.35)',
+                }}
               >
                 <Icon size={26} strokeWidth={2.5} />
               </span>
@@ -47,7 +53,10 @@ export default function BottomNav() {
                 />
                 <span
                   className="font-sans text-[10px]"
-                  style={{ color: isActive ? 'var(--color-text-inverse)' : 'var(--color-ash)' }}
+                  style={{
+                    color: isActive ? 'var(--color-text-primary)' : 'var(--color-ash)',
+                    fontWeight: isActive ? 600 : 400,
+                  }}
                 >
                   {label}
                 </span>

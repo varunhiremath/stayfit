@@ -2,17 +2,16 @@ import { create } from 'zustand';
 
 import { applyTheme } from '../utils/theme.js';
 
-const KEY = 'opus_prefs';
+const KEY = 'ludi_prefs';
+const LEGACY_KEY = 'opus_prefs';
 const DEFAULTS = {
-  barWeight: 20, unit: 'kg', onboarded: false, effects: true, sound: false, theme: 'system', themeOnOpen: true,
+  barWeight: 20, unit: 'kg', onboarded: false, effects: true, sound: false, theme: 'system',
   tourSeen: false, restDuration: 90, stepGoal: 8000, waterGoal: 8, recapDismissedWeek: '', coachMarksSeen: {},
-  // Streak shield / rest token: tokens spent, tokens bought with Iron, and the
-  // lapse date a shield protects. Balance = earned-from-history + bought − spent.
-  tokensSpent: 0, tokensPurchased: 0, shieldedLapseDate: null,
-  // Iron economy: spent Iron + owned/equipped cosmetics (balance is derived).
-  ironSpent: 0, ownedCosmetics: [], equipped: { titleFlair: null, cardTheme: null, logoSkin: null },
-  // Daily dungeon: claimed bonus Iron + the date key of the last claim.
-  dungeonIron: 0, lastDungeonClaim: '',
+  // Session reminders: whether to nudge, the hour of day to do it (0–23), and
+  // the last date a nudge fired (so it happens at most once a day).
+  reminderEnabled: true, reminderHour: 17, lastRemindedDate: '',
+  // Stretching: prompt for a warm-up / cool-down around workouts.
+  stretchPrompts: true,
   // Equipment per location. barKg null → use global barWeight; plates null → standard
   // set for the current unit; plates are display-unit numbers stamped with `unit`.
   inventory: {
@@ -22,9 +21,22 @@ const DEFAULTS = {
   },
 };
 
+// Persisted keys — anything not listed here is derived or transient.
+const PERSISTED = [
+  'barWeight', 'unit', 'onboarded', 'effects', 'sound', 'theme', 'tourSeen',
+  'restDuration', 'stepGoal', 'waterGoal', 'recapDismissedWeek', 'coachMarksSeen',
+  'inventory', 'reminderEnabled', 'reminderHour', 'lastRemindedDate', 'stretchPrompts',
+];
+
 function load() {
   try {
-    return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') };
+    // Read the LUDI key, falling back to the legacy OPUS prefs once so existing
+    // installs keep their units, equipment and onboarding state.
+    const raw = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY_KEY) ?? '{}';
+    const saved = JSON.parse(raw);
+    const merged = { ...DEFAULTS };
+    for (const k of PERSISTED) if (k in saved) merged[k] = saved[k];
+    return merged;
   } catch {
     return { ...DEFAULTS };
   }
@@ -33,35 +45,10 @@ function load() {
 const useSettingsStore = create((set, get) => ({
   ...load(),
   persist() {
-    const { barWeight, unit, onboarded, effects, sound, theme, themeOnOpen, tourSeen, restDuration, stepGoal, waterGoal, recapDismissedWeek, coachMarksSeen, inventory, tokensSpent, tokensPurchased, shieldedLapseDate, ironSpent, ownedCosmetics, equipped, dungeonIron, lastDungeonClaim } = get();
-    localStorage.setItem(KEY, JSON.stringify({ barWeight, unit, onboarded, effects, sound, theme, themeOnOpen, tourSeen, restDuration, stepGoal, waterGoal, recapDismissedWeek, coachMarksSeen, inventory, tokensSpent, tokensPurchased, shieldedLapseDate, ironSpent, ownedCosmetics, equipped, dungeonIron, lastDungeonClaim }));
-  },
-  claimDungeon(amount, dateKey) {
-    set((s) => (s.lastDungeonClaim === dateKey ? s : { dungeonIron: (s.dungeonIron || 0) + amount, lastDungeonClaim: dateKey }));
-    get().persist();
-  },
-  spendShield(lapseDate) {
-    set((s) => ({ tokensSpent: (s.tokensSpent || 0) + 1, shieldedLapseDate: lapseDate ?? null }));
-    get().persist();
-  },
-  // Buy a rest token with Iron: record the Iron spend + one purchased token.
-  buyToken(price) {
-    set((s) => ({ ironSpent: (s.ironSpent || 0) + price, tokensPurchased: (s.tokensPurchased || 0) + 1 }));
-    get().persist();
-  },
-  // Buy a cosmetic: record the spend + add it to owned (idempotent on id).
-  buyCosmetic(id, price) {
-    set((s) => (s.ownedCosmetics.includes(id) ? s : { ironSpent: (s.ironSpent || 0) + price, ownedCosmetics: [...s.ownedCosmetics, id] }));
-    get().persist();
-  },
-  equipCosmetic(type, id) {
-    set((s) => ({ equipped: { ...s.equipped, [type]: s.equipped?.[type] === id ? null : id } }));
-    get().persist();
-  },
-  // Open a chest: spend the chest price and add the rolled cosmetic to owned.
-  openChest(price, cosmeticId) {
-    set((s) => ({ ironSpent: (s.ironSpent || 0) + price, ownedCosmetics: cosmeticId && !s.ownedCosmetics.includes(cosmeticId) ? [...s.ownedCosmetics, cosmeticId] : s.ownedCosmetics }));
-    get().persist();
+    const state = get();
+    const out = {};
+    for (const k of PERSISTED) out[k] = state[k];
+    localStorage.setItem(KEY, JSON.stringify(out));
   },
   setInventoryActive(active) {
     set((s) => ({ inventory: { ...s.inventory, active } }));
@@ -124,8 +111,20 @@ const useSettingsStore = create((set, get) => ({
     set({ sound });
     get().persist();
   },
-  setThemeOnOpen(themeOnOpen) {
-    set({ themeOnOpen });
+  setReminderEnabled(reminderEnabled) {
+    set({ reminderEnabled });
+    get().persist();
+  },
+  setReminderHour(reminderHour) {
+    set({ reminderHour });
+    get().persist();
+  },
+  markReminded(dateKey) {
+    set({ lastRemindedDate: dateKey });
+    get().persist();
+  },
+  setStretchPrompts(stretchPrompts) {
+    set({ stretchPrompts });
     get().persist();
   },
   completeOnboarding() {

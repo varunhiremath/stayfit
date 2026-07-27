@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Zap, Layers, ChevronDown, RotateCcw, Flame, Trash2 } from 'lucide-react';
+import { Clock, Layers, ChevronDown, RotateCcw, Flame, Trash2 } from 'lucide-react';
 import { useWorkoutDetail, useShareData } from '../../hooks/useWorkout.js';
 import { deleteWorkout } from '../../utils/workoutActions.js';
 import { fmtVolume, toDisplay } from '../../utils/units.js';
@@ -53,7 +53,7 @@ export default function WorkoutCard({ workout }) {
     e.stopPropagation();
     const ok = await useUIStore.getState().confirm({
       title: 'Delete workout?',
-      message: `"${workout.name}" and its sets will be removed, and the XP it earned reverted. This can't be undone.`,
+      message: `"${workout.name}" and its sets will be removed, and any records it set reverted. This can't be undone.`,
       confirmLabel: 'Delete',
       danger: true,
     });
@@ -89,11 +89,6 @@ export default function WorkoutCard({ workout }) {
             )}
           </div>
           <div className="flex items-center gap-2">
-            {workout.xpEarned > 0 && (
-              <span className="flex items-center gap-1 font-mono text-sm font-medium" style={{ color: 'var(--color-gold)' }}>
-                <Zap size={13} />+{workout.xpEarned}
-              </span>
-            )}
             <ChevronDown
               size={16}
               style={{ color: 'var(--color-ash)', transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 200ms' }}
@@ -146,7 +141,7 @@ export default function WorkoutCard({ workout }) {
                   key={t}
                   onClick={() => toggleTag(t)}
                   className="rounded-full px-2.5 py-1 font-sans text-xs font-medium"
-                  style={{ background: on ? 'var(--color-gold)' : 'var(--color-ivory)', color: on ? 'var(--color-obsidian)' : 'var(--color-text-secondary)' }}
+                  style={{ background: on ? 'var(--color-gold)' : 'var(--color-ivory)', color: on ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)' }}
                 >
                   {t}
                 </button>
@@ -226,7 +221,7 @@ export default function WorkoutCard({ workout }) {
             <button
               onClick={handleRepeat}
               className="flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 font-sans text-sm font-semibold"
-              style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}
+              style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}
             >
               <RotateCcw size={14} /> Repeat this workout
             </button>

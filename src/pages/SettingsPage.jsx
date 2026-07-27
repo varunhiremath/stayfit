@@ -4,7 +4,7 @@ import { ArrowLeft, Github, Trash2, Info, Bell, User, Database, Download, Upload
 import ResetDataModal from '../components/settings/ResetDataModal.jsx';
 import EquipmentModal from '../components/settings/EquipmentModal.jsx';
 import { useNotifications } from '../hooks/useNotifications.js';
-import { useRPG } from '../hooks/useRPG.js';
+import { useProfile } from '../hooks/useProfile.js';
 import { useCurrentBodyweight } from '../hooks/useProgress.js';
 import useUserStore from '../store/userStore.js';
 import useSettingsStore from '../store/settingsStore.js';
@@ -49,7 +49,7 @@ export default function SettingsPage() {
   const [reset, setReset] = useState(false);
   const [equip, setEquip] = useState(false);
   const { settings, perm, update, toggleType, setMaster } = useNotifications();
-  const { profile } = useRPG();
+  const { profile } = useProfile();
 
   const updateProfile = useUserStore((s) => s.updateProfile);
   const barWeight = useSettingsStore((s) => s.barWeight);
@@ -60,8 +60,6 @@ export default function SettingsPage() {
   const setEffects = useSettingsStore((s) => s.setEffects);
   const sound = useSettingsStore((s) => s.sound);
   const setSound = useSettingsStore((s) => s.setSound);
-  const themeOnOpen = useSettingsStore((s) => s.themeOnOpen);
-  const setThemeOnOpen = useSettingsStore((s) => s.setThemeOnOpen);
   const theme = useSettingsStore((s) => s.theme);
   const setTheme = useSettingsStore((s) => s.setTheme);
   const setTourSeen = useSettingsStore((s) => s.setTourSeen);
@@ -111,7 +109,7 @@ export default function SettingsPage() {
           <div className="flex overflow-hidden rounded-lg" style={{ background: 'var(--color-ivory)' }}>
             {['kg', 'lbs'].map((u) => (
               <button key={u} onClick={() => setUnit(u)} className="px-4 py-1.5 font-sans text-sm font-medium"
-                style={{ background: unit === u ? 'var(--color-gold)' : 'transparent', color: unit === u ? 'var(--color-obsidian)' : 'var(--color-text-secondary)' }}>
+                style={{ background: unit === u ? 'var(--color-gold)' : 'transparent', color: unit === u ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)' }}>
                 {u}
               </button>
             ))}
@@ -163,7 +161,7 @@ export default function SettingsPage() {
           <div className="flex gap-1">
             {SEXES.map((s) => (
               <button key={s} onClick={() => updateProfile({ sex: s })} className="rounded-lg px-3 py-1.5 font-sans text-xs"
-                style={{ background: profile?.sex === s ? 'var(--color-gold)' : 'var(--color-ivory)', color: profile?.sex === s ? 'var(--color-obsidian)' : 'var(--color-text-secondary)' }}>
+                style={{ background: profile?.sex === s ? 'var(--color-gold)' : 'var(--color-ivory)', color: profile?.sex === s ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)' }}>
                 {s[0]}
               </button>
             ))}
@@ -221,9 +219,9 @@ export default function SettingsPage() {
             About
           </span>
         </div>
-        <p className="font-display text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>OPUS</p>
-        <p className="font-sans text-sm italic" style={{ color: 'var(--color-text-secondary)' }}>Build your masterpiece.</p>
-        <p className="mt-1 font-mono text-xs" style={{ color: 'var(--color-ash)' }}>v3.0.0</p>
+        <p className="font-display text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>LUDI</p>
+        <p className="font-sans text-sm" style={{ color: 'var(--color-text-secondary)' }}>Let's do it — plan, train, recover.</p>
+        <p className="mt-1 font-mono text-xs" style={{ color: 'var(--color-ash)' }}>v4.0.0</p>
         <a
           href="https://github.com/shubanms/opus"
           target="_blank"
@@ -298,7 +296,7 @@ export default function SettingsPage() {
                 return;
               }
               try {
-                await showNotification('OPUS', { body: "Test notification — you're all set." });
+                await showNotification('LUDI', { body: "Test notification — you're all set." });
               } catch {
                 useUIStore.getState().showToast("Couldn't send a notification — check OS settings.", { type: 'error' });
               }
@@ -309,7 +307,7 @@ export default function SettingsPage() {
             <Bell size={14} /> Test notification
           </button>
           <button
-            onClick={() => { playChime('goal', { force: true }); setTimeout(() => playChime('anthem', { force: true }), 1000); }}
+            onClick={() => { playChime('success', { force: true }); setTimeout(() => playChime('rest', { force: true }), 700); }}
             className="flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 font-sans text-xs font-medium"
             style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
           >
@@ -317,7 +315,7 @@ export default function SettingsPage() {
           </button>
         </div>
         <p className="mt-2 font-sans text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-          Notifications show while OPUS is open or installed; a static app can't push in the background.
+          Notifications show while LUDI is open or installed; a fully offline app can't push in the background.
         </p>
       </section>
 
@@ -333,7 +331,7 @@ export default function SettingsPage() {
           <div className="flex overflow-hidden rounded-lg" style={{ background: 'var(--color-ivory)' }}>
             {['light', 'dark', 'system'].map((t) => (
               <button key={t} onClick={() => setTheme(t)} className="px-3 py-1.5 font-sans text-xs font-medium capitalize"
-                style={{ background: theme === t ? 'var(--color-gold)' : 'transparent', color: theme === t ? 'var(--color-obsidian)' : 'var(--color-text-secondary)' }}>
+                style={{ background: theme === t ? 'var(--color-gold)' : 'transparent', color: theme === t ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)' }}>
                 {t}
               </button>
             ))}
@@ -344,9 +342,6 @@ export default function SettingsPage() {
         </Row>
         <Row label="Sound">
           <Switch on={sound} onChange={setSound} />
-        </Row>
-        <Row label="Opening theme music">
-          <Switch on={themeOnOpen} onChange={setThemeOnOpen} disabled={!sound} />
         </Row>
         <button
           onClick={() => { setTourSeen(false); navigate('/home'); }}

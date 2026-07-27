@@ -96,7 +96,7 @@ function PromptDialog() {
         <button
           onClick={() => resolve(value.trim())}
           className="flex-1 rounded-xl py-3 font-sans text-sm font-semibold"
-          style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}
+          style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}
         >
           Save
         </button>

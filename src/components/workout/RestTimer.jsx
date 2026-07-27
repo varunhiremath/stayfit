@@ -96,7 +96,7 @@ export default function RestTimer({ duration = 90, onComplete, onSkip, onSetDefa
             className="flex-1 rounded-lg py-1.5 font-mono text-xs font-medium"
             style={{
               background: total === p ? 'var(--color-gold)' : 'rgba(255,255,255,0.08)',
-              color: total === p ? 'var(--color-obsidian)' : 'var(--color-ash)',
+              color: total === p ? 'var(--color-text-inverse)' : 'var(--color-ash)',
             }}
           >
             {p % 60 === 0 ? `${p / 60}:00` : `${Math.floor(p / 60)}:${p % 60}`}

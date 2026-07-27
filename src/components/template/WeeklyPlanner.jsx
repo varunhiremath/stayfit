@@ -45,7 +45,7 @@ export default function WeeklyPlanner({ templates }) {
                 border: isToday ? '1px solid var(--color-gold)' : '1px solid var(--color-ivory)',
               }}
             >
-              <p className="font-sans text-xs font-semibold" style={{ color: active ? 'var(--color-obsidian)' : 'var(--color-text-primary)' }}>
+              <p className="font-sans text-xs font-semibold" style={{ color: active ? 'var(--color-text-inverse)' : 'var(--color-text-primary)' }}>
                 {d.l}
               </p>
               <p

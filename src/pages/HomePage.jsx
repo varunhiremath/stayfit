@@ -1,252 +1,123 @@
-import { lazy, Suspense, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Flame, ChevronRight, Play, Moon, CalendarCheck, TrendingDown, Swords, Activity, Droplet, Target } from 'lucide-react';
-import { useRPG } from '../hooks/useRPG.js';
+import { Flame, ChevronRight, Play, Moon, CalendarCheck, Activity, Dumbbell, Timer } from 'lucide-react';
+import { useProfile } from '../hooks/useProfile.js';
 import { useWorkouts } from '../hooks/useWorkout.js';
-import { useToday } from '../hooks/useTemplates.js';
-import { getXPProgress, getRankLabel, getPrestige, getTitle } from '../utils/rpg.js';
-import { sceneParams } from '../utils/ambient.js';
-import { decayInfo, streakBreakPenalty } from '../utils/decay.js';
-import { tokensEarned, tokenBalance, isShieldActive, shieldedDecay } from '../utils/streakShield.js';
-import { cappedLevel, activeBoss } from '../utils/bosses.js';
-import { useBossStats } from '../hooks/useBosses.js';
+import { useSessionReminder } from '../hooks/useNextSession.js';
 import { useLifetimeStats } from '../hooks/useProgress.js';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db/db.js';
+import { useStretchStats } from '../hooks/useStretches.js';
 import { playChime } from '../utils/sound.js';
-import useSettingsStore from '../store/settingsStore.js';
 import WorkoutCard from '../components/workout/WorkoutCard.jsx';
-import LevelBadge from '../components/rpg/LevelBadge.jsx';
-import XPBar from '../components/rpg/XPBar.jsx';
-import RecoveryMap from '../components/progress/RecoveryMap.jsx';
-import ActivityRings from '../components/progress/ActivityRings.jsx';
 import WeeklyRecap from '../components/progress/WeeklyRecap.jsx';
-import QuestBoard from '../components/rpg/QuestBoard.jsx';
-import DailyDungeonCard from '../components/rpg/DailyDungeonCard.jsx';
+import ActivityRings from '../components/progress/ActivityRings.jsx';
+import CountUp from '../components/fx/CountUp.jsx';
+import BrandMark from '../components/logo/BrandMark.jsx';
 import useWorkoutStore from '../store/workoutStore.js';
-
-const Companion = lazy(() => import('../components/mascot/Companion.jsx'));
 
 function TodayCard({ icon: Icon = Play, title, subtitle, onClick }) {
   return (
     <button
       onClick={onClick}
       className="flex w-full items-center justify-between rounded-2xl px-5 py-4"
-      style={{ background: 'var(--color-obsidian)', border: '1px solid var(--color-stone)' }}
+      style={{ background: 'var(--color-gold)' }}
     >
       <div className="min-w-0 text-left">
         <p className="truncate font-sans text-base font-semibold" style={{ color: 'var(--color-text-inverse)' }}>
           {title}
         </p>
-        <p className="truncate font-sans text-xs" style={{ color: 'var(--color-ash)' }}>
+        <p className="truncate font-sans text-xs" style={{ color: 'rgba(255,255,255,0.85)' }}>
           {subtitle}
         </p>
       </div>
       <div
         className="ml-3 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
-        style={{ background: 'var(--color-gold)', animation: 'goldPulse 2.6s var(--ease-out) infinite' }}
+        style={{ background: 'rgba(255,255,255,0.22)' }}
       >
-        <Icon size={16} strokeWidth={2.4} style={{ color: 'var(--color-obsidian)' }} />
+        <Icon size={16} strokeWidth={2.4} style={{ color: 'var(--color-text-inverse)' }} />
       </div>
     </button>
   );
 }
 
-// Consolidates the three heavy stacked widgets (activity / recovery / quests)
-// into one swappable deck so the home feed stays short. Each keeps its full UI.
-function SecondaryDeck({ hasWorkouts }) {
-  const tabs = [
-    { key: 'activity', label: 'Activity', icon: Droplet },
-    ...(hasWorkouts ? [{ key: 'recovery', label: 'Recovery', icon: Activity }] : []),
-    { key: 'quests', label: 'Quests', icon: Target },
-  ];
-  const [tab, setTab] = useState(tabs[0].key);
-
+function QuickAction({ icon: Icon, label, sub, onClick }) {
   return (
-    <div>
-      <div className="mb-3 flex gap-1.5 overflow-hidden rounded-xl p-1" style={{ background: 'var(--color-chalk)', border: '1px solid var(--color-ivory)' }}>
-        {tabs.map((t) => {
-          const active = tab === t.key;
-          return (
-            <button
-              key={t.key}
-              onClick={() => { setTab(t.key); playChime('tap'); }}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 font-sans text-xs font-semibold transition-colors"
-              style={{ background: active ? 'var(--color-obsidian)' : 'transparent', color: active ? 'var(--color-text-inverse)' : 'var(--color-ash)' }}
-            >
-              <t.icon size={13} />{t.label}
-            </button>
-          );
-        })}
-      </div>
-      <div key={tab} className="anim-fade-in">
-        {tab === 'activity' && <ActivityRings />}
-        {tab === 'recovery' && <RecoveryMap />}
-        {tab === 'quests' && <QuestBoard />}
-      </div>
-    </div>
+    <button
+      onClick={onClick}
+      className="flex flex-1 flex-col items-start gap-1.5 rounded-2xl px-3.5 py-3"
+      style={{ background: 'var(--color-chalk)', border: '1px solid var(--color-ivory)' }}
+    >
+      <span className="flex h-8 w-8 items-center justify-center rounded-full" style={{ background: 'var(--color-ivory)' }}>
+        <Icon size={15} style={{ color: 'var(--color-gold)' }} />
+      </span>
+      <span className="font-sans text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>{label}</span>
+      <span className="font-sans text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>{sub}</span>
+    </button>
   );
 }
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { profile } = useRPG();
+  const { profile } = useProfile();
   const workouts = useWorkouts();
-  const today = useToday();
-  const activeWorkout = useWorkoutStore(s => s.activeWorkout);
-  const startFromTemplate = useWorkoutStore(s => s.startFromTemplate);
-  const recent = workouts.slice(0, 2);
-
-  const effects = useSettingsStore((s) => s.effects);
-  const bossStats = useBossStats();
-
-  // Streak shield / rest token. Tokens are derived from history (workouts +
-  // claimed quests), so they're already earned; spending one waives the
-  // streak-break penalty on the current lapse.
+  // Also fires the best-effort local reminder for a scheduled session.
+  const plan = useSessionReminder();
   const life = useLifetimeStats();
-  const questClaims = useLiveQuery(() => db.questClaims.count(), []) ?? 0;
-  const tokensSpent = useSettingsStore((s) => s.tokensSpent);
-  const tokensPurchased = useSettingsStore((s) => s.tokensPurchased);
-  const shieldedLapseDate = useSettingsStore((s) => s.shieldedLapseDate);
-  const spendShield = useSettingsStore((s) => s.spendShield);
-  const shieldTokens = tokenBalance(tokensEarned({ workouts: life.workouts, questClaims }) + (tokensPurchased || 0), tokensSpent);
-  const rawDecay = decayInfo(profile ?? {});
-  const shieldActive = isShieldActive(shieldedLapseDate, profile?.lastWorkoutDate);
-  const streakPenalty = streakBreakPenalty(rawDecay.days, profile?.streak ?? 0);
-  const { effectiveXp, decaying, lost } = shieldedDecay(rawDecay, { active: shieldActive, streakPenalty, earnedXp: profile?.totalXp ?? 0 });
-  const canShield = rawDecay.decaying && streakPenalty > 0 && !shieldActive && shieldTokens > 0;
-  const { level: rawLevel } = getXPProgress(effectiveXp);
-  const prestige = getPrestige(effectiveXp);
-  const level = bossStats ? cappedLevel(rawLevel, bossStats) : rawLevel;
-  const boss = bossStats ? activeBoss(rawLevel, bossStats) : null;
-  const title = prestige > 0 ? getRankLabel(effectiveXp) : getTitle(level);
-
-  const reducedMotion = typeof window !== 'undefined' && window.matchMedia
-    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    : false;
-  const scene = sceneParams({ streak: profile?.streak ?? 0, level, prestige, reducedMotion: reducedMotion || !effects });
+  const stretch = useStretchStats();
+  const activeWorkout = useWorkoutStore((s) => s.activeWorkout);
+  const startFromTemplate = useWorkoutStore((s) => s.startFromTemplate);
+  const recent = workouts.slice(0, 2);
 
   function startTemplate() {
     playChime('start');
-    startFromTemplate(today.template);
+    startFromTemplate(plan.today.routine);
     navigate('/workout');
   }
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+
   return (
     <div className="anim-fade-slide-up px-5 pb-24 pt-6">
-      {/* Compact hero — greeting + level/XP merged into one card (declutters
-          three former full-width strips into one), over a living aura. */}
-      <div className="relative mb-4">
-        <div
-          aria-hidden
-          className={scene.motionSpeed > 0 ? 'anim-breathe pointer-events-none' : 'pointer-events-none'}
-          style={{
-            position: 'absolute',
-            left: -48,
-            top: -56,
-            width: 240,
-            height: 240,
-            borderRadius: '50%',
-            background: `radial-gradient(circle, rgba(201,168,76,${scene.goldShade}) 0%, rgba(201,168,76,${scene.glowAlpha}) 38%, rgba(201,168,76,0) 70%)`,
-            filter: `blur(${scene.glowBlur}px)`,
-            animationDuration: scene.motionSpeed > 0 ? `${(7 - scene.motionSpeed * 3).toFixed(1)}s` : undefined,
-          }}
-        />
-        <div className="relative rounded-2xl px-4 py-4" style={{ background: 'var(--color-chalk)', border: '1px solid var(--color-ivory)' }}>
-          <div className="flex items-start justify-between">
-            <div className="min-w-0">
-              <h1 className="font-display text-4xl font-bold leading-none" style={{ color: 'var(--color-text-primary)' }}>
-                OPUS
-              </h1>
-              <p className="mt-1 truncate font-sans text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                {profile?.name ? `Welcome back, ${profile.name}.` : 'Build your masterpiece.'}
-              </p>
-            </div>
-            {profile?.streak > 0 && (
-              <span className="flex flex-shrink-0 items-center gap-1 rounded-full px-2.5 py-1 font-sans text-xs font-semibold" style={{ background: 'var(--color-ivory)', color: 'var(--color-ember)' }}>
-                <Flame size={12} />{profile.streak}
-              </span>
-            )}
-          </div>
-
-          {profile && (
-            <div className="mt-4">
-              <div className="mb-2 flex items-center gap-2.5">
-                <LevelBadge level={level} size="sm" prestige={prestige} />
-                <span className="truncate font-sans text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                  {title}
-                </span>
-              </div>
-              <XPBar totalXp={effectiveXp} showLabel={false} />
-              {decaying && (
-                <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <p className="flex items-center gap-1.5 font-sans text-xs font-medium" style={{ color: 'var(--color-ember)' }}>
-                    <TrendingDown size={12} />
-                    Rank slipping — train to recover (−{lost.toLocaleString()} XP)
-                  </p>
-                  {canShield && (
-                    <button
-                      onClick={() => { spendShield(profile?.lastWorkoutDate); playChime('goal'); }}
-                      className="flex items-center gap-1 rounded-full px-2.5 py-1 font-sans text-xs font-semibold"
-                      style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}
-                    >
-                      🛡️ Use shield ({shieldTokens})
-                    </button>
-                  )}
-                </div>
-              )}
-              {!decaying && shieldActive && (
-                <p className="mt-2 flex items-center gap-1.5 font-sans text-xs font-medium" style={{ color: 'var(--color-sage)' }}>
-                  🛡️ Streak shielded — your rest day is protected
-                </p>
-              )}
-              {!decaying && !shieldActive && shieldTokens > 0 && (
-                <p className="mt-2 font-mono text-[11px]" style={{ color: 'var(--color-ash)' }}>
-                  🛡️ {shieldTokens} rest {shieldTokens === 1 ? 'token' : 'tokens'} banked
-                </p>
-              )}
-            </div>
+      {/* Header */}
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-sans text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            {greeting}{profile?.name ? `, ${profile.name}` : ''}
+          </p>
+          <h1 className="font-display text-3xl font-bold leading-tight" style={{ color: 'var(--color-text-primary)' }}>
+            Let's do it
+          </h1>
+        </div>
+        <div className="flex flex-shrink-0 items-center gap-2">
+          {profile?.streak > 0 && (
+            <span
+              className="flex items-center gap-1 rounded-full px-2.5 py-1 font-sans text-xs font-semibold"
+              style={{ background: 'var(--color-ivory)', color: 'var(--color-ember)' }}
+            >
+              <Flame size={12} />{profile.streak}
+            </span>
           )}
+          <button onClick={() => navigate('/profile')} aria-label="Profile">
+            <BrandMark size={36} />
+          </button>
         </div>
       </div>
 
-      {/* Magnus — 3D training companion */}
-      <Suspense fallback={<div style={{ height: 130 }} />}>
-        <Companion />
-      </Suspense>
-
-      {/* Boss gate — blocks the next milestone level until cleared */}
-      {boss && (
-        <div className="mb-4 rounded-2xl p-4" style={{ background: 'var(--color-obsidian)', border: '1px solid var(--color-gold)' }}>
-          <div className="mb-1 flex items-center gap-2">
-            <Swords size={15} style={{ color: 'var(--color-gold)' }} />
-            <span className="font-sans text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-gold)' }}>
-              Boss gate · Level {boss.gate}
-            </span>
-          </div>
-          <p className="font-display text-xl font-bold" style={{ color: 'var(--color-text-inverse)' }}>{boss.title}</p>
-          <p className="mt-0.5 font-sans text-sm" style={{ color: 'var(--color-ash)' }}>
-            {boss.desc} to break past level {boss.gate}.
-          </p>
-        </div>
-      )}
-
-      {/* Today's workout — primary action */}
-      <div className="mb-5">
+      {/* Today's session — the primary action */}
+      <div className="mb-4">
         {activeWorkout ? (
           <TodayCard
             title="Continue workout"
             subtitle={`${activeWorkout.name} in progress`}
             onClick={() => navigate('/workout')}
           />
-        ) : today.type === 'template' ? (
+        ) : plan.today && !plan.today.done ? (
           <TodayCard
             icon={CalendarCheck}
-            title={today.template.name}
-            subtitle={`${today.reason} · ${today.template.exercises.length} exercises`}
+            title={plan.today.routine.name}
+            subtitle={`On today's plan · ${plan.today.routine.exercises?.length ?? 0} exercises`}
             onClick={startTemplate}
           />
-        ) : today.type === 'rest' ? (
+        ) : plan.restDay ? (
           <div
             className="flex items-center gap-3 rounded-2xl px-5 py-4"
             style={{ background: 'var(--color-chalk)', border: '1px solid var(--color-ivory)' }}
@@ -254,28 +125,77 @@ export default function HomePage() {
             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--color-ivory)' }}>
               <Moon size={16} style={{ color: 'var(--color-sage)' }} />
             </div>
-            <div className="flex-1">
+            <div className="min-w-0 flex-1">
               <p className="font-sans text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>Rest day</p>
-              <p className="font-sans text-xs" style={{ color: 'var(--color-text-secondary)' }}>{today.reason}</p>
+              <p className="truncate font-sans text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                {plan.next ? `Next: ${plan.next.routine.name} ${plan.next.label}` : 'Nothing scheduled'}
+              </p>
             </div>
-            <button onClick={() => navigate('/workout')} className="font-sans text-xs font-medium" style={{ color: 'var(--color-gold)' }}>
+            <button onClick={() => navigate('/workout')} className="flex-shrink-0 font-sans text-xs font-semibold" style={{ color: 'var(--color-gold)' }}>
               Train anyway
             </button>
           </div>
+        ) : plan.today?.done ? (
+          <div
+            className="flex items-center gap-3 rounded-2xl px-5 py-4"
+            style={{ background: 'var(--color-chalk)', border: '1px solid var(--color-ivory)' }}
+          >
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--color-ivory)' }}>
+              <Flame size={16} style={{ color: 'var(--color-ember)' }} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-sans text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>Session done</p>
+              <p className="truncate font-sans text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                {plan.next ? `Next: ${plan.next.routine.name} ${plan.next.label}` : 'Great work today'}
+              </p>
+            </div>
+          </div>
         ) : (
-          <TodayCard title="Start workout" subtitle={today.reason || 'Jump into a new session'} onClick={() => navigate('/workout')} />
+          <TodayCard
+            title={plan.hasSchedule ? 'Start a workout' : 'Set up your week'}
+            subtitle={plan.hasSchedule ? 'Jump into a session' : 'Pick a split and get reminders'}
+            onClick={() => navigate(plan.hasSchedule ? '/workout' : '/plan')}
+          />
         )}
       </div>
 
-      {/* Daily dungeon */}
-      <DailyDungeonCard />
+      {/* Quick actions — warm up / cool down */}
+      <div className="mb-5 flex gap-3">
+        <QuickAction
+          icon={Activity}
+          label="Warm up"
+          sub="Before you lift"
+          onClick={() => navigate('/stretch?phase=pre')}
+        />
+        <QuickAction
+          icon={Timer}
+          label="Cool down"
+          sub="After training"
+          onClick={() => navigate('/stretch?phase=post')}
+        />
+      </div>
 
-      {/* Weekly recap — compact, auto-hides when no data / dismissed */}
+      {/* At-a-glance numbers */}
+      <div className="mb-5 grid grid-cols-3 gap-2.5">
+        {[
+          { label: 'Workouts', value: life.workouts ?? 0, icon: Dumbbell },
+          { label: 'Day streak', value: profile?.streak ?? 0, icon: Flame },
+          { label: 'Stretch min', value: stretch.totalMin, icon: Activity },
+        ].map((s) => (
+          <div key={s.label} className="rounded-2xl px-3 py-3" style={{ background: 'var(--color-chalk)', border: '1px solid var(--color-ivory)' }}>
+            <s.icon size={13} style={{ color: 'var(--color-ash)' }} />
+            <CountUp value={s.value} format={(n) => `${Math.round(n)}`} className="mt-1 block font-mono text-xl font-bold" style={{ color: 'var(--color-text-primary)' }} />
+            <p className="font-sans text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Weekly recap — auto-hides when no data / dismissed */}
       <WeeklyRecap />
 
-      {/* Secondary widgets collapsed into one tabbed deck */}
+      {/* Daily activity */}
       <div className="mb-6">
-        <SecondaryDeck hasWorkouts={workouts.length > 0} />
+        <ActivityRings />
       </div>
 
       {/* Recent workouts */}
@@ -293,15 +213,15 @@ export default function HomePage() {
               See all <ChevronRight size={12} />
             </button>
           </div>
-          {recent.map(w => <WorkoutCard key={w.id} workout={w} />)}
+          {recent.map((w) => <WorkoutCard key={w.id} workout={w} />)}
         </div>
       ) : (
         <div className="mt-10 text-center">
-          <p className="font-display text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-            Your legacy starts here
+          <p className="font-display text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+            Your first session awaits
           </p>
           <p className="mt-2 font-sans text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            Complete your first workout to begin the journey.
+            Set up your week, then log your first workout.
           </p>
         </div>
       )}

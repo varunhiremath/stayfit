@@ -101,7 +101,7 @@ export default function ExerciseForm({ onSave, onCancel }) {
           className="flex-1 rounded-xl py-3 font-sans text-sm font-medium"
           style={{
             background: 'var(--color-gold)',
-            color: 'var(--color-obsidian)',
+            color: 'var(--color-text-inverse)',
             opacity: canSave ? 1 : 0.4,
           }}
         >

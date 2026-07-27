@@ -1,7 +1,7 @@
 {
-  "name": "opus",
+  "name": "ludi",
   "private": true,
-  "version": "3.0.0",
+  "version": "4.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,8 +15,6 @@
     "@capacitor/cli": "^8.3.4",
     "@capacitor/core": "^8.3.4",
     "@capacitor/local-notifications": "^8.2.0",
-    "@devmaxime/capacitor-health-connect": "^1.1.0",
-    "@react-three/fiber": "^8.18.0",
     "dexie": "^3.2.4",
     "dexie-react-hooks": "^1.1.7",
     "html2canvas": "^1.4.1",
@@ -26,7 +24,6 @@
     "react-dom": "^18.3.0",
     "react-router-dom": "^6.23.0",
     "recharts": "^2.12.0",
-    "three": "^0.169.0",
     "zustand": "^4.5.0"
   },
   "devDependencies": {

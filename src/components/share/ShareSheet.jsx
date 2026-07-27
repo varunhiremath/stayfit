@@ -77,7 +77,7 @@ export default function ShareSheet({ isOpen, onClose, CardComponent, data, filen
         onClick={doShare}
         disabled={busy}
         className="mt-6 w-full rounded-xl py-3 font-sans text-sm font-semibold"
-        style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)', opacity: busy ? 0.6 : 1 }}
+        style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)', opacity: busy ? 0.6 : 1 }}
       >
         {busy ? 'Preparing…' : 'Share'}
       </button>

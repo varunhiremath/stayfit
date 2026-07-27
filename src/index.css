@@ -10,7 +10,7 @@ body,
 
 body {
   margin: 0;
-  background: var(--color-obsidian);
+  background: var(--color-canvas);
   color: var(--color-text-primary);
   font-family: 'DM Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;

@@ -27,7 +27,7 @@ import {
 } from '../hooks/useProgress.js';
 import { useWorkouts } from '../hooks/useWorkout.js';
 import { workoutCalories } from '../utils/calories.js';
-import { useRPG } from '../hooks/useRPG.js';
+import { useProfile } from '../hooks/useProfile.js';
 import useSettingsStore from '../store/settingsStore.js';
 import { toDisplay, unitLabel, fmtVolume } from '../utils/units.js';
 
@@ -81,7 +81,7 @@ function PrRow({ pr, unit, onClick }) {
 function Overview() {
   const unit = useSettingsStore((s) => s.unit);
   const effects = useSettingsStore((s) => s.effects);
-  const { profile } = useRPG();
+  const { profile } = useProfile();
   const lifetime = useLifetimeStats();
   const weeklyRaw = useWeeklyVolume(8);
   const weekly = weeklyRaw.map((d) => ({ label: d.label, volume: Math.round(toDisplay(d.volume, unit)) }));
@@ -352,7 +352,7 @@ function Body() {
   return (
     <>
       <div className="mb-5 flex gap-2">
-        <button onClick={() => setStatForm(true)} className="flex flex-1 items-center justify-center gap-2 rounded-xl py-3 font-sans text-sm font-semibold" style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}>
+        <button onClick={() => setStatForm(true)} className="flex flex-1 items-center justify-center gap-2 rounded-xl py-3 font-sans text-sm font-semibold" style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}>
           <Plus size={15} /> Body stats
         </button>
         <button onClick={() => setSleepForm(true)} className="flex flex-1 items-center justify-center gap-2 rounded-xl py-3 font-sans text-sm font-medium" style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}>

@@ -7,7 +7,7 @@ export default function PRBadge({ label, value, unit = 'kg' }) {
       className="flex items-center gap-2 rounded-xl px-3 py-2"
       style={{
         background: 'var(--color-gold)',
-        color: 'var(--color-obsidian)',
+        color: 'var(--color-text-inverse)',
         animation: 'goldPulse 1.6s var(--ease-out) 1',
       }}
     >

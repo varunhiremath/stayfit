@@ -1,14 +1,14 @@
 import { useEffect, useRef } from 'react';
 import useUIStore from '../store/uiStore.js';
 import useSettingsStore from '../store/settingsStore.js';
-import { useRPG } from './useRPG.js';
+import { useProfile } from './useProfile.js';
 import { useWorkouts } from './useWorkout.js';
 import { useTemplatesWithExercises } from './useTemplates.js';
 import { getSettings } from '../utils/notifications.js';
 import { pickReminders } from '../utils/reminders.js';
 import { pickStalest } from '../utils/staleRoutine.js';
-import { playChime } from '../utils/sound.js';
-import { weekKeyOf } from '../utils/quests.js';
+import { weekKeyOf } from '../utils/week.js';
+import { scheduleByDay } from '../utils/nextSession.js';
 
 const MARKERS_KEY = 'opus_reminder_markers';
 
@@ -16,7 +16,7 @@ const MARKERS_KEY = 'opus_reminder_markers';
 // once on app open, when conditions hold. Markers in localStorage keep each to
 // once-per-period; the ref keeps it to once per app session.
 export function useOnOpenReminders() {
-  const { profile, loaded } = useRPG();
+  const { profile, loaded } = useProfile();
   const onboarded = useSettingsStore((s) => s.onboarded);
   const workouts = useWorkouts();
   const templates = useTemplatesWithExercises();
@@ -38,6 +38,10 @@ export function useOnOpenReminders() {
       /* ignore */
     }
 
+    // Don't nag on a planned rest day — the weekly schedule wins.
+    const scheduled = scheduleByDay(templates);
+    const hasSchedule = Object.keys(scheduled).length > 0;
+
     const reminders = pickReminders({
       settings: getSettings(),
       now,
@@ -47,6 +51,8 @@ export function useOnOpenReminders() {
       streak: profile.streak ?? 0,
       staleRoutine,
       markers,
+      hasSchedule,
+      scheduledToday: !!scheduled[now.getDay()]?.length,
     });
     if (!reminders.length) return;
 
@@ -56,7 +62,6 @@ export function useOnOpenReminders() {
     for (const r of reminders) {
       setTimeout(() => {
         showToast(r.body, { type: 'info' });
-        if (r.type === 'streakRisk') playChime('anthem'); // the "calling you back" cue
       }, delay);
       delay += 3400;
       Object.assign(updated, r.marker);

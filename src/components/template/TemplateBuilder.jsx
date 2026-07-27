@@ -156,7 +156,7 @@ export default function TemplateBuilder({ isOpen, onClose, editing = null }) {
             className="rounded-full px-3 py-1.5 font-sans text-xs font-medium"
             style={{
               background: day === d.v ? 'var(--color-gold)' : 'var(--color-ivory)',
-              color: day === d.v ? 'var(--color-obsidian)' : 'var(--color-text-secondary)',
+              color: day === d.v ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)',
             }}
           >
             {d.l}
@@ -184,7 +184,7 @@ export default function TemplateBuilder({ isOpen, onClose, editing = null }) {
               className="flex-1 rounded-lg py-2 font-sans text-xs font-medium"
               style={{
                 background: progression === m.v ? 'var(--color-gold)' : 'var(--color-ivory)',
-                color: progression === m.v ? 'var(--color-obsidian)' : 'var(--color-text-secondary)',
+                color: progression === m.v ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)',
               }}
             >
               {m.l}
@@ -274,7 +274,7 @@ export default function TemplateBuilder({ isOpen, onClose, editing = null }) {
         onClick={handleSave}
         disabled={!canSave}
         className="mt-4 w-full rounded-xl py-3 font-sans text-sm font-semibold"
-        style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)', opacity: canSave ? 1 : 0.35 }}
+        style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)', opacity: canSave ? 1 : 0.35 }}
       >
         {editing ? 'Save changes' : 'Create routine'}
       </button>

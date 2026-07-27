@@ -1,4 +1,33 @@
-# OPUS — Project State
+# LUDI — Project State
+
+Last updated: 2026-07-27
+Current version: **v4.0.0 — LUDI** (formerly OPUS v3.0.0)
+
+## v4.0.0 — OPUS → LUDI: the de-gamified rebuild
+
+The user asked for a gym-training app built on OPUS but **health-and-fitness focused, with no games or distractions**, renamed **LUDI** ("Let's Do It"). Four pillars: a predefined workout scheduler by preference (PPL / muscle-group), reminders about the next session, pre & post-workout stretching with video suggestions and time logging, and a database of exercises *and* stretching routines. Confirmed with the user up front: remove the RPG layer entirely (in-place, not a fork), adopt a fresh light health aesthetic, keep reminders best-effort local (no backend), and build directly rather than mock first.
+
+**Shipped, verified in a real browser (Playwright) with zero page errors:**
+
+1. **Rebrand + design system.** New light palette in `src/styles/tokens.css` + `tailwind.config.js` — emerald `#10B981` primary, coral `#FB7185` energy, white cards on a `#F4F6F9` canvas, slate text. Dropped the Cormorant serif for Plus Jakarta Sans + DM Sans. New static `BrandMark` (emerald badge + checkmark) replaces the level-evolving `OpusMark`; shorter light `LoadingScreen` (no cinematic intro). Renamed `index.html`, `package.json` (`ludi` v4.0.0), the PWA manifest, backup filenames (`ludi-backup-*`, `app: 'LUDI'` — still imports legacy OPUS backups), and all in-app copy incl. Tour and CoachMark tips. A scripted pass swapped dark-text-on-accent for `--color-text-inverse` across 35 files.
+
+2. **RPG layer removed.** Deleted `components/rpg/`, `components/mascot/`, 4 share cards, and the utils `rpg, dungeon, economy, quests, questActions, streakShield, crit, bosses, decay, snapshots, mascot, achievements, wrapped, ambient` + hooks `useRPG, useBosses, useQuests, useAchievements, useWrapped` + pages `Achievements, Progression, Wrapped, Templates`. `completeWorkout` now writes workout/sets/energy/volume/calories, detects PRs and bumps a plain streak — no XP, no dungeon, no achievement check. `deleteWorkout` reverts PRs + streak (and unlinks stretch logs) instead of the old reconcile chain. `SetLogger` lost crit/combo/XP floats (kept the PR celebration); `EndWorkoutModal` swapped the XP/Iron/XPBar block for a calories tile + cool-down prompt. `HomePage` and `ProfilePage` were rewritten from scratch. Week math was rescued from the deleted quests module into a new pure `utils/week.js`. Dropped the now-unused `three`/`@react-three/fiber`/health-connect deps.
+
+3. **Plan tab (scheduler).** New `PlanPage` centred on the weekly schedule — a 7-day strip, a "Today / Next up / Rest day" card with a one-tap start, the reminder entry point, and the existing (reused) `ProgramsModal` / `WeekPlannerModal` / `RoutineGeneratorModal` / `WeeklyPlanner` / `TemplateCard`. Verified end-to-end: installing Push/Pull/Legs creates routines on Mon/Wed/Fri and the week strip + Today card resolve correctly.
+
+4. **Schedule-aware reminders.** New pure `utils/nextSession.js` (+18 tests) turns the weekday→routine map into `{today, next, restDay, message}`, with `reminderText` and `shouldRemind`. `useSessionReminder` fires a best-effort local notification on a training day at/after the chosen hour, once per day, respecting quiet hours; `ReminderSettings` exposes on/off + hour and states the offline caveat honestly. `pickReminders` is now schedule-aware so LUDI never nags on a planned rest day (+4 tests).
+
+5. **Stretching.** DB **v10** adds `stretches`, `stretchRoutines`, `stretchLogs` (append-only). New `seedStretches.js` — ~30 stretches (dynamic / static / mobility across 12 body areas, each with a coaching cue and default hold) and 8 bundled routines (full/upper/lower warm-up and cool-down, hip mobility, desk recovery), idempotently seeded. New pure `stretchSession.js` (+15 tests) does the sequencing; `StretchRunner` is a full-screen guided player — countdown ring, per-move cue, YouTube how-to link, pause/skip, and it **logs the time actually performed** even if you bail early. `StretchPage` has pre/post tabs, week + all-time minute tiles, and a deletable recent-sessions log. Warm-up is offered on the Workout start screen and cool-down from the finish modal.
+
+6. **Libraries.** `StretchLibraryModal` browses the stretch database with search + type + body-area filters, how-to links, and add/delete for custom stretches (deleting one also removes it from every routine). The exercise library is unchanged and still reachable from Profile.
+
+**Verification:** vitest **232 passing** (27 files, +41 new for nextSession/stretchSession/seedStretches, +4 for rest-day reminders); production build clean; Playwright drove a full session — install PPL → warm-up runner → log 2 sets on Bench Press → Save & finish → 1 workout persisted → Home/Progress/Stretch/Settings all render — with **no page errors**.
+
+**Known follow-ups (not blockers):** the Dexie DB is deliberately still `OpusDB` and the Vite `base` is still `/opus/` — flip `base` to `/LUDI/` when the GitHub repo is renamed (the repo rename itself is a GitHub Settings action the user must do). `packages/core/` and `apps/mobile/` still carry the old OPUS/RPG code and were left untouched per the PWA-only focus rule.
+
+---
+
+## Historical log (OPUS v1–v3)
 
 Last updated: 2026-07-19
 Current sprint: Roadmap v3 COMPLETE (S1–S5, S7, S8; S6 dropped). App at v3.0.0. + Native app → PWA parity program (Phases 1–6 + icon fix in progress).

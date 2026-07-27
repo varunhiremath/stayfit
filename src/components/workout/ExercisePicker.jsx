@@ -21,7 +21,7 @@ function Chip({ active, onClick, children }) {
     <button
       onClick={onClick}
       className="flex-shrink-0 rounded-full px-3 py-1.5 font-sans text-xs font-medium"
-      style={{ background: active ? 'var(--color-gold)' : 'var(--color-ivory)', color: active ? 'var(--color-obsidian)' : 'var(--color-text-secondary)' }}
+      style={{ background: active ? 'var(--color-gold)' : 'var(--color-ivory)', color: active ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)' }}
     >
       {children}
     </button>
@@ -95,7 +95,7 @@ export default function ExercisePicker({ isOpen, onClose, onSelect, alreadyAdded
         <button
           onClick={() => { reset(); onClose(); }}
           className="mt-3 w-full rounded-xl py-3 font-sans text-sm font-semibold"
-          style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}
+          style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}
         >
           Done
         </button>

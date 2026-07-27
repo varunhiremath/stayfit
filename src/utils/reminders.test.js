@@ -51,4 +51,36 @@ describe('pickReminders', () => {
     const off = pickReminders(args({ settings: { ...base, streakRisk: false, gymNudge: false, weeklySummary: false } }));
     expect(off).toHaveLength(0);
   });
+
+  it('stays quiet on a planned rest day', () => {
+    const restDay = pickReminders(args({
+      markers: { lastSummaryWeek: WEEK },
+      hasSchedule: true,
+      scheduledToday: false,
+    }));
+    expect(restDay).toHaveLength(0);
+  });
+
+  it('still nudges on a scheduled training day', () => {
+    const trainingDay = pickReminders(args({
+      markers: { lastSummaryWeek: WEEK },
+      hasSchedule: true,
+      scheduledToday: true,
+    })).map((r) => r.type);
+    expect(trainingDay).toEqual(['streakRisk']);
+  });
+
+  it('nudges normally when no schedule exists', () => {
+    const noPlan = pickReminders(args({
+      markers: { lastSummaryWeek: WEEK },
+      hasSchedule: false,
+      scheduledToday: false,
+    })).map((r) => r.type);
+    expect(noPlan).toEqual(['streakRisk']);
+  });
+
+  it('no longer mentions removed game features', () => {
+    const bodies = pickReminders(args()).map((r) => r.body).join(' ');
+    expect(bodies).not.toMatch(/quest|wrapped|XP/i);
+  });
 });

@@ -32,7 +32,7 @@ export default function DbRecovery() {
       <button
         onClick={() => window.location.reload()}
         className="mt-6 w-full max-w-xs rounded-xl py-3 font-sans text-sm font-semibold"
-        style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}
+        style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}
       >
         Reload
       </button>

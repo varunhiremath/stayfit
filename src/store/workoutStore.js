@@ -1,9 +1,6 @@
 import { create } from 'zustand';
 import { db } from '../db/db.js';
 import useUserStore from './userStore.js';
-import useSettingsStore from './settingsStore.js';
-import { PR_BONUS, STREAK_BONUS_PER_DAY, getLevelFromTotalXP, getTitle } from '../utils/rpg.js';
-import { todaysDungeon, isDungeonCleared, dungeonReward, affixEffects } from '../utils/dungeon.js';
 import { strengthKcal } from '../utils/calories.js';
 import { computeVolume } from '../utils/volume.js';
 import { getCurrentBodyweight } from '../utils/healthActions.js';
@@ -75,31 +72,6 @@ const useWorkoutStore = create((set, get) => ({
         energy: null,
         exercises: (template.exercises ?? []).map(e => ({
           exerciseId: e.id,
-          name: e.name,
-          targetSets: e.targetSets ?? null,
-          targetReps: e.targetReps ?? null,
-          targetWeight: e.targetWeight ?? null,
-          sets: [],
-        })),
-      },
-    });
-  },
-
-  // Start today's Daily Dungeon as a themed session. `exercises` are pre-picked
-  // for the dungeon's muscle groups; `dungeon` marks the session so completing
-  // it (with enough working sets) clears the dungeon and awards its Iron.
-  startDungeon(dungeon, exercises) {
-    set({
-      resumed: false,
-      activeWorkout: {
-        id: null,
-        name: dungeon.name,
-        templateId: null,
-        dungeon: dungeon.dateKey,
-        startedAt: Date.now(),
-        energy: null,
-        exercises: (exercises ?? []).map((e) => ({
-          exerciseId: e.exerciseId ?? e.id,
           name: e.name,
           targetSets: e.targetSets ?? null,
           targetReps: e.targetReps ?? null,
@@ -281,7 +253,7 @@ const useWorkoutStore = create((set, get) => ({
     set({ activeWorkout: { ...w, exercises } });
   },
 
-  async completeWorkout(xpEarned = 0) {
+  async completeWorkout() {
     const w = get().activeWorkout;
     if (!w) return null;
     const duration = Math.round((Date.now() - w.startedAt) / 1000);
@@ -290,8 +262,7 @@ const useWorkoutStore = create((set, get) => ({
     const totalSets = workingSets.length;
     const today = todayKey();
 
-    // Don't save (or reward) an empty session — discard it instead. Prevents
-    // farming XP by finishing a workout with nothing logged.
+    // Don't save an empty session — discard it instead.
     if (totalSets === 0) {
       set({ activeWorkout: null, resumed: false });
       return { discarded: true };
@@ -317,7 +288,6 @@ const useWorkoutStore = create((set, get) => ({
       status: 'completed',
       duration,
       notes: w.notes ?? '',
-      xpEarned,
       totalVolume,
       totalCalories,
       totalSets,
@@ -337,8 +307,6 @@ const useWorkoutStore = create((set, get) => ({
           isWarmup: s.isWarmup ?? false,
           note: s.note ?? null,
           completedAt: s.completedAt,
-          crit: s.crit ?? false,
-          bonusXp: s.bonusXp ?? 0,
           isCardio: s.isCardio ?? false,
           durationSec: s.durationSec ?? null,
           speedKmh: s.speedKmh ?? null,
@@ -353,8 +321,8 @@ const useWorkoutStore = create((set, get) => ({
       await db.energyLogs.add({ workoutId, level: w.energy });
     }
 
-    // PR detection
-    let prBonus = 0;
+    // PR detection — a fitness feature, kept (no XP reward attached).
+    let prCount = 0;
     for (const ex of w.exercises) {
       const working = ex.sets.filter(s => !s.isWarmup && (s.weight > 0 || s.reps > 0));
       if (!working.length) continue;
@@ -369,7 +337,7 @@ const useWorkoutStore = create((set, get) => ({
           const record = { exerciseId: ex.exerciseId, type, value, achievedAt: Date.now(), workoutId };
           if (prev) await db.prs.put({ ...prev, ...record });
           else await db.prs.add(record);
-          prBonus += PR_BONUS;
+          prCount += 1;
         }
       };
       await upsert('weight', maxWeight);
@@ -377,77 +345,17 @@ const useWorkoutStore = create((set, get) => ({
       await upsert('volume', maxVol);
     }
 
-    // XP + streak. userStore is imported statically (no circular dependency):
-    // a lazy import() here is a separate chunk that can fail to load on a stale
-    // service-worker shell, which would throw mid-save and silently strand the
-    // finish. Keeping it static means the save path never depends on a runtime
-    // chunk fetch.
+    // Streak — a plain consecutive-days counter (no XP, no rewards).
     const userStore = useUserStore.getState();
     const profile = userStore.profile;
-    const prCount = prBonus / PR_BONUS;
-
-    // Daily Dungeon: if this was today's dungeon session and it cleared the
-    // working-set objective, award its Iron (once per day) and apply the affix
-    // XP bonus (Iron Will). Reward math is pure + unit-tested in dungeon.js.
-    let dungeonResult = null;
-    let dungeonXpBonus = 0;
-    if (w.dungeon && w.dungeon === today) {
-      const dungeon = todaysDungeon(today);
-      const settings = useSettingsStore.getState();
-      const cleared = isDungeonCleared(dungeon, { isDungeonSession: true, workingSets: totalSets });
-      if (cleared && settings.lastDungeonClaim !== today) {
-        const fx = affixEffects(dungeon.affixes);
-        dungeonXpBonus = Math.round((xpEarned + prBonus) * (fx.xpMult - 1));
-        const iron = dungeonReward(dungeon, { prCount });
-        settings.claimDungeon(iron, today);
-        dungeonResult = { name: dungeon.name, iron, xpBonus: dungeonXpBonus, cleared: true };
-      } else if (cleared) {
-        dungeonResult = { name: dungeon.name, iron: 0, alreadyCleared: true, cleared: true };
-      }
-    }
-
-    const result = {
-      workoutId,
-      prCount,
-      xpEarned: xpEarned + prBonus,
-      leveledUp: false,
-      newLevel: profile?.level ?? 1,
-      newTitle: profile?.title ?? 'First Rep',
-      dungeon: dungeonResult,
-      totalCalories,
-    };
-
-    if (profile) {
+    if (profile && profile.lastWorkoutDate !== today) {
       const yesterday = todayKey(new Date(Date.now() - 86400000));
-      let streak = profile.streak ?? 0;
-      if (profile.lastWorkoutDate !== today) {
-        streak = profile.lastWorkoutDate === yesterday ? streak + 1 : 1;
-        await userStore.updateProfile({ lastWorkoutDate: today, streak });
-      }
-      const streakBonus = streak * STREAK_BONUS_PER_DAY;
-      const totalGain = xpEarned + prBonus + streakBonus + dungeonXpBonus;
-      const oldLevel = getLevelFromTotalXP(profile.totalXp);
-      const newLevel = getLevelFromTotalXP(profile.totalXp + totalGain);
-      // Persist the full gained XP so deletion can cleanly reverse it.
-      await db.workouts.update(workoutId, { xpEarned: totalGain });
-      await userStore.addXP(totalGain);
-      result.xpEarned = totalGain;
-      result.streakBonus = streakBonus;
-      result.leveledUp = newLevel > oldLevel;
-      result.newLevel = newLevel;
-      result.newTitle = getTitle(newLevel);
-    }
-
-    try {
-      const { checkAchievements } = await import('../utils/achievements.js');
-      result.newAchievements = await checkAchievements();
-    } catch (e) {
-      console.error('Achievement check failed (workout still saved):', e);
-      result.newAchievements = [];
+      const streak = profile.lastWorkoutDate === yesterday ? (profile.streak ?? 0) + 1 : 1;
+      await userStore.updateProfile({ lastWorkoutDate: today, streak });
     }
 
     set({ activeWorkout: null, resumed: false });
-    return result;
+    return { workoutId, prCount, totalVolume, totalCalories, totalSets, duration };
   },
 
   discardWorkout() {

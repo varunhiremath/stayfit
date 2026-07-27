@@ -1,26 +1,22 @@
-# OPUS
+# LUDI
 
-> Build your masterpiece.
+> Let's do it — plan, train, recover.
 
-A free, offline-first Progressive Web App for gym tracking with RPG progression. Every rep earns XP, every milestone unlocks a title, and your stats grow like a character sheet. No subscriptions, no ads, no cloud — everything lives on your device.
-
-**Live:** https://shubanms.github.io/opus/
+A free, offline-first Progressive Web App for gym training. Plan your week around a split you actually like, log your sessions, warm up and cool down properly, and watch your numbers move. No games, no subscriptions, no ads, no cloud — everything lives on your device.
 
 ## Features
 
-- **Workout logging** — sets, reps, RPE, warmups, rest timer, plate calculator, **supersets**, **reorder**, **resume-after-reload**
-- **Bodyweight support** — reps-only logging with optional added weight (counts toward volume)
-- **Exercise library** — curated across all muscle groups, difficulty tags, body-map filter, notes & colour labels, how-to videos
-- **Routines & planning** — reusable templates with targets, weekly planner, today's-workout suggestion
-- **Progressive overload** — three-lever coaching (reps → sets → weight) + deload signal
-- **RPG system** — XP, levels, titles, prestige tiers, a five-axis radar with month-over-month overlay, an evolving emblem, achievements & weekly quests
-- **Progress & insight** — weekly volume, muscle focus, training heatmap, recovery body-map, per-exercise trends, **estimated 1RM**, **Hall of Records**
-- **Health tracking** — body weight, measurements, sleep, pre-workout energy, daily **steps & water**
-- **Wrapped** — Spotify-style monthly & yearly recap, shareable
-- **Shareable cards** — customizable workout, profile, recap & challenge cards via the native share sheet
-- **Personal records** — auto-detected, with full revert when a workout is deleted
-- **Comfort & polish** — light/dark themes, kg/lbs, equipment/plate inventory (gym/home), synthesized cues, guided tour & coach marks, in-app reminders
-- **Your data, yours** — JSON / CSV / PDF export, import, full local reset, installable PWA
+- **Weekly scheduler** — pick a split (Push/Pull/Legs, Upper/Lower, Arnold, Bro, Full Body) or install a classic program (StrongLifts 5×5, GZCLP, PPL, Upper/Lower, 5/3/1). LUDI assigns routines to weekdays so you always know what's next.
+- **Session reminders** — a nudge on training days only, at the hour you choose. Never on a planned rest day.
+- **Workout logging** — sets, reps, RPE, warmups, rest timer, plate calculator, supersets, reorder, swap, resume-after-reload.
+- **Pre & post-workout stretching** — guided warm-up and cool-down routines with a follow-along timer, coaching cues and how-to videos. Your stretch time is logged automatically.
+- **Exercise & stretch libraries** — ~70 exercises across every muscle group and ~30 stretches across every body area, both searchable, filterable, and extendable with your own.
+- **Progressive overload** — three-lever coaching (reps → sets → weight), auto-advancing routine targets, and a deload signal.
+- **Progress & insight** — weekly volume, muscle focus, training calendar, recovery body-map, per-exercise trends, estimated 1RM, personal records.
+- **Health tracking** — body weight, measurements, sleep, pre-workout energy, daily steps & water, calories.
+- **Personal records** — auto-detected, with a full revert when a workout is deleted.
+- **Comfort & polish** — light/dark themes, kg/lbs, equipment & plate inventory (gym/home), guided tour, coach marks.
+- **Your data, yours** — JSON / CSV / PDF export, import, full local reset, installable PWA.
 
 ## Tech stack
 
@@ -33,15 +29,20 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # production build → dist/
 npm run preview  # preview the build
+npm test         # unit tests (vitest)
 ```
 
 ## Deployment
 
-Pushes to `main` build and deploy to GitHub Pages via GitHub Actions (`.github/workflows/deploy.yml`). The app is served under the `/opus/` base path.
+Pushes to `main` build and deploy to GitHub Pages via GitHub Actions (`.github/workflows/deploy.yml`).
+
+> **Note on the base path:** the app is currently served under `/opus/` (set by `base` in `vite.config.js`). If the GitHub repository is renamed to `LUDI`, update that `base` to `/LUDI/` so Pages keeps resolving assets.
 
 ## Data & privacy
 
-All data is stored locally in IndexedDB. Nothing is sent to a server. Back up or move your data anytime via Settings → Data → Export / Import, or wipe it via Settings → Danger zone.
+All data is stored locally in IndexedDB — nothing is sent to a server, because there is no server. Back up or move your data anytime via Settings → Data → Export / Import, or wipe it via Settings → Danger zone.
+
+Because LUDI is fully offline with no backend, reminders fire while the app is open or installed on your phone; add it to your home screen for the most reliable nudges.
 
 ## Documentation
 
@@ -49,10 +50,9 @@ Plans, references, and project memory live in [`docs/`](./docs/):
 
 - [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — codebase map (routes, DB, utils/hooks/stores, patterns)
 - [`docs/GUIDELINES.md`](./docs/GUIDELINES.md) — engineering, UX, data-integrity & testing rules
-- [`docs/RELEASES.md`](./docs/RELEASES.md) — what shipped in v1.0.0 / v2.0.0 / v3.0.0
+- [`docs/RELEASES.md`](./docs/RELEASES.md) — what shipped per version
 - [`docs/STATE.md`](./docs/STATE.md) — live status + build log
-- [`docs/PRD.md`](./docs/PRD.md), [`docs/ROADMAP_V2.md`](./docs/ROADMAP_V2.md), [`docs/ROADMAP_V3.md`](./docs/ROADMAP_V3.md) — the plans
 
 ---
 
-Built by [shubanms](https://github.com/shubanms) with Claude.
+Built with Claude.

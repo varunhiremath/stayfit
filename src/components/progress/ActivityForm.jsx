@@ -78,7 +78,7 @@ export default function ActivityForm({ isOpen, entry, onClose }) {
       <button
         onClick={save}
         className="mt-4 w-full rounded-xl py-3 font-sans text-sm font-semibold"
-        style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}
+        style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}
       >
         {editing ? 'Save changes' : 'Save'}
       </button>

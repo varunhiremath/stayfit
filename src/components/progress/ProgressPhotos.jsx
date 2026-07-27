@@ -69,7 +69,7 @@ export default function ProgressPhotos() {
               key={c}
               onClick={() => setCategory(c)}
               className="rounded-md px-2.5 py-1 font-sans text-xs font-medium capitalize"
-              style={{ background: category === c ? 'var(--color-gold)' : 'transparent', color: category === c ? 'var(--color-obsidian)' : 'var(--color-text-secondary)' }}
+              style={{ background: category === c ? 'var(--color-gold)' : 'transparent', color: category === c ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)' }}
             >
               {c}
             </button>
@@ -79,7 +79,7 @@ export default function ProgressPhotos() {
           onClick={() => fileRef.current?.click()}
           disabled={busy}
           className="flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 font-sans text-sm font-semibold"
-          style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)', opacity: busy ? 0.6 : 1 }}
+          style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)', opacity: busy ? 0.6 : 1 }}
         >
           <Camera size={15} /> {busy ? 'Adding…' : 'Add photo'}
         </button>

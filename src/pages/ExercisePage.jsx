@@ -60,7 +60,7 @@ export default function ExercisePage() {
           style={{ background: favoritesOnly ? 'var(--color-gold)' : 'var(--color-ivory)' }}
           aria-label="Show favorites only"
         >
-          <Star size={18} fill={favoritesOnly ? 'var(--color-obsidian)' : 'none'} style={{ color: favoritesOnly ? 'var(--color-obsidian)' : 'var(--color-ash)' }} />
+          <Star size={18} fill={favoritesOnly ? 'var(--color-obsidian)' : 'none'} style={{ color: favoritesOnly ? 'var(--color-text-inverse)' : 'var(--color-ash)' }} />
         </button>
       </div>
 

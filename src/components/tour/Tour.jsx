@@ -1,18 +1,17 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { Dumbbell, TrendingUp, Award, BookOpen, CalendarCheck, Activity, Share2, Palette } from 'lucide-react';
+import { Dumbbell, CalendarCheck, Bell, Activity, BookOpen, TrendingUp, Palette } from 'lucide-react';
 import useSettingsStore from '../../store/settingsStore.js';
 
 const STEPS = [
+  { icon: CalendarCheck, title: 'Plan your week', body: 'Start in Plan: choose a split like Push/Pull/Legs, or install a ready-made program. LUDI assigns each routine to a day so you always know what\'s next.' },
+  { icon: Bell, title: 'Get reminded', body: 'Turn on session reminders and LUDI nudges you on training days only — never on a planned rest day.' },
   { icon: Dumbbell, title: 'Log your workouts', body: 'Tap the center ➕ to start. Add exercises — reorder them or chain supersets — and log sets with the plate calculator, RPE and rest timer. Get interrupted? Your session is saved.' },
-  { icon: TrendingUp, title: 'Level up', body: 'Every set earns XP. Climb from First Rep to Magnum Opus and into prestige tiers, and clear weekly quests for bonus XP.' },
-  { icon: Award, title: 'Unlock achievements', body: 'Hit milestones to earn trophies. Some are hidden — find them on your Profile.' },
-  { icon: BookOpen, title: 'Your exercise library', body: 'Browse, favorite ★, colour-code, and add coaching notes that show every time you train a movement.' },
-  { icon: CalendarCheck, title: 'Routines & planning', body: 'Build reusable routines with targets, assign them to weekdays, and get a "today" suggestion on Home.' },
-  { icon: Activity, title: 'Track recovery & progress', body: 'See which muscles are fresh on the body map, track steps & water, and chart volume, PRs, estimated 1RM and body metrics.' },
-  { icon: Share2, title: 'Show it off', body: 'Share workout, profile, weekly-recap and Wrapped cards — your monthly & yearly stats — straight from the app.' },
-  { icon: Palette, title: 'Make it yours', body: 'Sound, effects, dark mode and kg/lbs all live in Settings — and most start off. Open Settings to switch on what you like (you can replay this tour there anytime).' },
+  { icon: Activity, title: 'Warm up and cool down', body: 'The Stretch tab has guided pre- and post-workout routines. Follow the timer and your stretch time is logged for you.' },
+  { icon: BookOpen, title: 'Exercise & stretch library', body: 'Browse every movement, add your own, favourite the ones you use, and keep coaching notes that follow you into each session.' },
+  { icon: TrendingUp, title: 'See your progress', body: 'Chart volume, personal records, estimated 1RM and body metrics — plus steps, water and your training calendar.' },
+  { icon: Palette, title: 'Make it yours', body: 'Sound, effects, dark mode and kg/lbs all live in Settings. Open Settings to switch on what you like (you can replay this tour there anytime).' },
 ];
 
 export default function Tour() {
@@ -100,7 +99,7 @@ export default function Tour() {
         <button
           onClick={() => (last ? finish(true) : setI(i + 1))}
           className="flex-1 rounded-xl py-3 font-sans text-sm font-semibold"
-          style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}
+          style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}
         >
           {last ? 'Open Settings' : 'Next'}
         </button>

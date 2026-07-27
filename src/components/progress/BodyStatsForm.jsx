@@ -57,7 +57,7 @@ export default function BodyStatsForm({ isOpen, onClose }) {
         onClick={save}
         disabled={!canSave}
         className="mt-4 w-full rounded-xl py-3 font-sans text-sm font-semibold"
-        style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)', opacity: canSave ? 1 : 0.35 }}
+        style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)', opacity: canSave ? 1 : 0.35 }}
       >
         Save today's entry
       </button>

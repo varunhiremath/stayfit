@@ -92,7 +92,7 @@ export default function WeekPlannerModal({ isOpen, onClose }) {
       {burst && <Particles count={20} />}
 
       <p className="mb-3 font-sans text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-        Auto-build a <b style={{ color: 'var(--color-text-primary)' }}>custom</b> week from your split, days, level and time — OPUS generates the exercises for you. (For ready-made named programs like 5×5 or PPL, use <b style={{ color: 'var(--color-text-primary)' }}>Programs</b> instead.)
+        Auto-build a <b style={{ color: 'var(--color-text-primary)' }}>custom</b> week from your split, days, level and time — LUDI generates the exercises for you. (For ready-made named programs like 5×5 or PPL, use <b style={{ color: 'var(--color-text-primary)' }}>Programs</b> instead.)
       </p>
       <p className="mb-2 font-sans text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-text-secondary)' }}>Choose a split</p>
       <div className="flex flex-col gap-2">
@@ -130,7 +130,7 @@ export default function WeekPlannerModal({ isOpen, onClose }) {
       <button
         onClick={generate}
         className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3 font-sans text-sm font-semibold"
-        style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}
+        style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}
       >
         <Sparkles size={16} /> {week ? 'Re-generate week' : 'Generate week'}
       </button>

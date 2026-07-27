@@ -1,14 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, ChevronRight, RotateCcw } from 'lucide-react';
+import { Plus, ChevronRight, RotateCcw, Activity } from 'lucide-react';
 import useWorkoutStore from '../store/workoutStore.js';
 import ExerciseSection from '../components/workout/ExerciseSection.jsx';
 import ExercisePicker from '../components/workout/ExercisePicker.jsx';
 import RestTimer from '../components/workout/RestTimer.jsx';
 import EndWorkoutModal from '../components/workout/EndWorkoutModal.jsx';
 import TemplateCard from '../components/template/TemplateCard.jsx';
-import LevelUpScreen from '../components/rpg/LevelUpScreen.jsx';
-import AchievementToast from '../components/rpg/AchievementToast.jsx';
 import Particles from '../components/fx/Particles.jsx';
 import { useExercise } from '../hooks/useExercises.js';
 import { useTemplatesWithExercises } from '../hooks/useTemplates.js';
@@ -18,8 +16,6 @@ import { maybePromptPermission, notifyPR } from '../utils/notifications.js';
 import { saveWorkoutAsRoutine, advanceProgression } from '../utils/templateActions.js';
 import { playChime } from '../utils/sound.js';
 import { supersetRuns, noRestIds } from '../utils/supersets.js';
-import { sessionIron } from '../utils/economy.js';
-import { db } from '../db/db.js';
 import useUIStore from '../store/uiStore.js';
 
 function ElapsedTimer({ startedAt }) {
@@ -70,9 +66,7 @@ export default function WorkoutPage() {
   const [endOpen, setEndOpen] = useState(false);
   const [showRest, setShowRest] = useState(false);
   const [editingName, setEditingName] = useState(false);
-  const [levelUp, setLevelUp] = useState(null);
   const [celebrate, setCelebrate] = useState(false);
-  const [unlocked, setUnlocked] = useState(null);
   const [restKey, setRestKey] = useState(0);
   const restDuration = useSettingsStore((s) => s.restDuration);
   const setRestDuration = useSettingsStore((s) => s.setRestDuration);
@@ -99,11 +93,11 @@ export default function WorkoutPage() {
     setShowRest(!(exerciseId != null && noRest.has(exerciseId)));
   }
 
-  async function handleSave(xp, routine) {
+  async function handleSave(routine) {
     const snapshot = activeWorkout; // completeWorkout clears the store — capture first
     let result;
     try {
-      result = await completeWorkout(xp);
+      result = await completeWorkout();
     } catch (e) {
       // Never fail silently: the session is preserved (completeWorkout only
       // clears the store on success), so surface the error and let the user
@@ -113,34 +107,7 @@ export default function WorkoutPage() {
       return;
     }
     setEndOpen(false);
-    if (result?.discarded) return; // empty session — nothing saved or rewarded
-
-    // Iron + rest-token reward feedback. Both are derived from history, so this
-    // just surfaces what the finished session added (the user asked to see it).
-    try {
-      const iron = sessionIron(result?.prCount ?? 0);
-      const finishedCount = await db.workouts.count();
-      const earnedToken = finishedCount > 0 && finishedCount % 10 === 0; // one token per 10 workouts
-      useUIStore.getState().showToast(
-        earnedToken ? `◆ +${iron} Iron · 🛡 Rest token earned!` : `◆ +${iron} Iron earned`,
-        { type: 'success' },
-      );
-    } catch (e) {
-      console.error('Reward feedback failed (workout still saved):', e);
-    }
-
-    // Daily Dungeon clear — the Iron + XP bonus were already awarded in the
-    // store; celebrate it here.
-    if (result?.dungeon?.cleared) {
-      const d = result.dungeon;
-      useUIStore.getState().showToast(
-        d.alreadyCleared
-          ? `⚔ ${d.name} — already cleared today`
-          : `⚔ Dungeon cleared! ◆ +${d.iron} Iron${d.xpBonus ? ` · +${d.xpBonus} bonus XP` : ''}`,
-        { type: 'success' },
-      );
-      if (!d.alreadyCleared) { haptic('pr'); playChime('quest'); setCelebrate(true); setTimeout(() => setCelebrate(false), 1300); }
-    }
+    if (result?.discarded) return; // empty session — nothing saved
 
     // Advance the routine's targets by its progression scheme (if any).
     if (snapshot?.templateId) {
@@ -168,10 +135,6 @@ export default function WorkoutPage() {
     await maybePromptPermission();
     if (result?.prCount > 0) {
       notifyPR(`You set ${result.prCount} new record${result.prCount === 1 ? '' : 's'} this session.`);
-    }
-    if (result?.leveledUp) {
-      setLevelUp({ level: result.newLevel, title: result.newTitle });
-    } else if (result?.prCount > 0) {
       haptic('pr');
       playChime('pr');
       setCelebrate(true);
@@ -180,19 +143,12 @@ export default function WorkoutPage() {
       haptic('success');
       playChime('success');
     }
-    if (result?.newAchievements?.length) {
-      setUnlocked(result.newAchievements);
-    }
   }
 
   if (!activeWorkout) {
     return (
       <>
         {celebrate && <Particles />}
-        {unlocked && <AchievementToast achievements={unlocked} onDismiss={() => setUnlocked(null)} />}
-        {levelUp && (
-          <LevelUpScreen level={levelUp.level} title={levelUp.title} onDismiss={() => setLevelUp(null)} />
-        )}
         <div className="anim-fade-slide-up px-5 pb-24 pt-8">
         <h1 className="font-display text-5xl font-bold leading-none" style={{ color: 'var(--color-text-primary)' }}>
           Ready?
@@ -201,10 +157,26 @@ export default function WorkoutPage() {
           Start fresh or pick a routine
         </p>
 
+        {/* Warm up first — a pre-workout stretch before you lift. */}
+        <button
+          onClick={() => navigate('/stretch?phase=pre')}
+          className="mt-6 flex w-full items-center gap-3 rounded-2xl px-4 py-3"
+          style={{ background: 'var(--color-chalk)', border: '1px solid var(--color-ivory)' }}
+        >
+          <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full" style={{ background: 'var(--color-ivory)' }}>
+            <Activity size={15} style={{ color: 'var(--color-ember)' }} />
+          </span>
+          <span className="min-w-0 flex-1 text-left">
+            <span className="block font-sans text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>Warm up first</span>
+            <span className="block font-sans text-xs" style={{ color: 'var(--color-text-secondary)' }}>A few minutes of dynamic stretching</span>
+          </span>
+          <ChevronRight size={15} style={{ color: 'var(--color-ash)' }} />
+        </button>
+
         <button
           onClick={() => { playChime('start'); startWorkout(); }}
-          className="mt-6 w-full rounded-2xl py-4 font-sans text-base font-semibold"
-          style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}
+          className="mt-3 w-full rounded-2xl py-4 font-sans text-base font-semibold"
+          style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}
         >
           Quick start (empty)
         </button>
@@ -291,7 +263,7 @@ export default function WorkoutPage() {
           <button
             onClick={() => setEndOpen(true)}
             className="rounded-xl px-3 py-2 font-sans text-xs font-semibold"
-            style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)' }}
+            style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}
           >
             Finish
           </button>
@@ -401,6 +373,7 @@ export default function WorkoutPage() {
         elapsedSecs={Math.round((Date.now() - activeWorkout.startedAt) / 1000)}
         onSave={handleSave}
         onClose={() => setEndOpen(false)}
+        onCooldown={() => { setEndOpen(false); navigate('/stretch?phase=post'); }}
       />
     </div>
   );

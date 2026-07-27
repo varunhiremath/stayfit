@@ -81,6 +81,22 @@ db.version(9).stores({
     '++id, date, category',
 });
 
+// v10 (LUDI): stretching & mobility.
+// - `stretches`      the stretch catalogue (seeded + custom). Unindexed:
+//                    durationSec, description, difficulty, secondaryAreas.
+// - `stretchRoutines` ordered sequences. Unindexed: items [{stretchId,durationSec}].
+// - `stretchLogs`    completed sessions — the "log your stretch time" record.
+//                    Unindexed: routineId, durationSec, workoutId.
+// Additive only; existing tables are untouched.
+db.version(10).stores({
+  stretches:
+    '++id, name, type, bodyArea, isCustom',
+  stretchRoutines:
+    '++id, name, phase, createdAt',
+  stretchLogs:
+    '++id, date, phase, completedAt, workoutId',
+});
+
 // When a newer tab/build wants to upgrade the schema, close this (older)
 // connection and reload so the upgrade isn't blocked and left stuck.
 if (typeof window !== 'undefined') {

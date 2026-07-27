@@ -4,13 +4,13 @@ import Onboarding from '../onboarding/Onboarding.jsx';
 import Tour from '../tour/Tour.jsx';
 import CoachMark from '../coach/CoachMark.jsx';
 import UiHost from '../ui/UiHost.jsx';
-import { useRPG } from '../../hooks/useRPG.js';
+import { useProfile } from '../../hooks/useProfile.js';
 import { useOnOpenReminders } from '../../hooks/useOnOpenReminders.js';
 import useSettingsStore from '../../store/settingsStore.js';
 
 export default function AppLayout() {
   // Ensures user profile exists in DB on first run.
-  const { loaded } = useRPG();
+  const { loaded } = useProfile();
   const onboarded = useSettingsStore((s) => s.onboarded);
   const tourSeen = useSettingsStore((s) => s.tourSeen);
   useOnOpenReminders();
@@ -19,7 +19,7 @@ export default function AppLayout() {
     <div
       className="min-h-full"
       style={{
-        background: 'var(--color-chalk)',
+        background: 'var(--color-canvas)',
         // Clear the status bar / notch on edge-to-edge devices (Android 15+,
         // iOS notch). Zero on platforms that don't report insets.
         paddingTop: 'env(safe-area-inset-top)',

@@ -8,11 +8,7 @@ import { usePRs } from '../../hooks/useProgress.js';
 import { useHaptics } from '../../hooks/useHaptics.js';
 import { playChime } from '../../utils/sound.js';
 import { toKg, toDisplay, unitLabel } from '../../utils/units.js';
-import { calcSetXP } from '../../utils/rpg.js';
 import { diffsBySetNumber } from '../../utils/setDiff.js';
-import { rollCrit, comboCount, bonusXp as critBonusXp, CRIT_CHANCE } from '../../utils/crit.js';
-import { todaysDungeon, affixEffects } from '../../utils/dungeon.js';
-import Particles from '../fx/Particles.jsx';
 import PlateCalculator from './PlateCalculator.jsx';
 
 // Compact "vs last session" badge for a logged working set.
@@ -56,8 +52,7 @@ export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = fals
   const [showRpeInfo, setShowRpeInfo] = useState(false);
   const [showPlates, setShowPlates] = useState(false);
   const [addWeight, setAddWeight] = useState(false);
-  const [xpFloat, setXpFloat] = useState(null);
-  const [critBurst, setCritBurst] = useState(null);
+  const [prFloat, setPrFloat] = useState(null);
 
   if (!exercise) return null;
 
@@ -83,32 +78,15 @@ export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = fals
     const bestVol = Math.max(volPR?.value ?? 0, ...working.map((s) => s.weight * s.reps), 0);
     const isPR = (weightKg > 0 || r > 0) && (weightKg > bestWeight || r > bestReps || weightKg * r > bestVol);
 
-    // Crit + combo (utils/crit.js). The bonus is stored on the set, so xpEarned
-    // and every XP total already include it and a delete reverts it for free.
-    const sessionWorking = (activeWorkout?.exercises ?? []).reduce(
-      (n, e) => n + e.sets.filter((x) => !x.isWarmup).length, 0);
-    // In a Daily Dungeon with the Volatile affix, crit chance runs hot.
-    const critChance = CRIT_CHANCE + (activeWorkout?.dungeon ? affixEffects(todaysDungeon(activeWorkout.dungeon).affixes).critBonus : 0);
-    const crit = rollCrit({ seed: activeWorkout?.startedAt ?? 0, setNumber: exercise.sets.length + 1, first: sessionWorking === 0, chance: critChance });
-    const times = (activeWorkout?.exercises ?? [])
-      .flatMap((e) => e.sets.filter((x) => !x.isWarmup).map((x) => x.completedAt))
-      .filter(Boolean);
-    const combo = comboCount([...times, Date.now()]);
-    const base = calcSetXP(weightKg, r);
-    const bonus = critBonusXp(base, { crit, combo });
-
     logSet(exerciseId, {
       weight: weightKg,
       reps: r,
       rpe: showRpe ? rpe : null,
       isWarmup: false,
-      crit,
-      bonusXp: bonus,
     });
-    haptic(isPR || crit ? 'pr' : 'tap');
-    playChime(isPR ? 'pr' : crit ? 'achievement' : 'tick');
-    if (crit) { setCritBurst(Date.now()); setTimeout(() => setCritBurst(null), 1300); }
-    setXpFloat({ key: Date.now(), xp: base + bonus, pr: isPR, crit, combo });
+    haptic(isPR ? 'pr' : 'tap');
+    playChime(isPR ? 'pr' : 'tick');
+    if (isPR) setPrFloat(Date.now());
     onSetLogged?.();
     setReps('');
     setRpe(null);
@@ -129,7 +107,6 @@ export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = fals
 
   return (
     <div className="mt-3">
-      {critBurst && <Particles key={critBurst} count={26} />}
       {/* Reference line: your best PR when following a routine, else the ghost
           of last session's sets. */}
       {showPR ? (
@@ -193,17 +170,14 @@ export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = fals
 
       {/* Input row */}
       <div className="relative mt-2 flex items-center gap-1.5">
-        {xpFloat && (xpFloat.xp > 0 || xpFloat.pr || xpFloat.crit) && (
+        {prFloat && (
           <span
-            key={xpFloat.key}
+            key={prFloat}
             className="pointer-events-none absolute right-1 top-0 flex items-center gap-1 font-mono text-sm font-bold"
             style={{ color: 'var(--color-gold)', animation: 'floatUp 900ms var(--ease-out) forwards' }}
-            onAnimationEnd={() => setXpFloat(null)}
+            onAnimationEnd={() => setPrFloat(null)}
           >
-            {(xpFloat.pr || xpFloat.crit) && <Trophy size={13} />}
-            {xpFloat.pr ? 'PR! ' : xpFloat.crit ? 'CRIT! ' : ''}
-            {xpFloat.xp > 0 ? `+${xpFloat.xp} XP` : ''}
-            {xpFloat.combo > 1 ? ` ×${xpFloat.combo}` : ''}
+            <Trophy size={13} /> New PR!
           </span>
         )}
         {showWeight && (
@@ -250,7 +224,7 @@ export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = fals
           onClick={handleLog}
           disabled={!canLog}
           className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
-          style={{ background: 'var(--color-gold)', color: 'var(--color-obsidian)', opacity: canLog ? 1 : 0.35 }}
+          style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)', opacity: canLog ? 1 : 0.35 }}
         >
           <Plus size={18} strokeWidth={2.5} />
         </button>
@@ -292,7 +266,7 @@ export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = fals
                 className="h-10 flex-1 rounded-lg font-mono text-sm font-medium"
                 style={{
                   background: rpe === n ? 'var(--color-gold)' : 'var(--color-ivory)',
-                  color: rpe === n ? 'var(--color-obsidian)' : 'var(--color-text-primary)',
+                  color: rpe === n ? 'var(--color-text-inverse)' : 'var(--color-text-primary)',
                 }}
               >
                 {n}

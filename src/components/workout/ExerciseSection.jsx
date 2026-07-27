@@ -91,7 +91,7 @@ export default function ExerciseSection({ exercise, muscleGroup, isBodyweight, i
               className="flex items-center gap-1 rounded-full px-2 py-1 font-sans text-[11px] font-medium"
               style={{
                 background: linked ? 'var(--color-gold)' : 'var(--color-ivory)',
-                color: linked ? 'var(--color-obsidian)' : 'var(--color-text-secondary)',
+                color: linked ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)',
               }}
               aria-label={linked ? 'Remove from superset' : 'Superset with exercise above'}
             >
