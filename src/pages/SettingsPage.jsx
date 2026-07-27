@@ -9,8 +9,7 @@ import { useCurrentBodyweight } from '../hooks/useProgress.js';
 import useUserStore from '../store/userStore.js';
 import useSettingsStore from '../store/settingsStore.js';
 import useUIStore from '../store/uiStore.js';
-import { NOTIF_TYPES, requestPermission, showNotification } from '../utils/notifications.js';
-import { playChime } from '../utils/sound.js';
+import { requestPermission, showNotification } from '../utils/notifications.js';
 import { exportData, importData, exportSetsCsv, exportPdf } from '../utils/dataActions.js';
 import { logBodyStat } from '../utils/healthActions.js';
 import { toDisplay, toKg, unitLabel } from '../utils/units.js';
@@ -48,7 +47,7 @@ export default function SettingsPage() {
   const navigate = useNavigate();
   const [reset, setReset] = useState(false);
   const [equip, setEquip] = useState(false);
-  const { settings, perm, update, toggleType, setMaster } = useNotifications();
+  const { settings, perm, update, setMaster } = useNotifications();
   const { profile } = useProfile();
 
   const updateProfile = useUserStore((s) => s.updateProfile);
@@ -63,7 +62,6 @@ export default function SettingsPage() {
   const theme = useSettingsStore((s) => s.theme);
   const setTheme = useSettingsStore((s) => s.setTheme);
   const setTourSeen = useSettingsStore((s) => s.setTourSeen);
-  const resetCoachMarks = useSettingsStore((s) => s.resetCoachMarks);
   const stepGoal = useSettingsStore((s) => s.stepGoal);
   const setStepGoal = useSettingsStore((s) => s.setStepGoal);
   const waterGoal = useSettingsStore((s) => s.waterGoal);
@@ -255,12 +253,6 @@ export default function SettingsPage() {
         {settings.enabled && perm === 'granted' && (
           <>
             <div className="my-2 h-px" style={{ background: 'var(--color-ivory)' }} />
-            {NOTIF_TYPES.map((t) => (
-              <div key={t.key} className="flex items-center justify-between py-1.5">
-                <span className="font-sans text-sm" style={{ color: 'var(--color-text-primary)' }}>{t.label}</span>
-                <Switch on={!!settings[t.key]} onChange={() => toggleType(t.key)} />
-              </div>
-            ))}
 
             <div className="mt-3 flex items-center justify-between">
               <span className="font-sans text-sm" style={{ color: 'var(--color-text-primary)' }}>Quiet hours</span>
@@ -287,7 +279,7 @@ export default function SettingsPage() {
           </>
         )}
 
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3">
           <button
             onClick={async () => {
               const p = await requestPermission();
@@ -301,17 +293,10 @@ export default function SettingsPage() {
                 useUIStore.getState().showToast("Couldn't send a notification — check OS settings.", { type: 'error' });
               }
             }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 font-sans text-xs font-medium"
+            className="flex w-full items-center justify-center gap-2 rounded-xl py-2.5 font-sans text-xs font-medium"
             style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
           >
             <Bell size={14} /> Test notification
-          </button>
-          <button
-            onClick={() => { playChime('success', { force: true }); setTimeout(() => playChime('rest', { force: true }), 700); }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 font-sans text-xs font-medium"
-            style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
-          >
-            <Sparkles size={14} /> Preview sounds
           </button>
         </div>
         <p className="mt-2 font-sans text-xs" style={{ color: 'var(--color-text-secondary)' }}>
@@ -349,13 +334,6 @@ export default function SettingsPage() {
           style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
         >
           Replay walkthrough
-        </button>
-        <button
-          onClick={() => { resetCoachMarks(); useUIStore.getState().showToast('Tips will show again as you browse.'); }}
-          className="mt-2 w-full rounded-xl py-2.5 font-sans text-sm font-medium"
-          style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
-        >
-          Show tips again
         </button>
       </section>
 

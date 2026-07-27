@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trophy, TrendingUp, PlayCircle, Trash2, Youtube, Star, StickyNote } from 'lucide-react';
 import { useExercise, useExerciseNote } from '../hooks/useExercises.js';
 import { usePRs, useExerciseVolume, useExerciseOneRepMax } from '../hooks/useProgress.js';
-import { deleteCustomExercise, toggleFavorite, setExerciseColor } from '../utils/exerciseActions.js';
+import { deleteCustomExercise, toggleFavorite } from '../utils/exerciseActions.js';
 import { setExerciseNote } from '../utils/noteActions.js';
 import { toDisplay, unitLabel } from '../utils/units.js';
 import { playChime } from '../utils/sound.js';
@@ -12,7 +12,6 @@ import useUIStore from '../store/uiStore.js';
 import VolumeChart from '../components/progress/VolumeChart.jsx';
 import TrendChart from '../components/progress/TrendChart.jsx';
 import PRBadge from '../components/progress/PRBadge.jsx';
-import ColorPicker from '../components/ui/ColorPicker.jsx';
 
 const DIFFICULTY_COLOR = {
   beginner:     '#6B8F71',
@@ -189,10 +188,6 @@ export default function ExerciseDetailPage() {
           className="w-full resize-none rounded-xl px-3 py-2 font-sans text-sm outline-none"
           style={{ background: 'var(--color-chalk)', color: 'var(--color-text-primary)' }}
         />
-        <p className="mb-2 mt-3 font-sans text-xs font-medium uppercase tracking-widest" style={{ color: 'var(--color-text-secondary)' }}>
-          Label colour
-        </p>
-        <ColorPicker value={exercise.color ?? null} onChange={(c) => setExerciseColor(exercise.id, c)} />
       </div>
 
       {/* How to do it — always available via video; image when Wger has one */}

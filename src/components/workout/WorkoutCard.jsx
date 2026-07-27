@@ -1,21 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, Layers, ChevronDown, RotateCcw, Flame, Trash2 } from 'lucide-react';
-import { useWorkoutDetail, useShareData } from '../../hooks/useWorkout.js';
+import { useWorkoutDetail } from '../../hooks/useWorkout.js';
 import { deleteWorkout } from '../../utils/workoutActions.js';
 import { fmtVolume, toDisplay } from '../../utils/units.js';
 import { avgRest, avgRestAcross, formatRest } from '../../utils/restStats.js';
-import { setWorkoutNote, setWorkoutColor, setWorkoutName, setWorkoutTags } from '../../utils/noteActions.js';
+import { setWorkoutNote, setWorkoutName } from '../../utils/noteActions.js';
 import { workoutCalories } from '../../utils/calories.js';
 import { playChime } from '../../utils/sound.js';
-import ShareButton from '../share/ShareButton.jsx';
-import ColorPicker from '../ui/ColorPicker.jsx';
 import useWorkoutStore from '../../store/workoutStore.js';
 import useUIStore from '../../store/uiStore.js';
 import useSettingsStore from '../../store/settingsStore.js';
-
-// Friendly muscle-group tags a user can attach to a past session.
-const MUSCLE_TAGS = ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core', 'Cardio', 'Full Body'];
 
 function formatDuration(secs) {
   const m = Math.floor(secs / 60);
@@ -30,18 +25,10 @@ function formatDate(iso) {
 
 export default function WorkoutCard({ workout }) {
   const [expanded, setExpanded] = useState(false);
-  const [tags, setTags] = useState(workout.tags ?? []);
   const navigate = useNavigate();
   const repeatWorkout = useWorkoutStore((s) => s.repeatWorkout);
   const unit = useSettingsStore((s) => s.unit);
-
-  function toggleTag(tag) {
-    const next = tags.includes(tag) ? tags.filter((t) => t !== tag) : [...tags, tag];
-    setTags(next);
-    setWorkoutTags(workout.id, next);
-  }
   const detail = useWorkoutDetail(expanded ? workout.id : null);
-  const shareData = useShareData(expanded ? workout.id : null);
 
   async function handleRepeat(e) {
     e.stopPropagation();
@@ -71,22 +58,12 @@ export default function WorkoutCard({ workout }) {
       <button onClick={() => setExpanded((v) => !v)} className="w-full text-left">
         <div className="flex items-start justify-between">
           <div>
-            <p className="flex items-center gap-2 font-sans text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-              {workout.color && <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ background: workout.color }} />}
+            <p className="font-sans text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
               {workout.name}
             </p>
             <p className="mt-0.5 font-sans text-xs" style={{ color: 'var(--color-text-secondary)' }}>
               {formatDate(workout.date)}
             </p>
-            {tags.length > 0 && (
-              <div className="mt-1.5 flex flex-wrap gap-1">
-                {tags.map((t) => (
-                  <span key={t} className="rounded-full px-2 py-0.5 font-sans text-[10px] font-medium" style={{ background: 'var(--color-ivory)', color: 'var(--color-gold)' }}>
-                    {t}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
           <div className="flex items-center gap-2">
             <ChevronDown
@@ -130,24 +107,6 @@ export default function WorkoutCard({ workout }) {
             className="mb-3 w-full rounded-xl px-3 py-2 font-sans text-sm outline-none"
             style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
           />
-
-          {/* Muscle-group tags */}
-          <label className="mb-1.5 block font-sans text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--color-ash)' }}>Tags</label>
-          <div className="mb-3 flex flex-wrap gap-1.5">
-            {MUSCLE_TAGS.map((t) => {
-              const on = tags.includes(t);
-              return (
-                <button
-                  key={t}
-                  onClick={() => toggleTag(t)}
-                  className="rounded-full px-2.5 py-1 font-sans text-xs font-medium"
-                  style={{ background: on ? 'var(--color-gold)' : 'var(--color-ivory)', color: on ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)' }}
-                >
-                  {t}
-                </button>
-              );
-            })}
-          </div>
 
           {/* Session summary incl. rest */}
           <div className="mb-3 flex flex-wrap gap-x-5 gap-y-1">
@@ -212,11 +171,6 @@ export default function WorkoutCard({ workout }) {
             style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
           />
 
-          {/* Colour label */}
-          <div className="mb-3">
-            <ColorPicker value={workout.color ?? null} onChange={(c) => setWorkoutColor(workout.id, c)} />
-          </div>
-
           <div className="mt-2 flex gap-2">
             <button
               onClick={handleRepeat}
@@ -225,12 +179,6 @@ export default function WorkoutCard({ workout }) {
             >
               <RotateCcw size={14} /> Repeat this workout
             </button>
-            <ShareButton
-              data={shareData}
-              label=""
-              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
-              style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
-            />
             <button
               onClick={handleDelete}
               className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"

@@ -1,10 +1,8 @@
 import { StickyNote, PlayCircle, Youtube, Trophy } from 'lucide-react';
 import Modal from '../ui/Modal.jsx';
-import ColorPicker from '../ui/ColorPicker.jsx';
 import { useExercise, useExerciseNote } from '../../hooks/useExercises.js';
 import { usePRs } from '../../hooks/useProgress.js';
 import { setExerciseNote } from '../../utils/noteActions.js';
-import { setExerciseColor } from '../../utils/exerciseActions.js';
 import useSettingsStore from '../../store/settingsStore.js';
 import { toDisplay, unitLabel } from '../../utils/units.js';
 
@@ -56,10 +54,6 @@ export default function ExerciseInfoModal({ exerciseId, isOpen, onClose }) {
           className="w-full resize-none rounded-xl px-3 py-2 font-sans text-sm outline-none"
           style={{ background: 'var(--color-chalk)', color: 'var(--color-text-primary)' }}
         />
-        <p className="mb-2 mt-3 font-sans text-xs font-medium uppercase tracking-widest" style={{ color: 'var(--color-text-secondary)' }}>
-          Label colour
-        </p>
-        <ColorPicker value={exercise.color ?? null} onChange={(c) => setExerciseColor(exercise.id, c)} />
       </div>
 
       {/* How to do it — YouTube search for a form tutorial */}

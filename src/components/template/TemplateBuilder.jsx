@@ -9,7 +9,6 @@ import { useExercises } from '../../hooks/useExercises.js';
 import { playChime } from '../../utils/sound.js';
 import useSettingsStore from '../../store/settingsStore.js';
 import { toDisplay, toKg, unitLabel } from '../../utils/units.js';
-import ColorPicker from '../ui/ColorPicker.jsx';
 
 const DAYS = [
   { v: null, l: 'Any' }, { v: 1, l: 'Mon' }, { v: 2, l: 'Tue' }, { v: 3, l: 'Wed' },
@@ -34,7 +33,6 @@ export default function TemplateBuilder({ isOpen, onClose, editing = null }) {
   const allExercises = useExercises();
   const [name, setName] = useState(editing?.name ?? '');
   const [day, setDay] = useState(editing?.dayOfWeek ?? null);
-  const [color, setColor] = useState(editing?.color ?? null);
   const [progression, setProgression] = useState(editing?.progression?.mode ?? 'off');
   const [exercises, setExercises] = useState(() => initExercises(editing, unit));
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -47,7 +45,6 @@ export default function TemplateBuilder({ isOpen, onClose, editing = null }) {
     if (!isOpen) return;
     setName(editing?.name ?? '');
     setDay(editing?.dayOfWeek ?? null);
-    setColor(editing?.color ?? null);
     setProgression(editing?.progression?.mode ?? 'off');
     setExercises(initExercises(editing, unit));
     setPickerOpen(false);
@@ -117,7 +114,6 @@ export default function TemplateBuilder({ isOpen, onClose, editing = null }) {
     const payload = {
       name,
       dayOfWeek: day,
-      color,
       progression: progression === 'off' ? { mode: 'off' } : { mode: progression, weightStep: 2.5, deloadAfterMisses: 2 },
       exercises: exercises.map((e) => ({
         exerciseId: e.id,
@@ -162,10 +158,6 @@ export default function TemplateBuilder({ isOpen, onClose, editing = null }) {
             {d.l}
           </button>
         ))}
-      </div>
-
-      <div className="mt-3">
-        <ColorPicker value={color} onChange={setColor} />
       </div>
 
       <div className="mt-4">

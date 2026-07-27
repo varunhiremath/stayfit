@@ -184,10 +184,6 @@ export async function assignTemplateToDay(templateId, dayOfWeek) {
   await db.templates.update(templateId, { dayOfWeek });
 }
 
-export async function setTemplateColor(templateId, color) {
-  await db.templates.update(templateId, { color: color ?? null });
-}
-
 export async function clearDay(dayOfWeek) {
   const assigned = await db.templates.where('dayOfWeek').equals(dayOfWeek).toArray();
   for (const t of assigned) await db.templates.update(t.id, { dayOfWeek: null });

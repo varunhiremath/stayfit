@@ -31,43 +31,6 @@ export function useWorkoutSets(workoutId) {
   ) ?? [];
 }
 
-// Assembles everything a shareable card needs for a saved workout.
-export function useShareData(workoutId) {
-  return useLiveQuery(async () => {
-    if (!workoutId) return null;
-    const w = await db.workouts.get(workoutId);
-    if (!w) return null;
-
-    const sets = await db.sets.where('workoutId').equals(workoutId).toArray();
-    const exIds = [...new Set(sets.map((s) => s.exerciseId))];
-    const muscles = new Set();
-    for (const id of exIds) {
-      const ex = await db.exercises.get(id);
-      if (ex?.muscleGroup) muscles.add(ex.muscleGroup);
-    }
-
-    const prs = await db.prs.where('workoutId').equals(workoutId).toArray();
-    const weightPR = prs.find((p) => p.type === 'weight');
-    let pr = null;
-    if (weightPR) {
-      const ex = await db.exercises.get(weightPR.exerciseId);
-      pr = { exercise: ex?.name, value: weightPR.value };
-    }
-
-    const profile = await db.userProfile.get(1);
-    return {
-      name: w.name,
-      athlete: profile?.name || null,
-      date: w.date,
-      duration: w.duration,
-      totalVolume: w.totalVolume,
-      totalSets: w.totalSets,
-      muscles: [...muscles],
-      pr,
-      unit: useSettingsStore.getState().unit,
-    };
-  }, [workoutId]) ?? null;
-}
 
 // Workout sets grouped by exercise, with names. Pass null to skip loading.
 export function useWorkoutDetail(workoutId) {

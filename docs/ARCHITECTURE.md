@@ -7,7 +7,7 @@ The efficiency reference: what exists and where. Check here before grepping. Kee
 > **Deliberately unchanged for data safety:** the Dexie DB is still named `OpusDB` — renaming it would orphan existing users' workout history. It is internal and never shown. (The repo and the Vite `base` are both `stayfit`/`/stayfit/`.)
 
 ## Stack
-Vite 5 · React 18 · Tailwind v3 · Dexie.js (IndexedDB) · Zustand · React Router v6 · Recharts · react-body-highlighter · lucide-react · html2canvas · vite-plugin-pwa. Vitest (node env) for unit tests. Deploy: GitHub Pages via `.github/workflows/deploy.yml` (test job gates build-and-deploy).
+Vite 5 · React 18 · Tailwind v3 · Dexie.js (IndexedDB) · Zustand · React Router v6 · Recharts · react-body-highlighter · lucide-react · vite-plugin-pwa. Vitest (node env) for unit tests. Deploy: GitHub Pages via `.github/workflows/deploy.yml` (test job gates build-and-deploy).
 
 ## Routes (`src/router.jsx`)
 `/` Loading · **`/home`** · **`/plan`** · **`/workout`** · **`/library`** · **`/progress`** · `/history` · `/records` · `/exercises/:id` · `/profile` · `/settings`. All under `AppLayout` (BottomNav + Onboarding/Tour/CoachMark/UiHost gates).
@@ -51,8 +51,7 @@ Tested utils: units, plateCalc, overload, volume, restStats, oneRepMax, superset
 - template: TemplateCard, TemplateBuilder, WeeklyPlanner, RoutineGeneratorModal, WeekPlannerModal, ProgramsModal
 - library: LibraryPage hosts both halves — Exercises (search + BodyPicker muscle map + favourites + add-custom, reusing `exercise/*`) and Stretches (routines by phase, then all stretches filtered by type/body-area/search, plus the stretch log)
 - progress: VolumeChart, TrendChart, MuscleFrequency, Heatmap, MonthCalendar, RecoveryMap, ActivityRings, WeeklyRecap, ActivityForm, BodyStatsForm, SleepForm, PRBadge, ProgressPhotos
-- share: ShareSheet, ShareButton, ShareableCard (the one surviving card), themes.js
-- fx: Particles, CountUp · logo: **BrandMark** (static emerald check; replaces the level-evolving OpusMark), LoadingScreen · ui: Modal, UiHost, ColorPicker · coach: CoachMark · tour: Tour
+- fx: Particles, CountUp · logo: **BrandMark** (static emerald check; replaces the level-evolving OpusMark), LoadingScreen · ui: Modal, UiHost · coach: CoachMark · tour: Tour
 
 ## Design system
 `src/styles/tokens.css` is the single source of truth (mirrored by `tailwind.config.js`). Semantic CSS vars, so the whole app re-skins from one file.
@@ -61,6 +60,13 @@ Tested utils: units, plateCalc, overload, volume, restStats, oneRepMax, superset
 - Accents **`--color-gold` #10B981 (primary emerald)** · `--color-ember` #FB7185 (energy/stretch) · `--color-sage` #0D9488 · `--color-ash` #94A3B8
 - Type: `font-display` Plus Jakarta Sans (bold headings) · `font-sans` DM Sans · `font-mono` DM Mono. The old Cormorant serif is gone.
 - **Contrast rule:** text on a `--color-gold`/`ember`/`sage` background must be `--color-text-inverse`, never `--color-obsidian`.
+
+## Deliberately absent
+Kept out to stay focused on training — do not re-add without being asked:
+label/tag **colour pickers** (exercise, routine, workout), manual **workout tags**,
+**share cards** (and the html2canvas dependency), per-type **notification toggles**
+(one master switch + quiet hours only; the Plan tab owns session reminders),
+and sound/tips preview buttons.
 
 ## Reusable patterns
 - **Sound/haptics/fx**: `playChime(kind)`, `useHaptics()(kind)`, `<Particles/>`, `<CountUp/>` — gated by effects/sound + reduced-motion. Surviving cues: tick, tap, start, rest, delete, success, pr, goal.

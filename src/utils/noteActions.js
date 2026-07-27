@@ -17,10 +17,6 @@ export async function setWorkoutNote(workoutId, notes) {
   await db.workouts.update(workoutId, { notes: notes ?? '' });
 }
 
-// Color label on a saved workout (token name or null).
-export async function setWorkoutColor(workoutId, color) {
-  await db.workouts.update(workoutId, { color: color ?? null });
-}
 
 // Rename a saved workout. Empty names are ignored (a workout always has a name).
 export async function setWorkoutName(workoutId, name) {
@@ -28,10 +24,6 @@ export async function setWorkoutName(workoutId, name) {
   if (trimmed) await db.workouts.update(workoutId, { name: trimmed });
 }
 
-// Muscle-group tags on a saved workout (array of tag strings; unindexed field).
-export async function setWorkoutTags(workoutId, tags) {
-  await db.workouts.update(workoutId, { tags: Array.isArray(tags) ? tags : [] });
-}
 
 // Per-set note on a saved set.
 export async function setSetNote(setId, note) {
