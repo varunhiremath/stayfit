@@ -2,6 +2,8 @@
 
 > Let's do it — plan, train, recover.
 
+**Live:** https://varunhiremath.github.io/LUDI/
+
 A free, offline-first Progressive Web App for gym training. Plan your week around a split you actually like, log your sessions, warm up and cool down properly, and watch your numbers move. No games, no subscriptions, no ads, no cloud — everything lives on your device.
 
 ## Features
@@ -36,7 +38,7 @@ npm test         # unit tests (vitest)
 
 Pushes to `main` build and deploy to GitHub Pages via GitHub Actions (`.github/workflows/deploy.yml`).
 
-> **Note on the base path:** the app is currently served under `/opus/` (set by `base` in `vite.config.js`). If the GitHub repository is renamed to `LUDI`, update that `base` to `/LUDI/` so Pages keeps resolving assets.
+The app is served under the `/LUDI/` base path (set by `base` in `vite.config.js`, matching the repository name).
 
 ## Data & privacy
 

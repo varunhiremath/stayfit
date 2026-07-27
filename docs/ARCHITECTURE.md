@@ -4,7 +4,7 @@ The efficiency reference: what exists and where. Check here before grepping. Kee
 
 > **v4.0.0 — LUDI.** The app was formerly OPUS, a gamified gym tracker. The entire RPG layer (XP, levels, titles, prestige, quests, achievements, Iron economy, daily dungeon, boss gates, decay, streak shield, crit sets, the 3D companion and all share cards but one) was **removed**. What remains is a focused health-and-fitness app: plan → train → recover.
 >
-> **Deliberately unchanged for data safety:** the Dexie DB is still named `OpusDB` (renaming orphans existing users' data) and the Vite `base` is still `/opus/` (matches the deployed GitHub Pages URL — flip to `/LUDI/` only when the repo is renamed).
+> **Deliberately unchanged for data safety:** the Dexie DB is still named `OpusDB` — renaming it would orphan existing users' workout history. It is internal and never shown. (The repo and the Vite `base` are both `LUDI`/`/LUDI/`.)
 
 ## Stack
 Vite 5 · React 18 · Tailwind v3 · Dexie.js (IndexedDB) · Zustand · React Router v6 · Recharts · react-body-highlighter · lucide-react · html2canvas · vite-plugin-pwa. Vitest (node env) for unit tests. Deploy: GitHub Pages via `.github/workflows/deploy.yml` (test job gates build-and-deploy).

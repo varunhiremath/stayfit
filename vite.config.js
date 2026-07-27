@@ -3,10 +3,10 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // Capacitor's WebView serves assets at the file:// root, so it needs base: '/'.
-// GitHub Pages serves under /opus/, so the normal build keeps that. Toggle via
+// GitHub Pages serves under /LUDI/ (the repo name), so the normal build keeps that. Toggle via
 // CAPACITOR_BUILD=true npm run build (used by the android-release workflow).
 export default defineConfig({
-  base: process.env.CAPACITOR_BUILD === 'true' ? '/' : '/opus/',
+  base: process.env.CAPACITOR_BUILD === 'true' ? '/' : '/LUDI/',
   plugins: [
     react(),
     VitePWA({
@@ -20,12 +20,12 @@ export default defineConfig({
         background_color: '#F4F6F9',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/opus/',
-        scope: '/opus/',
+        start_url: '/LUDI/',
+        scope: '/LUDI/',
         icons: [
-          { src: '/opus/lifter.png', sizes: '192x192', type: 'image/png' },
-          { src: '/opus/lifter.png', sizes: '512x512', type: 'image/png' },
-          { src: '/opus/lifter.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+          { src: '/LUDI/lifter.png', sizes: '192x192', type: 'image/png' },
+          { src: '/LUDI/lifter.png', sizes: '512x512', type: 'image/png' },
+          { src: '/LUDI/lifter.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
         ],
       },
       workbox: {

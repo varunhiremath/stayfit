@@ -4,7 +4,7 @@ import ShareableCard from './ShareableCard.jsx';
 import ShareSheet from './ShareSheet.jsx';
 
 // Opens a customizable share sheet (live preview + themes) for the given card.
-export default function ShareButton({ data, CardComponent = ShareableCard, filename = 'opus-card.png', label = 'Share', className, style }) {
+export default function ShareButton({ data, CardComponent = ShareableCard, filename = 'ludi-card.png', label = 'Share', className, style }) {
   const [open, setOpen] = useState(false);
 
   return (

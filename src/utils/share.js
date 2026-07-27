@@ -16,7 +16,7 @@ async function captureBlob(node) {
 
 // Captures `node` as a PNG and shares it via the Web Share API,
 // falling back to a download when sharing files isn't supported.
-export async function shareCard(node, filename = 'opus-workout.png') {
+export async function shareCard(node, filename = 'ludi-workout.png') {
   const blob = await captureBlob(node);
   if (!blob) return;
   const file = new File([blob], filename, { type: 'image/png' });

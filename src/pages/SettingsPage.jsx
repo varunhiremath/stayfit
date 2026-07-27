@@ -223,7 +223,7 @@ export default function SettingsPage() {
         <p className="font-sans text-sm" style={{ color: 'var(--color-text-secondary)' }}>Let's do it — plan, train, recover.</p>
         <p className="mt-1 font-mono text-xs" style={{ color: 'var(--color-ash)' }}>v4.0.0</p>
         <a
-          href="https://github.com/shubanms/opus"
+          href="https://github.com/varunhiremath/LUDI"
           target="_blank"
           rel="noopener noreferrer"
           className="mt-3 flex items-center gap-2 font-sans text-sm font-medium"

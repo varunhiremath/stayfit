@@ -6,7 +6,7 @@ import { THEMES, ACCENTS } from './themes.js';
 
 const PREVIEW = 280;
 
-export default function ShareSheet({ isOpen, onClose, CardComponent, data, filename = 'opus-card.png' }) {
+export default function ShareSheet({ isOpen, onClose, CardComponent, data, filename = 'ludi-card.png' }) {
   const ref = useRef();
   const [themeIdx, setThemeIdx] = useState(0);
   const [accentIdx, setAccentIdx] = useState(0);

@@ -23,7 +23,9 @@ The user asked for a gym-training app built on OPUS but **health-and-fitness foc
 
 **Verification:** vitest **232 passing** (27 files, +41 new for nextSession/stretchSession/seedStretches, +4 for rest-day reminders); production build clean; Playwright drove a full session — install PPL → warm-up runner → log 2 sets on Bench Press → Save & finish → 1 workout persisted → Home/Progress/Stretch/Settings all render — with **no page errors**.
 
-**Known follow-ups (not blockers):** the Dexie DB is deliberately still `OpusDB` and the Vite `base` is still `/opus/` — flip `base` to `/LUDI/` when the GitHub repo is renamed (the repo rename itself is a GitHub Settings action the user must do). `packages/core/` and `apps/mobile/` still carry the old OPUS/RPG code and were left untouched per the PWA-only focus rule.
+**Repo rename completed.** The user renamed the GitHub repository to **LUDI**, so the Vite `base`, PWA `start_url`/`scope`/icon paths, the SPA 404 redirect and the Playwright baseURL all moved from `/opus/` to `/LUDI/`. Live at https://varunhiremath.github.io/LUDI/.
+
+**Deliberately unchanged:** the Dexie DB is still named `OpusDB` — renaming it would orphan existing users' workout history, and it is internal and never user-visible. `packages/core/` and `apps/mobile/` still carry the old OPUS/RPG code and were left untouched per the PWA-only focus rule.
 
 ---
 

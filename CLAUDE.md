@@ -6,8 +6,8 @@
 >
 > **v4.0.0 renamed OPUS → LUDI and removed the entire RPG layer** (XP/levels/quests/achievements/
 > economy/dungeon/companion). Do not reintroduce game mechanics.
-> **Data-safety invariants:** the Dexie DB stays named `OpusDB`, and Vite `base` stays `/opus/` until
-> the GitHub repo is renamed to `LUDI` (then flip `base` to `/LUDI/`).
+> **Data-safety invariant:** the Dexie DB stays named `OpusDB` — renaming it orphans existing users'
+> workout history. It is internal and never user-visible. Repo + Vite `base` are `LUDI` / `/LUDI/`.
 
 ## ⛔ FOCUS: PWA ONLY — native app is ON HOLD (set 2026-07-19)
 **Work exclusively in the web/PWA app (`src/`, `docs/`, root config). The native app is paused by the user's explicit instruction.**
