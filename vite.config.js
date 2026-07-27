@@ -44,6 +44,15 @@ export default defineConfig({
             options: { cacheName: 'wger-api', expiration: { maxAgeSeconds: 60 * 60 * 24 * 7 } },
           },
           {
+            urlPattern: /^https:\/\/wger\.de\/media/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'wger-media',
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
             urlPattern: /^https:\/\/fonts\.googleapis\.com/,
             handler: 'CacheFirst',
             options: { cacheName: 'google-fonts' },

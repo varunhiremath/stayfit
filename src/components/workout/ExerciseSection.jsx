@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { X, StickyNote, Link2, ChevronUp, ChevronDown, Repeat, Info } from 'lucide-react';
+import { X, StickyNote, Link2, ChevronUp, ChevronDown, Repeat } from 'lucide-react';
 import SetLogger from './SetLogger.jsx';
 import CardioLogger from './CardioLogger.jsx';
 import OverloadNudge from './OverloadNudge.jsx';
 import ExerciseInfoModal from './ExerciseInfoModal.jsx';
+import ExerciseDemo from './ExerciseDemo.jsx';
 import useSettingsStore from '../../store/settingsStore.js';
 import { useExerciseNote } from '../../hooks/useExercises.js';
 import { toDisplay, unitLabel, fmtVolume } from '../../utils/units.js';
@@ -42,9 +43,19 @@ export default function ExerciseSection({ exercise, muscleGroup, isBodyweight, i
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="font-sans text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+          <button
+            onClick={() => setInfoOpen(true)}
+            className="block text-left font-sans text-base font-semibold"
+            style={{
+              color: 'var(--color-gold)',
+              textDecoration: 'underline',
+              textDecorationColor: 'color-mix(in srgb, var(--color-gold) 40%, transparent)',
+              textUnderlineOffset: 3,
+            }}
+            title={`About ${exercise.name}`}
+          >
             {exercise.name}
-          </h3>
+          </button>
           <span
             className="mt-0.5 inline-block rounded-full px-2 py-0.5 font-sans text-xs capitalize"
             style={{ background: hue + '22', color: hue }}
@@ -77,14 +88,6 @@ export default function ExerciseSection({ exercise, muscleGroup, isBodyweight, i
               <ChevronDown size={16} style={{ color: 'var(--color-ash)' }} />
             </button>
           </div>
-          <button
-            onClick={() => setInfoOpen(true)}
-            className="flex h-7 w-7 items-center justify-center rounded-full"
-            style={{ background: 'var(--color-ivory)' }}
-            aria-label="Exercise info"
-          >
-            <Info size={13} style={{ color: 'var(--color-ash)' }} />
-          </button>
           {canLink && !isCardio && (
             <button
               onClick={onToggleSuperset}
@@ -118,6 +121,9 @@ export default function ExerciseSection({ exercise, muscleGroup, isBodyweight, i
           </button>
         </div>
       </div>
+
+      {/* How-to picture + video, inline under the name */}
+      <ExerciseDemo name={exercise.name} />
 
       {note && (
         <div className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2" style={{ background: 'var(--color-ivory)' }}>

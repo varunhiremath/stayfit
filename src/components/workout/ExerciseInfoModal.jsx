@@ -1,6 +1,7 @@
 import { StickyNote, PlayCircle, Youtube, Trophy } from 'lucide-react';
 import Modal from '../ui/Modal.jsx';
 import { useExercise, useExerciseNote } from '../../hooks/useExercises.js';
+import { useExerciseDemo } from '../../hooks/useExerciseDemo.js';
 import { usePRs } from '../../hooks/useProgress.js';
 import { setExerciseNote } from '../../utils/noteActions.js';
 import useSettingsStore from '../../store/settingsStore.js';
@@ -12,6 +13,7 @@ export default function ExerciseInfoModal({ exerciseId, isOpen, onClose }) {
   const exercise = useExercise(exerciseId);
   const note = useExerciseNote(exerciseId);
   const prs = usePRs(exerciseId);
+  const demoUrl = useExerciseDemo(exercise?.name);
   const unit = useSettingsStore((s) => s.unit);
   if (!isOpen || !exercise) return null;
 
@@ -64,6 +66,14 @@ export default function ExerciseInfoModal({ exerciseId, isOpen, onClose }) {
             How to do it
           </span>
         </div>
+        {demoUrl && (
+          <img
+            src={demoUrl}
+            alt={`${exercise.name} demonstration`}
+            className="mb-3 w-full rounded-xl object-contain"
+            style={{ maxHeight: 200, background: 'var(--color-ivory)' }}
+          />
+        )}
         <a
           href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${exercise.name} proper form tutorial`)}`}
           target="_blank"

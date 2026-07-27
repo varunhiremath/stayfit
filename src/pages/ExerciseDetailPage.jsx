@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trophy, TrendingUp, PlayCircle, Trash2, Youtube, Star, StickyNote } from 'lucide-react';
 import { useExercise, useExerciseNote } from '../hooks/useExercises.js';
@@ -7,6 +6,7 @@ import { deleteCustomExercise, toggleFavorite } from '../utils/exerciseActions.j
 import { setExerciseNote } from '../utils/noteActions.js';
 import { toDisplay, unitLabel } from '../utils/units.js';
 import { playChime } from '../utils/sound.js';
+import { useExerciseDemo } from '../hooks/useExerciseDemo.js';
 import useSettingsStore from '../store/settingsStore.js';
 import useUIStore from '../store/uiStore.js';
 import VolumeChart from '../components/progress/VolumeChart.jsx';
@@ -60,52 +60,12 @@ export default function ExerciseDetailPage() {
   const volumeRaw = useExerciseVolume(Number(id));
   const e1rmRaw = useExerciseOneRepMax(Number(id));
   const note = useExerciseNote(Number(id));
+  const demoUrl = useExerciseDemo(exercise?.name);
   const unit = useSettingsStore((s) => s.unit);
   const volume = volumeRaw.map((d) => ({ label: d.label, volume: Math.round(toDisplay(d.volume, unit)) }));
   const e1rm = e1rmRaw.map((d) => ({ label: d.label, value: Math.round(toDisplay(d.value, unit)) }));
   const bestE1rm = e1rmRaw.length ? Math.max(...e1rmRaw.map((d) => d.value)) : 0;
-  const [demoUrl, setDemoUrl] = useState(null);
 
-  useEffect(() => {
-    if (!exercise?.name) return;
-    const ctrl = new AbortController();
-    const abs = (u) => (u && u.startsWith('/') ? `https://wger.de${u}` : u);
-
-    async function loadDemo() {
-      try {
-        const term = exercise.name.replace(/[^a-zA-Z0-9 ]/g, '').trim();
-        const res = await fetch(
-          `https://wger.de/api/v2/exercise/search/?term=${encodeURIComponent(term)}&language=english&format=json`,
-          { signal: ctrl.signal }
-        );
-        const data = await res.json();
-        const top = data.suggestions?.[0]?.data;
-        if (!top) return;
-
-        // Search result image is a relative media path — make it absolute.
-        if (top.image) {
-          setDemoUrl(abs(top.image));
-          return;
-        }
-        // Fallback: look up the exercise's images by base id.
-        if (top.base_id) {
-          const r2 = await fetch(
-            `https://wger.de/api/v2/exerciseimage/?exercise_base=${top.base_id}&format=json`,
-            { signal: ctrl.signal }
-          );
-          const d2 = await r2.json();
-          const main = d2.results?.find((x) => x.is_main) ?? d2.results?.[0];
-          if (main?.image) setDemoUrl(abs(main.image));
-        }
-      } catch {
-        /* offline or not found — fall back to hiding the demo */
-      }
-    }
-
-    setDemoUrl(null);
-    loadDemo();
-    return () => ctrl.abort();
-  }, [exercise?.name]);
 
   if (!exercise) {
     return (
@@ -206,7 +166,6 @@ export default function ExerciseDetailPage() {
           <img
             src={demoUrl}
             alt={`${exercise.name} demo`}
-            onError={() => setDemoUrl(null)}
             className="mt-3 w-full object-contain"
             style={{ maxHeight: 220, background: 'var(--color-chalk)' }}
           />
