@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Minus, Trash2, Flame, Dumbbell, StickyNote, Info, Trophy } from 'lucide-react';
+import { Plus, Minus, Trash2, Flame, Dumbbell, StickyNote, Trophy } from 'lucide-react';
 import useWorkoutStore from '../../store/workoutStore.js';
 import useSettingsStore from '../../store/settingsStore.js';
 import useUIStore from '../../store/uiStore.js';
@@ -28,8 +28,6 @@ function SetDelta({ diff, unit }) {
   );
 }
 
-const RPE_CHIPS = [6, 7, 8, 9, 10];
-
 export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = false }) {
   const { activeWorkout, logSet, removeSet, toggleWarmup, setSetNote } = useWorkoutStore();
   const unit = useSettingsStore((s) => s.unit);
@@ -47,9 +45,6 @@ export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = fals
 
   const [weight, setWeight] = useState('');
   const [reps, setReps] = useState('');
-  const [rpe, setRpe] = useState(null);
-  const [showRpe, setShowRpe] = useState(false);
-  const [showRpeInfo, setShowRpeInfo] = useState(false);
   const [showPlates, setShowPlates] = useState(false);
   const [addWeight, setAddWeight] = useState(false);
   const [prFloat, setPrFloat] = useState(null);
@@ -81,7 +76,6 @@ export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = fals
     logSet(exerciseId, {
       weight: weightKg,
       reps: r,
-      rpe: showRpe ? rpe : null,
       isWarmup: false,
     });
     haptic(isPR ? 'pr' : 'tap');
@@ -89,7 +83,6 @@ export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = fals
     if (isPR) setPrFloat(Date.now());
     onSetLogged?.();
     setReps('');
-    setRpe(null);
   }
 
   async function editNote(setNumber, current) {
@@ -152,9 +145,6 @@ export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = fals
               {fmt(s)}
             </span>
             {!s.isWarmup && <SetDelta diff={setDeltas[s.setNumber]} unit={unit} />}
-            {s.rpe && (
-              <span className="font-mono text-xs" style={{ color: 'var(--color-ash)' }}>RPE {s.rpe}</span>
-            )}
             <button onClick={() => editNote(s.setNumber, s.note)} aria-label="Set note">
               <StickyNote size={13} style={{ color: s.note ? 'var(--color-gold)' : 'var(--color-ash)' }} />
             </button>
@@ -231,14 +221,8 @@ export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = fals
       </div>
 
       {/* Toggles */}
-      <div className="mt-1 flex items-center gap-4">
-        <button onClick={() => setShowRpe((v) => !v)} className="font-sans text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-          {showRpe ? 'Hide effort' : '+ Add effort (RPE)'}
-        </button>
-        <button onClick={() => setShowRpeInfo((v) => !v)} aria-label="What is RPE?" className="flex items-center">
-          <Info size={13} style={{ color: 'var(--color-ash)' }} />
-        </button>
-        {isBodyweight && (
+      {isBodyweight && (
+        <div className="mt-1 flex items-center">
           <button
             onClick={() => { setAddWeight((v) => !v); setWeight(''); setShowPlates(false); }}
             className="ml-auto font-sans text-xs"
@@ -246,35 +230,10 @@ export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = fals
           >
             {addWeight ? 'Bodyweight only' : '+ Add weight'}
           </button>
-        )}
-      </div>
-
-      {showRpeInfo && (
-        <p className="mt-2 rounded-xl px-3 py-2 font-sans text-xs" style={{ background: 'var(--color-ivory)', color: 'var(--color-text-secondary)' }}>
-          <b style={{ color: 'var(--color-text-primary)' }}>RPE</b> = how hard the set felt, 1–10. Think "reps left in the tank":
-          10 = all-out, 9 ≈ 1 left, 8 ≈ 2 left. It's optional — it helps track intensity over time.
-        </p>
-      )}
-
-      {showRpe && (
-        <div className="mt-2">
-          <div className="flex gap-1.5">
-            {RPE_CHIPS.map((n) => (
-              <button
-                key={n}
-                onClick={() => setRpe(rpe === n ? null : n)}
-                className="h-10 flex-1 rounded-lg font-mono text-sm font-medium"
-                style={{
-                  background: rpe === n ? 'var(--color-gold)' : 'var(--color-ivory)',
-                  color: rpe === n ? 'var(--color-text-inverse)' : 'var(--color-text-primary)',
-                }}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
         </div>
       )}
+
+
 
       {/* Plate calculator */}
       {showPlates && weightNum > 0 && (

@@ -122,6 +122,21 @@ const useWorkoutStore = create((set, get) => ({
     });
   },
 
+  // Adds focused seconds to an exercise — WorkoutPage banks the time whenever
+  // you switch away from an open card, so each one carries how long it took.
+  accrueExerciseTime(exerciseId, secs) {
+    const w = get().activeWorkout;
+    if (!w || !(secs > 0)) return;
+    set({
+      activeWorkout: {
+        ...w,
+        exercises: w.exercises.map((e) =>
+          e.exerciseId !== exerciseId ? e : { ...e, activeSecs: (e.activeSecs ?? 0) + Math.round(secs) }
+        ),
+      },
+    });
+  },
+
   logSet(exerciseId, setData) {
     const w = get().activeWorkout;
     if (!w) return;
@@ -220,8 +235,7 @@ const useWorkoutStore = create((set, get) => ({
     });
   },
 
-  // Reorder an exercise up (-1) or down (+1). Superset grouping re-derives from
-  // the new order, so moving a member out of its run naturally breaks the link.
+  // Reorder an exercise up (-1) or down (+1).
   moveExercise(exerciseId, dir) {
     const w = get().activeWorkout;
     if (!w) return;
@@ -232,26 +246,6 @@ const useWorkoutStore = create((set, get) => ({
     set({ activeWorkout: { ...w, exercises } });
   },
 
-  // Toggle whether an exercise is chained into a superset with the one above it.
-  // Members of a superset share a supersetId; rest is taken only after the last.
-  toggleSuperset(exerciseId) {
-    const w = get().activeWorkout;
-    if (!w) return;
-    const i = w.exercises.findIndex(e => e.exerciseId === exerciseId);
-    if (i <= 0) return;
-    const cur = w.exercises[i];
-    const prev = w.exercises[i - 1];
-    const joined = cur.supersetId != null && cur.supersetId === prev.supersetId;
-    const exercises = w.exercises.slice();
-    if (joined) {
-      exercises[i] = { ...cur, supersetId: null };
-    } else {
-      const groupId = prev.supersetId ?? Date.now();
-      exercises[i - 1] = { ...prev, supersetId: groupId };
-      exercises[i] = { ...cur, supersetId: groupId };
-    }
-    set({ activeWorkout: { ...w, exercises } });
-  },
 
   async completeWorkout() {
     const w = get().activeWorkout;
@@ -292,6 +286,11 @@ const useWorkoutStore = create((set, get) => ({
       totalCalories,
       totalSets,
       bodyweightKg,
+      // Seconds focused on each exercise, keyed by exercise id. Unindexed, so
+      // Dexie stores it without a migration.
+      exerciseTimes: Object.fromEntries(
+        w.exercises.filter((e) => e.activeSecs > 0).map((e) => [e.exerciseId, e.activeSecs])
+      ),
       createdAt: Date.now(),
     });
 

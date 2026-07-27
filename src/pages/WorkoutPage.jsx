@@ -16,11 +16,10 @@ import useSettingsStore from '../store/settingsStore.js';
 import { maybePromptPermission, notifyPR } from '../utils/notifications.js';
 import { saveWorkoutAsRoutine, advanceProgression } from '../utils/templateActions.js';
 import { playChime } from '../utils/sound.js';
-import { supersetRuns, noRestIds } from '../utils/supersets.js';
-import { partitionSession, nextUpId, advanceFrom, summarise } from '../utils/sessionFlow.js';
+import { partitionSession, summarise } from '../utils/sessionFlow.js';
 import useUIStore from '../store/uiStore.js';
 
-function ExerciseSectionWrapper({ ex, onSetLogged, onRemove, onSwap, canLink, linked, onToggleSuperset, expanded, onToggleExpand, isDone, sessionIds }) {
+function ExerciseSectionWrapper({ ex, onSetLogged, onRemove, onSwap, expanded, onToggleExpand, isDone, sessionIds, liveSecs }) {
   const exerciseData = useExercise(ex.exerciseId);
   const muscleGroup = exerciseData?.muscleGroup ?? null;
   return (
@@ -32,19 +31,17 @@ function ExerciseSectionWrapper({ ex, onSetLogged, onRemove, onSwap, canLink, li
       onSetLogged={onSetLogged}
       onRemove={onRemove}
       onSwap={onSwap}
-      canLink={canLink}
-      linked={linked}
-      onToggleSuperset={onToggleSuperset}
       expanded={expanded}
       onToggleExpand={onToggleExpand}
       isDone={isDone}
       sessionIds={sessionIds}
+      liveSecs={liveSecs}
     />
   );
 }
 
 export default function WorkoutPage() {
-  const { activeWorkout, resumed, dismissResumed, startWorkout, startFromTemplate, addExercise, removeExercise, swapExercise, discardWorkout, completeWorkout, setWorkoutName, setEnergy, setWorkoutNotes, toggleSuperset } = useWorkoutStore();
+  const { activeWorkout, resumed, dismissResumed, startWorkout, startFromTemplate, addExercise, removeExercise, swapExercise, discardWorkout, completeWorkout, setWorkoutName, setEnergy, setWorkoutNotes, accrueExerciseTime } = useWorkoutStore();
   const navigate = useNavigate();
   const templates = useTemplatesWithExercises();
 
@@ -54,8 +51,10 @@ export default function WorkoutPage() {
   const [editingName, setEditingName] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
   const [restKey, setRestKey] = useState(0);
-  // Which card is open. null until the session loads, then the first unstarted.
+  // Which card is open — nothing until you tap an exercise.
   const [openId, setOpenId] = useState(null);
+  const [liveSecs, setLiveSecs] = useState(0);
+  const openedAt = useRef(Date.now());
   const restDuration = useSettingsStore((s) => s.restDuration);
   const setRestDuration = useSettingsStore((s) => s.setRestDuration);
   const nameRef = useRef();
@@ -73,37 +72,59 @@ export default function WorkoutPage() {
   const alreadyAdded = activeWorkout?.exercises.map((e) => e.exerciseId) ?? [];
 
   const exercises = activeWorkout?.exercises ?? [];
-  const noRest = noRestIds(exercises);
 
-  // Open the first unstarted exercise when the session appears or the open one
-  // disappears (removed or swapped out).
+  // If the open exercise disappears (removed or swapped out), close rather than
+  // jumping somewhere the user didn't choose.
   useEffect(() => {
-    if (!exercises.length) { if (openId !== null) setOpenId(null); return; }
-    if (openId == null || !exercises.some((e) => e.exerciseId === openId)) {
-      setOpenId(nextUpId(exercises) ?? exercises[0].exerciseId);
-    }
+    if (openId != null && !exercises.some((e) => e.exerciseId === openId)) closeOpen();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [exercises.length, openId]);
+  }, [exercises.length]);
+
+  // Ticks once a second so the open card's time reads live.
+  useEffect(() => {
+    if (openId == null) { setLiveSecs(0); return undefined; }
+    setLiveSecs(0);
+    const id = setInterval(() => setLiveSecs(Math.round((Date.now() - openedAt.current) / 1000)), 1000);
+    return () => clearInterval(id);
+  }, [openId]);
 
   const { todo, done } = partitionSession(exercises, openId);
-  const runs = supersetRuns(todo);
   const sessionIds = exercises.map((e) => e.exerciseId);
   const sessionTotals = exercises.reduce(
     (acc, e) => { const t = summarise(e); acc.sets += t.sets; acc.volumeKg += t.volumeKg; return acc; },
     { sets: 0, volumeKg: 0 }
   );
+  const completedCount = exercises.filter((e) => (e.sets?.length ?? 0) > 0).length;
 
-  // Collapsing the card you just finished moves you on to the next one.
-  function toggleOpen(id) {
-    setOpenId((cur) => (cur === id ? advanceFrom(exercises, id) : id));
+  // Bank the time spent on whichever card was open.
+  function bankTime() {
+    if (openId == null) return;
+    accrueExerciseTime(openId, (Date.now() - openedAt.current) / 1000);
   }
 
-  function handleSetLogged(exerciseId) {
+  function closeOpen() {
+    bankTime();
+    setOpenId(null);
+    setLiveSecs(0);
+  }
+
+  // Nothing opens by itself — a card opens only when you tap it, and opening
+  // one closes (and times) whatever was open before.
+  function toggleOpen(id) {
+    if (openId === id) { closeOpen(); return; }
+    bankTime();
+    openedAt.current = Date.now();
+    setLiveSecs(0);
+    setOpenId(id);
+  }
+
+  function handleSetLogged() {
     setRestKey((k) => k + 1);
-    setShowRest(!(exerciseId != null && noRest.has(exerciseId)));
+    setShowRest(true);
   }
 
   async function handleSave(routine) {
+    bankTime();
     const snapshot = activeWorkout; // completeWorkout clears the store — capture first
     let result;
     try {
@@ -282,9 +303,8 @@ export default function WorkoutPage() {
       {/* Session clock */}
       <SessionTimer
         startedAt={activeWorkout.startedAt}
-        sets={sessionTotals.sets}
         volumeKg={sessionTotals.volumeKg}
-        done={done.length}
+        done={completedCount}
         total={exercises.length}
       />
 
@@ -328,40 +348,19 @@ export default function WorkoutPage() {
           {done.length > 0 ? 'Up next' : 'Your exercises'}
         </p>
       )}
-      {runs.map((run) => {
-        const renderEx = (ex) => {
-          const idx = exercises.indexOf(ex);
-          const linked = idx > 0 && ex.supersetId != null && ex.supersetId === exercises[idx - 1].supersetId;
-          return (
-            <ExerciseSectionWrapper
-              key={ex.exerciseId}
-              ex={ex}
-              canLink={idx > 0}
-              linked={linked}
-              expanded={openId === ex.exerciseId}
-              onToggleExpand={() => toggleOpen(ex.exerciseId)}
-              sessionIds={sessionIds}
-              onSetLogged={handleSetLogged}
-              onRemove={() => removeExercise(ex.exerciseId)}
-              onSwap={(pick) => swapExercise(ex.exerciseId, pick)}
-              onToggleSuperset={() => toggleSuperset(ex.exerciseId)}
-            />
-          );
-        };
-        if (run.length < 2) return renderEx(run[0]);
-        return (
-          <div
-            key={`ss-${run[0].exerciseId}`}
-            className="mb-3 rounded-2xl py-1 pl-2"
-            style={{ borderLeft: '3px solid var(--color-gold)' }}
-          >
-            <p className="mb-1 pl-2 pt-1 font-sans text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'var(--color-gold)' }}>
-              Superset · {run.length} moves · rest after the last
-            </p>
-            {run.map(renderEx)}
-          </div>
-        );
-      })}
+      {todo.map((ex) => (
+        <ExerciseSectionWrapper
+          key={ex.exerciseId}
+          ex={ex}
+          expanded={openId === ex.exerciseId}
+          onToggleExpand={() => toggleOpen(ex.exerciseId)}
+          liveSecs={liveSecs}
+          sessionIds={sessionIds}
+          onSetLogged={handleSetLogged}
+          onRemove={() => removeExercise(ex.exerciseId)}
+          onSwap={(pick) => swapExercise(ex.exerciseId, pick)}
+        />
+      ))}
 
       {/* Done — finished work, folded away */}
       {done.length > 0 && (

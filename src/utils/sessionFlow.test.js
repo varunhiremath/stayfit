@@ -2,8 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   isLogged,
   partitionSession,
-  nextUpId,
-  advanceFrom,
   swapCandidates,
   summarise,
   sessionProgress,
@@ -54,27 +52,6 @@ describe('partitionSession', () => {
   it('handles an empty session', () => {
     expect(partitionSession([], null)).toEqual({ todo: [], done: [] });
     expect(partitionSession()).toEqual({ todo: [], done: [] });
-  });
-});
-
-describe('nextUpId / advanceFrom', () => {
-  it('opens the first unstarted exercise', () => {
-    expect(nextUpId([ex(1, 'Bench', [set(60, 8)]), ex(2, 'Row'), ex(3, 'Curl')])).toBe(2);
-  });
-
-  it('is null when everything has been logged', () => {
-    expect(nextUpId([ex(1, 'Bench', [set(60, 8)])])).toBeNull();
-    expect(nextUpId([])).toBeNull();
-  });
-
-  it('skips the exercise you just closed', () => {
-    const s = [ex(1, 'Bench'), ex(2, 'Row')];
-    expect(advanceFrom(s, 1)).toBe(2);
-  });
-
-  it('returns null when the one you closed was the last unstarted', () => {
-    const s = [ex(1, 'Bench'), ex(2, 'Row', [set(50, 10)])];
-    expect(advanceFrom(s, 1)).toBeNull();
   });
 });
 

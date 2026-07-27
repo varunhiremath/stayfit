@@ -7,7 +7,7 @@ import useSettingsStore from '../../store/settingsStore.js';
 const STEPS = [
   { icon: CalendarCheck, title: 'Plan your week', body: 'Start in Plan: choose a split like Push/Pull/Legs, or install a ready-made program. StayFit assigns each routine to a day so you always know what\'s next.' },
   { icon: Bell, title: 'Get reminded', body: 'Turn on session reminders and StayFit nudges you on training days only — never on a planned rest day.' },
-  { icon: Dumbbell, title: 'Log your workouts', body: 'Tap the center ➕ to start. Add exercises — reorder them or chain supersets — and log sets with the plate calculator, RPE and rest timer. Get interrupted? Your session is saved.' },
+  { icon: Dumbbell, title: 'Log your workouts', body: 'Tap the green button in the middle of the nav bar to start. Your planned exercises are listed — tap one to open it and log sets, with the plate calculator and rest timer. Finished ones fold away into Done. Get interrupted? Your session is saved.' },
   { icon: Activity, title: 'Warm up and cool down', body: 'The Library has guided pre- and post-workout stretch routines. Follow the timer and your stretch time is logged for you.' },
   { icon: BookOpen, title: 'Look anything up', body: 'The Library holds every exercise and stretch, tagged by muscle, body area and difficulty — tap any one to learn how to do it, with a video. Add your own too.' },
   { icon: TrendingUp, title: 'See your progress', body: 'Chart volume, personal records, estimated 1RM and body metrics — plus steps, water and your training calendar.' },

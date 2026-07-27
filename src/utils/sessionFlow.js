@@ -22,18 +22,6 @@ export function partitionSession(exercises = [], activeId = null) {
   return { todo, done };
 }
 
-// The exercise to open by default: the first one with nothing logged yet.
-export function nextUpId(exercises = []) {
-  const next = exercises.find((e) => !isLogged(e));
-  return next ? next.exerciseId : null;
-}
-
-// After finishing with `justClosedId`, the next unstarted exercise to move to.
-export function advanceFrom(exercises = [], justClosedId = null) {
-  const rest = exercises.filter((e) => e.exerciseId !== justClosedId);
-  return nextUpId(rest);
-}
-
 // Alternatives in the same muscle group that aren't already in the session.
 export function swapCandidates({ muscleGroup, catalog = [], sessionIds = [], limit = 4 }) {
   if (!muscleGroup) return [];

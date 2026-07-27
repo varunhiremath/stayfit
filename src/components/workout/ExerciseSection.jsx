@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, StickyNote, Link2, Check, ChevronDown, Info } from 'lucide-react';
+import { X, StickyNote, Check, ChevronDown, Info, Clock } from 'lucide-react';
 import SetLogger from './SetLogger.jsx';
 import CardioLogger from './CardioLogger.jsx';
 import OverloadNudge from './OverloadNudge.jsx';
@@ -8,8 +8,8 @@ import ExerciseDemo from './ExerciseDemo.jsx';
 import SwapSuggestions from './SwapSuggestions.jsx';
 import useSettingsStore from '../../store/settingsStore.js';
 import { useExerciseNote } from '../../hooks/useExercises.js';
-import { toDisplay, unitLabel, fmtVolume } from '../../utils/units.js';
-import { summarise } from '../../utils/sessionFlow.js';
+import { fmtVolume } from '../../utils/units.js';
+import { summarise, formatElapsed } from '../../utils/sessionFlow.js';
 
 const MUSCLE_HUE = {
   chest: '#EA580C', triceps: '#EA580C', 'front-deltoids': '#EA580C',
@@ -21,8 +21,7 @@ const MUSCLE_HUE = {
 
 export default function ExerciseSection({
   exercise, muscleGroup, isBodyweight, isCardio, onSetLogged, onRemove, onSwap,
-  canLink, linked, onToggleSuperset,
-  expanded = true, onToggleExpand, isDone = false, sessionIds = [],
+  expanded = true, onToggleExpand, isDone = false, sessionIds = [], liveSecs = 0,
 }) {
   const hue = MUSCLE_HUE[muscleGroup] ?? '#64748B';
   const unit = useSettingsStore((s) => s.unit);
@@ -30,8 +29,6 @@ export default function ExerciseSection({
   const [infoOpen, setInfoOpen] = useState(false);
 
   const { sets: setCount, reps: totalReps, volumeKg: volKg } = summarise(exercise);
-  const targetSets = exercise.targetSets || null;
-  const progress = targetSets ? Math.min(setCount / targetSets, 1) : null;
 
   const cardioKcal = exercise.sets.reduce((a, s) => a + (s.calories || 0), 0);
   const cardioMin = Math.round(exercise.sets.reduce((a, s) => a + (s.durationSec || 0), 0) / 60);
@@ -39,10 +36,12 @@ export default function ExerciseSection({
   const tally = isCardio
     ? (cardioKcal > 0 ? `${cardioMin} min · ${cardioKcal} kcal` : null)
     : setCount > 0
-      ? `${setCount} set${setCount === 1 ? '' : 's'}${targetSets ? ` / ${targetSets}` : ''}${totalReps ? ` · ${totalReps} reps` : ''}${volKg ? ` · ${fmtVolume(volKg, unit)}` : ''}`
-      : targetSets
-        ? `Target ${targetSets}×${exercise.targetReps ?? '—'}`
-        : null;
+      ? `${setCount} set${setCount === 1 ? '' : 's'}${totalReps ? ` · ${totalReps} reps` : ''}${volKg ? ` · ${fmtVolume(volKg, unit)}` : ''}`
+      : null;
+
+  // Time focused on this exercise: banked seconds plus whatever the open card
+  // has accrued since it was opened.
+  const secs = (exercise.activeSecs ?? 0) + (expanded ? liveSecs : 0);
 
   // ── Collapsed: one tappable row. Done rows are quieter still. ──────────────
   if (!expanded) {
@@ -75,6 +74,11 @@ export default function ExerciseSection({
               {tally ?? (muscleGroup ?? '').replace(/-/g, ' ')}
             </span>
           </span>
+          {isDone && secs > 0 && (
+            <span className="flex flex-shrink-0 items-center gap-1 font-mono text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+              <Clock size={11} /> {formatElapsed(secs)}
+            </span>
+          )}
           <ChevronDown size={16} style={{ color: 'var(--color-ash)' }} />
         </button>
 
@@ -118,27 +122,8 @@ export default function ExerciseSection({
           >
             {(muscleGroup ?? '').replace(/-/g, ' ')}
           </span>
-          {!isCardio && (exercise.targetSets || exercise.targetReps || exercise.targetWeight) && (
-            <p className="mt-1 font-mono text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-              Target: {exercise.targetSets ?? '—'}×{exercise.targetReps ?? '—'}
-              {exercise.targetWeight ? ` @ ${toDisplay(exercise.targetWeight, unit)}${unitLabel(unit)}` : ''}
-            </p>
-          )}
         </div>
         <div className="ml-2 flex flex-shrink-0 items-center gap-2">
-          {canLink && !isCardio && (
-            <button
-              onClick={onToggleSuperset}
-              className="flex items-center gap-1 rounded-full px-2 py-1 font-sans text-[11px] font-medium"
-              style={{
-                background: linked ? 'var(--color-gold)' : 'var(--color-ivory)',
-                color: linked ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)',
-              }}
-              aria-label={linked ? 'Remove from superset' : 'Superset with exercise above'}
-            >
-              <Link2 size={12} /> {linked ? 'Superset' : 'Link'}
-            </button>
-          )}
           <button
             onClick={onRemove}
             className="flex h-7 w-7 items-center justify-center rounded-full"
@@ -178,22 +163,12 @@ export default function ExerciseSection({
         </>
       ) : (
         <>
-          {(setCount > 0 || targetSets) && (
-            <div className="mt-3">
-              <p className="font-mono text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                {setCount} set{setCount === 1 ? '' : 's'}{targetSets ? ` / ${targetSets}` : ''}
-                {totalReps > 0 ? ` · ${totalReps} reps` : ''}
-                {volKg > 0 ? ` · ${fmtVolume(volKg, unit)}` : ''}
-              </p>
-              {progress != null && (
-                <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full" style={{ background: 'var(--color-ivory)' }}>
-                  <div
-                    className="h-full rounded-full"
-                    style={{ width: `${progress * 100}%`, background: progress >= 1 ? 'var(--color-sage)' : 'var(--color-gold)', transition: 'width .4s var(--ease-out)' }}
-                  />
-                </div>
-              )}
-            </div>
+          {setCount > 0 && (
+            <p className="mt-3 font-mono text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+              {setCount} set{setCount === 1 ? '' : 's'}
+              {totalReps > 0 ? ` · ${totalReps} reps` : ''}
+              {volKg > 0 ? ` · ${fmtVolume(volKg, unit)}` : ''}
+            </p>
           )}
 
           <div className="mt-3">

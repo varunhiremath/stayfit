@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Timer, Layers, Dumbbell } from 'lucide-react';
+import { Timer, CheckCircle2, Dumbbell } from 'lucide-react';
 import { formatElapsed } from '../../utils/sessionFlow.js';
 import { fmtVolume } from '../../utils/units.js';
 import useSettingsStore from '../../store/settingsStore.js';
 
 // The session clock — the one number you glance at between sets, so it gets a
 // dark card of its own with the running time set large and monospaced.
-export default function SessionTimer({ startedAt, sets, volumeKg, done, total }) {
+export default function SessionTimer({ startedAt, volumeKg, done, total }) {
   const [secs, setSecs] = useState(() => Math.round((Date.now() - startedAt) / 1000));
   const unit = useSettingsStore((s) => s.unit);
   const effects = useSettingsStore((s) => s.effects);
@@ -49,7 +49,8 @@ export default function SessionTimer({ startedAt, sets, volumeKg, done, total })
 
         <div className="flex flex-shrink-0 flex-col items-end gap-1">
           <span className="flex items-center gap-1.5 font-mono text-xs" style={{ color: 'var(--color-text-inverse)' }}>
-            <Layers size={12} style={{ color: 'var(--color-ash)' }} /> {sets} set{sets === 1 ? '' : 's'}
+            <CheckCircle2 size={12} style={{ color: 'var(--color-ash)' }} />
+            {done}{total > 0 ? ` of ${total}` : ''} done
           </span>
           {volumeKg > 0 && (
             <span className="flex items-center gap-1.5 font-mono text-xs" style={{ color: 'var(--color-ash)' }}>

@@ -15,7 +15,6 @@ const toAppDow = (d) => (d === 7 ? 0 : d); // planner 1=Mon…7=Sun → app 0=Su
 
 export default function Onboarding() {
   const updateProfile = useUserStore((s) => s.updateProfile);
-  const setBarWeight = useSettingsStore((s) => s.setBarWeight);
   const setUnit = useSettingsStore((s) => s.setUnit);
   const completeOnboarding = useSettingsStore((s) => s.completeOnboarding);
   const allExercises = useExercises();
@@ -27,7 +26,6 @@ export default function Onboarding() {
   const [height, setHeight] = useState('');
   const [sex, setSex] = useState(null);
   const [age, setAge] = useState('');
-  const [bar, setBar] = useState('20');
 
   // Week-plan step
   const [splitKey, setSplitKey] = useState('ppl');
@@ -45,7 +43,6 @@ export default function Onboarding() {
     if (bodyweight) {
       await logBodyStat({ date: new Date().toISOString().slice(0, 10), weight: toKg(bodyweight, unit) });
     }
-    setBarWeight(toKg(bar || 20, unit));
   }
 
   async function begin() {
@@ -137,7 +134,7 @@ export default function Onboarding() {
     <div className="fixed inset-0 z-[55] flex flex-col items-center overflow-y-auto px-8 py-10" style={{ background: 'var(--color-obsidian)' }}>
       <BrandMark size={80} animate />
       <h1 className="mt-6 font-display text-4xl font-bold" style={{ color: 'var(--color-text-inverse)' }}>Welcome to StayFit</h1>
-      <p className="mt-1 mb-6 font-sans text-sm" style={{ color: 'var(--color-ash)' }}>Set up your character.</p>
+      <p className="mt-1 mb-6 font-sans text-sm" style={{ color: 'var(--color-ash)' }}>A few details so weights and calories add up.</p>
 
       <div className="w-full max-w-xs">
         {/* Units */}
@@ -186,10 +183,6 @@ export default function Onboarding() {
             </div>
           </div>
         </div>
-
-        <label className={lblCls} style={{ color: 'var(--color-ash)' }}>Empty barbell weight ({lbl}) — for plate math</label>
-        <input value={bar} onChange={(e) => setBar(e.target.value)} type="number" inputMode="decimal"
-          className="mt-2 w-full rounded-xl px-4 py-3 font-mono text-sm outline-none" style={field} />
 
         <button onClick={begin} className="mt-8 mb-4 w-full rounded-xl py-4 font-sans text-base font-semibold"
           style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}>
