@@ -20,7 +20,7 @@ const MUSCLE_HUE = {
 };
 
 export default function ExerciseSection({
-  exercise, muscleGroup, isBodyweight, isCardio, onSetLogged, onRemove, onSwap,
+  exercise, muscleGroup, isBodyweight, isCardio, onRemove, onSwap,
   expanded = true, onToggleExpand, isDone = false, sessionIds = [], liveSecs = 0,
 }) {
   const hue = MUSCLE_HUE[muscleGroup] ?? '#64748B';
@@ -159,7 +159,7 @@ export default function ExerciseSection({
               {cardioMin} min · <span style={{ color: 'var(--color-gold)' }}>{cardioKcal} kcal</span>
             </p>
           )}
-          <CardioLogger exerciseId={exercise.exerciseId} onLogged={() => onSetLogged?.(exercise.exerciseId)} />
+          <CardioLogger exerciseId={exercise.exerciseId} />
         </>
       ) : (
         <>
@@ -175,7 +175,7 @@ export default function ExerciseSection({
             <OverloadNudge exerciseId={exercise.exerciseId} />
           </div>
 
-          <SetLogger exerciseId={exercise.exerciseId} onSetLogged={() => onSetLogged?.(exercise.exerciseId)} isBodyweight={isBodyweight} />
+          <SetLogger exerciseId={exercise.exerciseId} isBodyweight={isBodyweight} />
 
           {setCount === 0 && onSwap && (
             <SwapSuggestions muscleGroup={muscleGroup} sessionIds={sessionIds} onSwap={onSwap} />

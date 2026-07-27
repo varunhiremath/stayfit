@@ -40,7 +40,6 @@ const useWorkoutStore = create((set, get) => ({
         name,
         templateId,
         startedAt: Date.now(),
-        energy: null,
         exercises: [],
       },
     });
@@ -49,11 +48,6 @@ const useWorkoutStore = create((set, get) => ({
   setWorkoutName(name) {
     const w = get().activeWorkout;
     if (w) set({ activeWorkout: { ...w, name } });
-  },
-
-  setEnergy(level) {
-    const w = get().activeWorkout;
-    if (w) set({ activeWorkout: { ...w, energy: level } });
   },
 
   setWorkoutNotes(notes) {
@@ -69,7 +63,6 @@ const useWorkoutStore = create((set, get) => ({
         name: template.name,
         templateId: template.id,
         startedAt: Date.now(),
-        energy: null,
         exercises: (template.exercises ?? []).map(e => ({
           exerciseId: e.id,
           name: e.name,
@@ -100,7 +93,6 @@ const useWorkoutStore = create((set, get) => ({
         name: w.name,
         templateId: w.templateId ?? null,
         startedAt: Date.now(),
-        energy: null,
         exercises,
       },
     });
@@ -314,10 +306,6 @@ const useWorkoutStore = create((set, get) => ({
           calories: s.calories ?? 0,
         });
       }
-    }
-
-    if (w.energy) {
-      await db.energyLogs.add({ workoutId, level: w.energy });
     }
 
     // PR detection — a fitness feature, kept (no XP reward attached).

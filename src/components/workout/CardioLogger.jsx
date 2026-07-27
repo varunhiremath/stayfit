@@ -14,7 +14,7 @@ const MI_PER_KM = 0.621371;
 // Logger for cardio exercises: log a bout by time (+ speed & incline for
 // treadmill-style) and it computes distance + calories. Speed/distance follow
 // the user's unit setting (kg → km/h·km, lbs → mph·mi).
-export default function CardioLogger({ exerciseId, onLogged }) {
+export default function CardioLogger({ exerciseId }) {
   const { activeWorkout, logSet, removeSet } = useWorkoutStore();
   const unit = useSettingsStore((s) => s.unit);
   const exercise = activeWorkout?.exercises.find((e) => e.exerciseId === exerciseId);
@@ -60,10 +60,8 @@ export default function CardioLogger({ exerciseId, onLogged }) {
       calories: kcal,
       weight: 0,
       reps: 0,
-      bonusXp: Math.round(minutes), // cardio earns XP by the minute
     });
     haptic('tap'); playChime('tick');
-    onLogged?.();
     setMins(''); setSpeed(''); setIncline('');
   }
 

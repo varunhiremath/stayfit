@@ -28,7 +28,7 @@ function SetDelta({ diff, unit }) {
   );
 }
 
-export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = false }) {
+export default function SetLogger({ exerciseId, isBodyweight = false }) {
   const { activeWorkout, logSet, removeSet, toggleWarmup, setSetNote } = useWorkoutStore();
   const unit = useSettingsStore((s) => s.unit);
   const haptic = useHaptics();
@@ -81,7 +81,6 @@ export default function SetLogger({ exerciseId, onSetLogged, isBodyweight = fals
     haptic(isPR ? 'pr' : 'tap');
     playChime(isPR ? 'pr' : 'tick');
     if (isPR) setPrFloat(Date.now());
-    onSetLogged?.();
     setReps('');
   }
 

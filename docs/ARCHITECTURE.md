@@ -16,21 +16,21 @@ The five bold routes are the bottom-nav tabs (`components/layout/BottomNav.jsx`)
 
 ## DB (`src/db/db.js`) — Dexie, name `OpusDB`, current **v10**
 - v1–2: `exercises`(++id,name,muscleGroup,equipment,isCustom,difficulty; +favorite,color unindexed)
-- v2: `workouts`(++id,date,templateId,status,duration; +name,notes,energy,totalVolume,totalCalories,totalSets,bodyweightKg,color,tags,createdAt), `sets`(++id,workoutId,exerciseId,setNumber,reps,weight,completedAt; +isWarmup,rpe,note + cardio fields isCardio/durationSec/speedKmh/incline/distanceKm/calories), `templates`(++id,name,dayOfWeek,createdAt; +color,autoKey,progression unindexed), `templateExercises`(++id,templateId,exerciseId,orderIndex; +targetSets/Reps/Weight/Rest,misses), `prs`(++id,exerciseId,type,value,achievedAt,workoutId), `bodyStats`, `sleepLogs`, `energyLogs`, `userProfile`(++id; name,height,sex,birthYear,streak,lastWorkoutDate,joinDate), `notifications`(unused)
+- v2: `workouts`(++id,date,templateId,status,duration; +name,notes,energy,totalVolume,totalCalories,totalSets,bodyweightKg,color,tags,createdAt), `sets`(++id,workoutId,exerciseId,setNumber,reps,weight,completedAt; +isWarmup,rpe,note + cardio fields isCardio/durationSec/speedKmh/incline/distanceKm/calories), `templates`(++id,name,dayOfWeek,createdAt; +color,autoKey,progression unindexed), `templateExercises`(++id,templateId,exerciseId,orderIndex; +targetSets/Reps/Weight/Rest,misses), `prs`(++id,exerciseId,type,value,achievedAt,workoutId), `bodyStats`, `sleepLogs`, `energyLogs`(legacy — no longer written; deleteWorkout still clears old rows), `userProfile`(++id; name,height,sex,birthYear,streak,lastWorkoutDate,joinDate), `notifications`(unused)
 - v3–v9: workouts.createdAt index · templateExercises targets · `exerciseNotes` · `achievements` *(legacy, unused)* · `dailyLogs` · `questClaims` *(legacy, unused)* · `photos`
 - **v10 (StayFit):** `stretches`(++id,name,type,bodyArea,isCustom; +durationSec,description,difficulty), `stretchRoutines`(++id,name,phase,createdAt; +items[{stretchId,durationSec}],bodyArea,isCustom), `stretchLogs`(++id,date,phase,completedAt,workoutId; +routineId,routineName,durationSec)
 - Migrations are **append-only**. `achievements`/`questClaims` are left declared but unused — dropping them would be a destructive migration.
 - Recovery: `versionchange` handler closes+reloads; `db.open()` gated in main.jsx; `DbRecovery` screen.
 
 ## localStorage keys
-- **`stayfit_prefs`** (settingsStore; falls back through the legacy `ludi_prefs` then `opus_prefs` on load so installs predating a rename keep units/equipment/onboarding): barWeight, unit, onboarded, effects, sound, theme, tourSeen, restDuration, stepGoal, waterGoal, recapDismissedWeek, coachMarksSeen, inventory{active,gym/home:{barKg,plates,unit}}, **reminderEnabled, reminderHour, lastRemindedDate, stretchPrompts, lastBriefedDate**
+- **`stayfit_prefs`** (settingsStore; falls back through the legacy `ludi_prefs` then `opus_prefs` on load so installs predating a rename keep units/equipment/onboarding): barWeight, unit, onboarded, effects, sound, theme, tourSeen, stepGoal, waterGoal, recapDismissedWeek, coachMarksSeen, inventory{active,gym/home:{barKg,plates,unit}}, **reminderEnabled, reminderHour, lastRemindedDate, stretchPrompts, lastBriefedDate**
 - `opus_notif_settings`, `opus_notif_prompted` (notification types + quiet hours)
 - `opus_active_workout` (in-progress session — resume)
 - `opus_reminder_markers` (on-open reminder dedupe)
 - `wger_cache_time`
 
 ## Stores (`src/store/`)
-- **workoutStore** — `activeWorkout` (+localStorage write-through/hydrate, `resumed`/`dismissResumed`), start/startFromTemplate/repeatWorkout, addExercise/removeExercise/swapExercise/moveExercise, logSet/removeSet/setSetNote/toggleWarmup, toggleSuperset, setEnergy/Name/Notes, **completeWorkout** (writes workout+sets+energy, volume, calories, PR detection, plain streak; returns `{workoutId,prCount,totalVolume,totalCalories,totalSets,duration}`), discardWorkout.
+- **workoutStore** — `activeWorkout` (+localStorage write-through/hydrate, `resumed`/`dismissResumed`), start/startFromTemplate/repeatWorkout, addExercise/removeExercise/swapExercise/moveExercise, logSet/removeSet/setSetNote/toggleWarmup, **accrueExerciseTime** (per-exercise focused seconds → `workouts.exerciseTimes`), setWorkoutName/Notes, **completeWorkout** (writes workout+sets, volume, calories, per-exercise times, PR detection, plain streak; returns `{workoutId,prCount,totalVolume,totalCalories,totalSets,duration}`), discardWorkout.
 - **userStore** — profile init/update (identity + streak only; no XP/level).
 - **uiStore** — toasts + promise-based `confirm`/`prompt`; `showToast(message,opts)`.
 - **settingsStore** — prefs (see localStorage) + setters; `applyTheme` on setTheme; explicit `PERSISTED` key list.
@@ -44,7 +44,7 @@ Tested utils: units, plateCalc, overload, volume, restStats, oneRepMax, snapshot
 
 ## Key components
 - layout: AppLayout, BottomNav (5 tabs), PageWrapper, TopBar
-- workout: WorkoutPage, ExerciseSection, SetLogger, CardioLogger, RestTimer, PlateCalculator, ExercisePicker, EndWorkoutModal (+ cool-down prompt), WorkoutCard, ExerciseInfoModal, **ExerciseDemo** (collapsible how-to picture + video, inline in the log), **SessionTimer** (dark elapsed-clock card + exercises-completed count + session progress), **SwapSuggestions** (same-muscle alternatives)
+- workout: WorkoutPage, ExerciseSection, SetLogger, CardioLogger, PlateCalculator, ExercisePicker, EndWorkoutModal (+ cool-down prompt), WorkoutCard, ExerciseInfoModal, **ExerciseDemo** (collapsible how-to picture + video, inline in the log), **SessionTimer** (dark elapsed-clock card + exercises-completed count + session progress), **SwapSuggestions** (same-muscle alternatives)
   `ExerciseSection` renders three ways — expanded (full logger, gold border), collapsed (one tappable row + swap chips), and done (check mark, dimmed). WorkoutPage keeps exactly one card open (`openId`); collapsing it auto-advances to the next unstarted exercise.
 - **home**: DailyBriefing (once-a-day modal: last session + today's plan + swap focus / just stretch)
 - **plan**: ReminderSettings (on/off, hour, permission + offline caveat)

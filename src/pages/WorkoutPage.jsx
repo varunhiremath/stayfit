@@ -4,7 +4,6 @@ import { Plus, ChevronRight, RotateCcw, Activity } from 'lucide-react';
 import useWorkoutStore from '../store/workoutStore.js';
 import ExerciseSection from '../components/workout/ExerciseSection.jsx';
 import ExercisePicker from '../components/workout/ExercisePicker.jsx';
-import RestTimer from '../components/workout/RestTimer.jsx';
 import SessionTimer from '../components/workout/SessionTimer.jsx';
 import EndWorkoutModal from '../components/workout/EndWorkoutModal.jsx';
 import TemplateCard from '../components/template/TemplateCard.jsx';
@@ -12,14 +11,13 @@ import Particles from '../components/fx/Particles.jsx';
 import { useExercise } from '../hooks/useExercises.js';
 import { useTemplatesWithExercises } from '../hooks/useTemplates.js';
 import { useHaptics } from '../hooks/useHaptics.js';
-import useSettingsStore from '../store/settingsStore.js';
 import { maybePromptPermission, notifyPR } from '../utils/notifications.js';
 import { saveWorkoutAsRoutine, advanceProgression } from '../utils/templateActions.js';
 import { playChime } from '../utils/sound.js';
 import { partitionSession, summarise } from '../utils/sessionFlow.js';
 import useUIStore from '../store/uiStore.js';
 
-function ExerciseSectionWrapper({ ex, onSetLogged, onRemove, onSwap, expanded, onToggleExpand, isDone, sessionIds, liveSecs }) {
+function ExerciseSectionWrapper({ ex, onRemove, onSwap, expanded, onToggleExpand, isDone, sessionIds, liveSecs }) {
   const exerciseData = useExercise(ex.exerciseId);
   const muscleGroup = exerciseData?.muscleGroup ?? null;
   return (
@@ -28,7 +26,6 @@ function ExerciseSectionWrapper({ ex, onSetLogged, onRemove, onSwap, expanded, o
       muscleGroup={muscleGroup}
       isBodyweight={exerciseData?.equipment === 'bodyweight'}
       isCardio={exerciseData?.equipment === 'cardio'}
-      onSetLogged={onSetLogged}
       onRemove={onRemove}
       onSwap={onSwap}
       expanded={expanded}
@@ -41,22 +38,18 @@ function ExerciseSectionWrapper({ ex, onSetLogged, onRemove, onSwap, expanded, o
 }
 
 export default function WorkoutPage() {
-  const { activeWorkout, resumed, dismissResumed, startWorkout, startFromTemplate, addExercise, removeExercise, swapExercise, discardWorkout, completeWorkout, setWorkoutName, setEnergy, setWorkoutNotes, accrueExerciseTime } = useWorkoutStore();
+  const { activeWorkout, resumed, dismissResumed, startWorkout, startFromTemplate, addExercise, removeExercise, swapExercise, discardWorkout, completeWorkout, setWorkoutName, setWorkoutNotes, accrueExerciseTime } = useWorkoutStore();
   const navigate = useNavigate();
   const templates = useTemplatesWithExercises();
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
-  const [showRest, setShowRest] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
-  const [restKey, setRestKey] = useState(0);
   // Which card is open — nothing until you tap an exercise.
   const [openId, setOpenId] = useState(null);
   const [liveSecs, setLiveSecs] = useState(0);
   const openedAt = useRef(Date.now());
-  const restDuration = useSettingsStore((s) => s.restDuration);
-  const setRestDuration = useSettingsStore((s) => s.setRestDuration);
   const nameRef = useRef();
   const haptic = useHaptics();
 
@@ -116,11 +109,6 @@ export default function WorkoutPage() {
     openedAt.current = Date.now();
     setLiveSecs(0);
     setOpenId(id);
-  }
-
-  function handleSetLogged() {
-    setRestKey((k) => k + 1);
-    setShowRest(true);
   }
 
   async function handleSave(routine) {
@@ -308,40 +296,6 @@ export default function WorkoutPage() {
         total={exercises.length}
       />
 
-      {/* Energy check-in */}
-      {activeWorkout.energy == null && (
-        <div className="mb-4 rounded-2xl px-4 py-3" style={{ background: 'var(--color-chalk)', border: '1px solid var(--color-ivory)' }}>
-          <p className="mb-2 font-sans text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-            How's your energy today?
-          </p>
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((n) => (
-              <button
-                key={n}
-                onClick={() => setEnergy(n)}
-                className="flex h-10 flex-1 items-center justify-center rounded-xl font-mono text-sm font-medium"
-                style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Rest timer */}
-      {showRest && (
-        <div className="mb-4">
-          <RestTimer
-            key={restKey}
-            duration={restDuration}
-            onComplete={() => setShowRest(false)}
-            onSkip={() => setShowRest(false)}
-            onSetDefault={setRestDuration}
-          />
-        </div>
-      )}
-
       {/* Up next — one card open at a time, the rest collapsed to a row */}
       {todo.length > 0 && (
         <p className="mb-2 mt-1 font-sans text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-text-secondary)' }}>
@@ -356,7 +310,6 @@ export default function WorkoutPage() {
           onToggleExpand={() => toggleOpen(ex.exerciseId)}
           liveSecs={liveSecs}
           sessionIds={sessionIds}
-          onSetLogged={handleSetLogged}
           onRemove={() => removeExercise(ex.exerciseId)}
           onSwap={(pick) => swapExercise(ex.exerciseId, pick)}
         />
@@ -376,8 +329,7 @@ export default function WorkoutPage() {
               isDone
               onToggleExpand={() => toggleOpen(ex.exerciseId)}
               sessionIds={sessionIds}
-              onSetLogged={handleSetLogged}
-              onRemove={() => removeExercise(ex.exerciseId)}
+                  onRemove={() => removeExercise(ex.exerciseId)}
             />
           ))}
         </>

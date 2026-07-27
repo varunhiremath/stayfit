@@ -8,7 +8,7 @@ import useSettingsStore from '../../store/settingsStore.js';
 const TIPS = {
   '/home': "Home base — today's session, warm-up and cool-down shortcuts, and your week at a glance.",
   '/plan': 'Pick a split like Push/Pull/Legs, set which day each routine falls on, and turn on reminders.',
-  '/workout': 'Start or continue a session here — tap an exercise to open it, log your sets, and rest between.',
+  '/workout': 'Start or continue a session here — tap an exercise to open it and log your sets. Finished ones fold into Done.',
   '/library': 'Every exercise and stretch, tagged by category. Tap any one to learn how to do it — or run a guided warm-up.',
   '/progress': 'All your charts: volume, PRs, estimated 1RM, body metrics, and your steps & water log.',
   '/profile': 'Your training summary — lifetime stats, personal records, history and settings.',
