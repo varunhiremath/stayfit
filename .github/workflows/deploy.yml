@@ -27,10 +27,12 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm test
 
-  # Only builds + publishes on a push to main, and only if tests passed.
+  # Builds + publishes from main only, and only if tests passed. Accepts both a
+  # push and a manual "Run workflow" dispatch — the dispatch trigger is declared
+  # above, so excluding it here would make the button silently skip the deploy.
   build-and-deploy:
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
