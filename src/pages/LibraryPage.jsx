@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Star, Search, Clock, ChevronRight, Trash2 } from 'lucide-react';
 import { useExercises } from '../hooks/useExercises.js';
@@ -47,6 +47,7 @@ function Chip({ active, onClick, children }) {
 function ExercisesTab() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
+  const topRef = useRef(null);
   const [muscle, setMuscle] = useState(null);
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -55,9 +56,18 @@ function ExercisesTab() {
   const all = useExercises({ muscleGroup: search ? null : muscle, search });
   const exercises = favoritesOnly ? all.filter((e) => e.favorite) : all;
 
+  // The muscle filter unmounts the moment you type, which shortens the page
+  // under your thumb and leaves the results scrolled out of view. Pin the
+  // search box to the top of the viewport instead, so the matches sit right
+  // under it.
+  const searching = search.length > 0;
+  useEffect(() => {
+    if (searching) topRef.current?.scrollIntoView({ block: 'start' });
+  }, [searching]);
+
   return (
     <>
-      <div className="flex items-center gap-2">
+      <div ref={topRef} className="flex items-center gap-2 scroll-mt-4">
         <div className="flex-1">
           <ExerciseSearch value={search} onChange={setSearch} />
         </div>

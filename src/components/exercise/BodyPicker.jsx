@@ -10,13 +10,17 @@ const POSTERIOR = [
   'upper-back', 'lower-back', 'trapezius', 'hamstring',
   'gluteal', 'back-deltoids', 'calves', 'triceps', 'adductor',
 ];
+// Insertion order is the order of the filter pills, so it runs top-to-bottom
+// through the body: push, pull, arms, core, legs. Keeping the leg muscles
+// adjacent matters — Adductors used to trail off the end of a scrolling row
+// where nobody found it.
 const LABEL = {
-  chest: 'Chest', abs: 'Abs', obliques: 'Obliques', biceps: 'Biceps',
-  forearm: 'Forearms', quadriceps: 'Quads', calves: 'Calves',
-  'front-deltoids': 'Front Delts', triceps: 'Triceps',
+  chest: 'Chest', 'front-deltoids': 'Front Delts', triceps: 'Triceps',
   'upper-back': 'Upper Back', 'lower-back': 'Lower Back', trapezius: 'Traps',
-  hamstring: 'Hamstrings', gluteal: 'Glutes', 'back-deltoids': 'Rear Delts',
-  abductors: 'Abductors', adductor: 'Adductors',
+  'back-deltoids': 'Rear Delts', biceps: 'Biceps', forearm: 'Forearms',
+  abs: 'Abs', obliques: 'Obliques',
+  quadriceps: 'Quads', hamstring: 'Hamstrings', gluteal: 'Glutes',
+  adductor: 'Adductors', abductors: 'Abductors', calves: 'Calves',
 };
 
 export default function BodyPicker({ selected, onSelect }) {
@@ -34,9 +38,11 @@ export default function BodyPicker({ selected, onSelect }) {
 
   return (
     <div>
-      {/* Muscle pills — horizontal scroll */}
-      <div className="flex items-center gap-2">
-        <div className="flex flex-1 gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      {/* Muscle pills */}
+      <div className="flex items-start gap-2">
+        {/* Wrapped, not a scrolling strip: with 17 groups a single row hid all
+            but the first five, so most of the filter was invisible. */}
+        <div className="flex flex-1 flex-wrap gap-2">
           {Object.entries(LABEL).map(([key, label]) => (
             <button
               key={key}

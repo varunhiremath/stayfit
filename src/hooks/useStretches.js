@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db.js';
 import { seedStretchDatabase } from '../utils/stretchActions.js';
 import { weekStartMs } from '../utils/week.js';
+import { searchExercises } from '../utils/exerciseSearch.js';
 
 // The stretch catalogue, optionally filtered by body area / type / search.
 export function useStretches({ bodyArea = null, type = null, search = '' } = {}) {
@@ -10,12 +11,12 @@ export function useStretches({ bodyArea = null, type = null, search = '' } = {})
 
   return useLiveQuery(async () => {
     const all = await db.stretches.orderBy('name').toArray();
-    const q = search.trim().toLowerCase();
-    return all.filter((s) =>
-      (!bodyArea || s.bodyArea === bodyArea) &&
-      (!type || s.type === type) &&
-      (!q || s.name.toLowerCase().includes(q))
+    const inScope = all.filter((s) =>
+      (!bodyArea || s.bodyArea === bodyArea) && (!type || s.type === type)
     );
+    // Same forgiving matcher as the exercise library, so a typo or a stray
+    // space behaves the same way on both tabs.
+    return searchExercises(inScope, search);
   }, [bodyArea, type, search]) ?? [];
 }
 

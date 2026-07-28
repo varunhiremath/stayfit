@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect } from 'react';
 import { db } from '../db/db.js';
 import { seedDatabase } from '../utils/wger.js';
+import { searchExercises } from '../utils/exerciseSearch.js';
 
 export function useExercises({ muscleGroup = null, search = '' } = {}) {
   useEffect(() => {
@@ -14,9 +15,7 @@ export function useExercises({ muscleGroup = null, search = '' } = {}) {
       return query.where('muscleGroup').equals(muscleGroup).sortBy('name');
     }
     const all = await query.orderBy('name').toArray();
-    if (!search) return all;
-    const q = search.toLowerCase();
-    return all.filter(e => e.name.toLowerCase().includes(q));
+    return searchExercises(all, search);
   }, [muscleGroup, search]);
 
   return exercises ?? [];
