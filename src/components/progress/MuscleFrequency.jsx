@@ -3,6 +3,7 @@ const MUSCLE_HUE = {
   biceps: '#C9A84C', forearm: '#C9A84C', abs: '#C9A84C', obliques: '#C9A84C',
   'upper-back': '#6B8F71', 'lower-back': '#6B8F71', trapezius: '#6B8F71', 'back-deltoids': '#6B8F71',
   quadriceps: '#8A8780', hamstring: '#8A8780', gluteal: '#8A8780', calves: '#8A8780',
+  abductors: '#8A8780', adductor: '#8A8780',
 };
 
 export default function MuscleFrequency({ data }) {

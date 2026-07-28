@@ -1,5 +1,5 @@
 import { db } from '../db/db.js';
-import seed from './seedExercises.js';
+import seed, { HIP_EXERCISES } from './seedExercises.js';
 
 const BASE = 'https://wger.de/api/v2';
 const CACHE_KEY = 'wger_synced_at';
@@ -118,6 +118,25 @@ export async function ensureCardioExercises() {
   }
 }
 
+// Add any hip abduction/adduction exercises the library is missing (by name).
+// Same idempotent shape as the cardio ensure, so databases seeded before these
+// existed pick them up on the next open. Ids are auto-assigned — never reuse
+// the positional seed ids here, they belong to the rows already stored.
+export async function ensureHipExercises() {
+  const have = new Set((await db.exercises.toArray()).map((e) => e.name));
+  const missing = HIP_EXERCISES.filter((h) => !have.has(h.name)).map((h) => ({
+    ...h,
+    secondaryMuscles: [],
+    description: '',
+    isCustom: false,
+    wgerId: null,
+  }));
+  if (missing.length) {
+    try { await db.exercises.bulkAdd(missing); }
+    catch (err) { if (err?.name !== 'BulkError' && err?.name !== 'ConstraintError') throw err; }
+  }
+}
+
 // Seeding can be triggered from several mounts at once (multiple useExercises
 // consumers). Two callers both seeing count===0 would each bulkAdd the same
 // rows, and the second collides on the explicit ids → BulkError. Share a single
@@ -140,6 +159,7 @@ export async function seedDatabase() {
     }
     // Additive for both fresh and existing databases.
     await ensureCardioExercises();
+    await ensureHipExercises();
   })();
   try {
     return await seedInFlight;

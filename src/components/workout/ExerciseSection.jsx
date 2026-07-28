@@ -16,6 +16,7 @@ const MUSCLE_HUE = {
   biceps: '#CA8A04', forearm: '#CA8A04',
   'upper-back': '#0D9488', 'lower-back': '#0D9488', trapezius: '#0D9488', 'back-deltoids': '#0D9488',
   quadriceps: '#64748B', hamstring: '#64748B', gluteal: '#64748B', calves: '#64748B',
+  abductors: '#64748B', adductor: '#64748B',
   abs: '#CA8A04', obliques: '#CA8A04',
 };
 

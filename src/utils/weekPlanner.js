@@ -9,7 +9,7 @@ import { generateRoutine, LEVEL_DEFAULTS } from './routineGenerator.js';
 // Muscle buckets over the 15-token taxonomy (matches routineName's grouping).
 const PUSH = ['chest', 'front-deltoids', 'triceps'];
 const PULL = ['upper-back', 'lower-back', 'trapezius', 'back-deltoids', 'biceps', 'forearm'];
-const LEGS = ['quadriceps', 'hamstring', 'gluteal', 'calves'];
+const LEGS = ['quadriceps', 'hamstring', 'gluteal', 'calves', 'abductors', 'adductor'];
 const CORE = ['abs', 'obliques'];
 const CHEST = ['chest'];
 const BACK = ['upper-back', 'lower-back', 'trapezius'];

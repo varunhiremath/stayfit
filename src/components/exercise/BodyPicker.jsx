@@ -4,11 +4,11 @@ import { Eye } from 'lucide-react';
 
 const ANTERIOR = [
   'chest', 'abs', 'obliques', 'biceps', 'forearm',
-  'quadriceps', 'calves', 'front-deltoids', 'triceps',
+  'quadriceps', 'calves', 'front-deltoids', 'triceps', 'abductors',
 ];
 const POSTERIOR = [
   'upper-back', 'lower-back', 'trapezius', 'hamstring',
-  'gluteal', 'back-deltoids', 'calves', 'triceps',
+  'gluteal', 'back-deltoids', 'calves', 'triceps', 'adductor',
 ];
 const LABEL = {
   chest: 'Chest', abs: 'Abs', obliques: 'Obliques', biceps: 'Biceps',
@@ -16,6 +16,7 @@ const LABEL = {
   'front-deltoids': 'Front Delts', triceps: 'Triceps',
   'upper-back': 'Upper Back', 'lower-back': 'Lower Back', trapezius: 'Traps',
   hamstring: 'Hamstrings', gluteal: 'Glutes', 'back-deltoids': 'Rear Delts',
+  abductors: 'Abductors', adductor: 'Adductors',
 };
 
 export default function BodyPicker({ selected, onSelect }) {

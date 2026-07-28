@@ -10,7 +10,7 @@ const GROUPS = [
   { label: 'Back', muscles: ['upper-back', 'lower-back', 'trapezius'] },
   { label: 'Shoulders', muscles: ['front-deltoids', 'back-deltoids'] },
   { label: 'Arms', muscles: ['biceps', 'triceps', 'forearm'] },
-  { label: 'Legs', muscles: ['quadriceps', 'hamstring', 'gluteal', 'calves'] },
+  { label: 'Legs', muscles: ['quadriceps', 'hamstring', 'gluteal', 'calves', 'abductors', 'adductor'] },
   { label: 'Core', muscles: ['abs', 'obliques'] },
   { label: 'Cardio', muscles: ['cardio'] },
 ];

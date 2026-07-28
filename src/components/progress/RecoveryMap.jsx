@@ -8,6 +8,7 @@ export const MUSCLE_LABEL = {
   'back-deltoids': 'Rear Delts', 'upper-back': 'Upper Back', 'lower-back': 'Lower Back',
   trapezius: 'Traps', abs: 'Abs', obliques: 'Obliques', quadriceps: 'Quads',
   hamstring: 'Hamstrings', gluteal: 'Glutes', calves: 'Calves', forearm: 'Forearms',
+  abductors: 'Abductors', adductor: 'Adductors',
 };
 
 // frequency → highlightedColors index: 1=sage(2d), 2=gold(1d), 3=ember(today)

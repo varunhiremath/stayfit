@@ -5,6 +5,7 @@ const MUSCLE_GROUPS = [
   'chest', 'triceps', 'biceps', 'front-deltoids', 'back-deltoids',
   'upper-back', 'lower-back', 'trapezius', 'abs', 'obliques',
   'quadriceps', 'hamstring', 'gluteal', 'calves', 'forearm',
+  'abductors', 'adductor',
 ];
 const EQUIPMENT = ['barbell', 'dumbbell', 'bodyweight', 'cable', 'machine'];
 

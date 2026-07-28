@@ -5,7 +5,7 @@
 const GROUP = {
   chest: 'push', 'front-deltoids': 'push', triceps: 'push',
   'upper-back': 'pull', 'lower-back': 'pull', trapezius: 'pull', 'back-deltoids': 'pull', biceps: 'pull', forearm: 'pull',
-  quadriceps: 'legs', hamstring: 'legs', gluteal: 'legs', calves: 'legs',
+  quadriceps: 'legs', hamstring: 'legs', gluteal: 'legs', calves: 'legs', abductors: 'legs', adductor: 'legs',
   abs: 'core', obliques: 'core',
 };
 
@@ -14,6 +14,7 @@ const LABEL = {
   'back-deltoids': 'Rear Delts', 'upper-back': 'Back', 'lower-back': 'Lower Back',
   trapezius: 'Traps', abs: 'Abs', obliques: 'Obliques', quadriceps: 'Quads',
   hamstring: 'Hamstrings', gluteal: 'Glutes', calves: 'Calves', forearm: 'Forearms',
+  abductors: 'Abductors', adductor: 'Adductors',
 };
 
 const GROUP_NAME = { push: 'Push Day', pull: 'Pull Day', legs: 'Leg Day', core: 'Core Day' };

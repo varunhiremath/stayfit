@@ -1,5 +1,23 @@
-// Curated exercise list — covers all 15 muscle groups with the movements people actually use.
+// Curated exercise list — covers all 17 muscle groups with the movements people actually use.
 // difficulty: 'beginner' | 'intermediate' | 'advanced'
+
+// Hip abduction (outer hip) and adduction (inner thigh). Exported separately so
+// `ensureHipExercises` can add them to databases seeded before they existed.
+export const HIP_EXERCISES = [
+  { name: 'Hip Abduction Machine',  muscleGroup: 'abductors',      equipment: 'machine',    difficulty: 'beginner'     },
+  { name: 'Cable Hip Abduction',    muscleGroup: 'abductors',      equipment: 'cable',      difficulty: 'beginner'     },
+  { name: 'Clamshell',              muscleGroup: 'abductors',      equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Side-Lying Leg Raise',   muscleGroup: 'abductors',      equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Lateral Band Walk',      muscleGroup: 'abductors',      equipment: 'bodyweight', difficulty: 'intermediate' },
+
+  { name: 'Hip Adduction Machine',  muscleGroup: 'adductor',       equipment: 'machine',    difficulty: 'beginner'     },
+  { name: 'Cable Hip Adduction',    muscleGroup: 'adductor',       equipment: 'cable',      difficulty: 'beginner'     },
+  { name: 'Lateral Lunge',          muscleGroup: 'adductor',       equipment: 'dumbbell',   difficulty: 'beginner'     },
+  { name: 'Sumo Squat',             muscleGroup: 'adductor',       equipment: 'barbell',    difficulty: 'intermediate' },
+  { name: 'Cossack Squat',          muscleGroup: 'adductor',       equipment: 'bodyweight', difficulty: 'intermediate' },
+  { name: 'Copenhagen Plank',       muscleGroup: 'adductor',       equipment: 'bodyweight', difficulty: 'advanced'     },
+];
+
 const seed = [
   // ── Chest ─────────────────────────────────────────────────────────────────
   { name: 'Push-Up',                muscleGroup: 'chest',          equipment: 'bodyweight', difficulty: 'beginner'     },
@@ -104,6 +122,14 @@ const seed = [
   { name: 'Wrist Curl',             muscleGroup: 'forearm',        equipment: 'barbell',    difficulty: 'beginner'     },
   { name: 'Reverse Wrist Curl',     muscleGroup: 'forearm',        equipment: 'barbell',    difficulty: 'beginner'     },
   { name: "Farmer's Walk",          muscleGroup: 'forearm',        equipment: 'dumbbell',   difficulty: 'intermediate' },
+
+  // ── Hips ──────────────────────────────────────────────────────────────────
+  // Appended last on purpose: ids below are positional (`i + 1`), so inserting
+  // these mid-list would renumber every exercise after them and orphan the sets
+  // already logged against those ids. `abductors` / `adductor` are the
+  // react-body-highlighter slugs (singular adductor is theirs, not a typo), so
+  // the body map highlights them.
+  ...HIP_EXERCISES,
 ];
 
 export default seed.map((e, i) => ({

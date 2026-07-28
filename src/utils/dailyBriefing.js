@@ -14,13 +14,14 @@ export const FOCUS_GROUPS = {
   'upper-back': 'Back', 'lower-back': 'Back',
   abs: 'Core', obliques: 'Core',
   quadriceps: 'Legs', hamstring: 'Legs', gluteal: 'Legs', calves: 'Legs',
+  abductors: 'Legs', adductor: 'Legs',
 };
 
 // The muscle groups a "swap today's focus" choice maps to, for the generator.
 export const SWAP_TARGETS = [
   { key: 'push', label: 'Push', groups: ['chest', 'front-deltoids', 'triceps'] },
   { key: 'pull', label: 'Pull', groups: ['upper-back', 'back-deltoids', 'biceps'] },
-  { key: 'legs', label: 'Legs', groups: ['quadriceps', 'hamstring', 'gluteal', 'calves'] },
+  { key: 'legs', label: 'Legs', groups: ['quadriceps', 'hamstring', 'gluteal', 'calves', 'abductors', 'adductor'] },
   { key: 'upper', label: 'Upper body', groups: ['chest', 'upper-back', 'front-deltoids', 'biceps', 'triceps'] },
   { key: 'core', label: 'Core', groups: ['abs', 'obliques', 'lower-back'] },
   { key: 'full', label: 'Full body', groups: ['chest', 'upper-back', 'quadriceps', 'front-deltoids', 'abs'] },

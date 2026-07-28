@@ -18,6 +18,7 @@ const LABEL = {
   'back-deltoids': 'Rear Delts', 'upper-back': 'Upper Back', 'lower-back': 'Lower Back',
   trapezius: 'Traps', abs: 'Abs', obliques: 'Obliques', quadriceps: 'Quads',
   hamstring: 'Hamstrings', gluteal: 'Glutes', calves: 'Calves', forearm: 'Forearms',
+  abductors: 'Abductors', adductor: 'Adductors',
 };
 const LEVELS = ['beginner', 'intermediate', 'advanced'];
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);

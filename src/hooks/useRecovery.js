@@ -6,6 +6,7 @@ export const ALL_MUSCLES = [
   'chest', 'triceps', 'biceps', 'front-deltoids', 'back-deltoids',
   'upper-back', 'lower-back', 'trapezius', 'abs', 'obliques',
   'quadriceps', 'hamstring', 'gluteal', 'calves', 'forearm',
+  'abductors', 'adductor',
 ];
 
 // Per-muscle days-since-last-trained + the most neglected muscle.
