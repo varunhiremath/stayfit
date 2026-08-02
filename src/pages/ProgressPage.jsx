@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, ChevronRight, Trash2, Pencil, Footprints, Droplet, Search, ArrowLeft, Trophy, Dumbbell, Layers, Clock, Flame, TrendingUp, TrendingDown } from 'lucide-react';
+import { Plus, ChevronRight, Trash2, Pencil, Footprints, Droplet, Search, ArrowLeft, Trophy, Dumbbell, Layers, Clock, Flame, TrendingUp, TrendingDown, Scale } from 'lucide-react';
 import { deleteBodyStat, deleteSleep, deleteActivity } from '../utils/healthActions.js';
 import { playChime } from '../utils/sound.js';
 
@@ -12,6 +12,7 @@ import Heatmap from '../components/progress/Heatmap.jsx';
 import MonthCalendar from '../components/progress/MonthCalendar.jsx';
 import WorkoutCard from '../components/workout/WorkoutCard.jsx';
 import BodyStatsForm from '../components/progress/BodyStatsForm.jsx';
+import WeightLogModal from '../components/health/WeightLogModal.jsx';
 import SleepForm from '../components/progress/SleepForm.jsx';
 import ActivityForm from '../components/progress/ActivityForm.jsx';
 import WeeklyRecap from '../components/progress/WeeklyRecap.jsx';
@@ -329,6 +330,7 @@ function ByExercise() {
 
 function Body() {
   const [statForm, setStatForm] = useState(false);
+  const [weightForm, setWeightForm] = useState(false);
   const [sleepForm, setSleepForm] = useState(false);
   const [actForm, setActForm] = useState(false);
   const [editEntry, setEditEntry] = useState(null);
@@ -352,8 +354,13 @@ function Body() {
   return (
     <>
       <div className="mb-5 flex gap-2">
-        <button onClick={() => setStatForm(true)} className="flex flex-1 items-center justify-center gap-2 rounded-xl py-3 font-sans text-sm font-semibold" style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}>
-          <Plus size={15} /> Body stats
+        {/* Weight gets its own button: it's the one people log often, and it
+            used to be a single field buried in the seven-field stats form. */}
+        <button onClick={() => setWeightForm(true)} className="flex flex-1 items-center justify-center gap-2 rounded-xl py-3 font-sans text-sm font-semibold" style={{ background: 'var(--color-gold)', color: 'var(--color-text-inverse)' }}>
+          <Scale size={15} /> Weight
+        </button>
+        <button onClick={() => setStatForm(true)} className="flex flex-1 items-center justify-center gap-2 rounded-xl py-3 font-sans text-sm font-medium" style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}>
+          <Plus size={15} /> Measurements
         </button>
         <button onClick={() => setSleepForm(true)} className="flex flex-1 items-center justify-center gap-2 rounded-xl py-3 font-sans text-sm font-medium" style={{ background: 'var(--color-ivory)', color: 'var(--color-text-primary)' }}>
           <Plus size={15} /> Sleep
@@ -465,6 +472,7 @@ function Body() {
       <ProgressPhotos />
 
       <BodyStatsForm isOpen={statForm} onClose={() => setStatForm(false)} />
+      <WeightLogModal isOpen={weightForm} onClose={() => setWeightForm(false)} />
       <SleepForm isOpen={sleepForm} onClose={() => setSleepForm(false)} />
       <ActivityForm isOpen={actForm} entry={editEntry} onClose={() => setActForm(false)} />
     </>

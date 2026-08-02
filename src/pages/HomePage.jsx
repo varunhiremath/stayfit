@@ -9,6 +9,7 @@ import { playChime } from '../utils/sound.js';
 import WorkoutCard from '../components/workout/WorkoutCard.jsx';
 import WeeklyRecap from '../components/progress/WeeklyRecap.jsx';
 import ActivityRings from '../components/progress/ActivityRings.jsx';
+import WeightCard from '../components/health/WeightCard.jsx';
 import CountUp from '../components/fx/CountUp.jsx';
 import BrandMark from '../components/logo/BrandMark.jsx';
 import DailyBriefing from '../components/home/DailyBriefing.jsx';
@@ -201,6 +202,9 @@ export default function HomePage() {
       <div className="mb-6">
         <ActivityRings />
       </div>
+
+      {/* Bodyweight — last reading, trend, and one tap to log a new one */}
+      <WeightCard />
 
       {/* Recent workouts */}
       {recent.length > 0 ? (
