@@ -5,6 +5,7 @@
 // createTemplate: { name, dayOfWeek, autoKey, groups, exercises:[{exerciseId,
 // targetSets, targetReps, targetWeight, targetRest}] }.
 import { generateRoutine, LEVEL_DEFAULTS } from './routineGenerator.js';
+import { targetFor } from './bodyweightTargets.js';
 
 // Muscle buckets over the 15-token taxonomy (matches routineName's grouping).
 const PUSH = ['chest', 'front-deltoids', 'triceps'];
@@ -17,7 +18,29 @@ const SHOULDERS = ['front-deltoids', 'back-deltoids'];
 const ARMS = ['biceps', 'triceps', 'forearm'];
 const UPPER = [...PUSH, ...PULL];
 const LOWER = [...LEGS, ...CORE];
-const FULL = [...PUSH, ...PULL, ...LEGS];
+
+// ORDER MATTERS on any multi-category day. generateRoutine round-robins through
+// the groups in order and stops once it has enough exercises, so listing all of
+// push before any of legs means a six-exercise "Full Body" day is six upper-body
+// movements and no squat. These lists interleave instead: the first four groups
+// are a push, a pull, a squat and a core movement — the shape every beginner
+// full-body session is supposed to have — and the rest fill out from there.
+const FULL = [
+  'chest', 'upper-back', 'quadriceps', 'abs',
+  'front-deltoids', 'gluteal', 'obliques', 'back-deltoids',
+  'triceps', 'hamstring', 'biceps', 'lower-back', 'calves', 'trapezius', 'forearm',
+];
+// Calisthenics treats core as a main event rather than an afterthought, so the
+// home days always carry it.
+const HOME_FULL = FULL;
+const HOME_UPPER = [
+  'chest', 'upper-back', 'abs', 'front-deltoids',
+  'back-deltoids', 'triceps', 'obliques', 'biceps', 'trapezius', 'lower-back',
+];
+const HOME_LOWER = [
+  'quadriceps', 'abs', 'gluteal', 'obliques',
+  'hamstring', 'calves', 'abductors', 'adductor',
+];
 const CHEST_BACK = [...CHEST, ...BACK];
 const SHOULDER_ARMS = [...SHOULDERS, ...ARMS];
 
@@ -106,6 +129,36 @@ export const SPLITS = {
     days: [3, 4, 5],
     layout: (d) => letterize(Array.from({ length: d }, () => ({ key: 'full-body', name: 'Full Body', groups: FULL }))),
   },
+  home: {
+    key: 'home', label: 'Home · Calisthenics',
+    blurb: 'No gym, no kit. Push, pull, legs and core with just your bodyweight — 3 to 5 days a week.',
+    days: [3, 4, 5],
+    // Restricts the pool to bodyweight movements, and switches targets to
+    // calisthenics reps and timed holds.
+    equipment: ['bodyweight'],
+    layout: (d) => {
+      if (d >= 5) {
+        return [
+          { key: 'push', name: 'Push', groups: PUSH },
+          { key: 'pull', name: 'Pull', groups: PULL },
+          { key: 'legs', name: 'Legs', groups: LEGS },
+          { key: 'core', name: 'Core', groups: CORE },
+          { key: 'full-body', name: 'Full Body', groups: HOME_FULL },
+        ];
+      }
+      if (d === 4) {
+        return letterize([
+          { key: 'home-upper', name: 'Upper', groups: HOME_UPPER },
+          { key: 'home-lower', name: 'Lower', groups: HOME_LOWER },
+          { key: 'home-upper', name: 'Upper', groups: HOME_UPPER },
+          { key: 'home-lower', name: 'Lower', groups: HOME_LOWER },
+        ]);
+      }
+      // Three days is the standard bodyweight starting point: full body each
+      // session, a rest day between, push/pull/squat/core every time.
+      return letterize(Array.from({ length: d }, () => ({ key: 'full-body', name: 'Full Body', groups: HOME_FULL })));
+    },
+  },
 };
 
 // Ordered list for pickers.
@@ -126,10 +179,17 @@ export function restFor(pref, isCompound) {
   return isCompound ? comp : iso;
 }
 
-// Barbell (and heavy bodyweight) lifts read as compounds for rest purposes.
+// Groups whose bodyweight movements are whole-body efforts (a pull-up or a
+// pistol squat earns a compound's rest); the rest are isolation or core.
+const BODYWEIGHT_COMPOUND_GROUPS = new Set([
+  'chest', 'upper-back', 'front-deltoids', 'quadriceps', 'hamstring', 'gluteal',
+]);
+
+// Which lifts read as compounds for rest purposes.
 function isCompound(ex) {
   if (!ex) return false;
-  return ex.equipment === 'barbell';
+  if (ex.equipment === 'barbell') return true;
+  return ex.equipment === 'bodyweight' && BODYWEIGHT_COMPOUND_GROUPS.has(ex.muscleGroup);
 }
 
 // Exercises per day from the time budget (falls back to the level default).
@@ -157,17 +217,29 @@ export function planWeek({ split, days, level = 'intermediate', sessionMinutes =
   const blueprints = def.layout(dayCount);
   const weekdays = weekdayLayout(blueprints.length);
   const count = sessionCount(sessionMinutes, level);
-  const byId = new Map(exercises.map((e) => [e.id, e]));
+
+  // A split can restrict what it will draw on — the home split takes bodyweight
+  // only, so it never plans a session around a cable machine you don't own.
+  const pool = def.equipment
+    ? exercises.filter((e) => def.equipment.includes(e.equipment))
+    : exercises;
+  const byId = new Map(pool.map((e) => [e.id, e]));
 
   return blueprints.map((bp, i) => {
-    const slots = generateRoutine({ exercises, groups: bp.groups, level, count, rng });
-    const withRest = slots.map((sl) => ({
-      exerciseId: sl.exerciseId,
-      targetSets: sl.targetSets,
-      targetReps: sl.targetReps,
-      targetWeight: sl.targetWeight ?? null,
-      targetRest: restFor(rest, isCompound(byId.get(sl.exerciseId))),
-    }));
+    const slots = generateRoutine({ exercises: pool, groups: bp.groups, level, count, rng });
+    const withRest = slots.map((sl) => {
+      const ex = byId.get(sl.exerciseId);
+      // Bodyweight movements get calisthenics reps, and holds get seconds —
+      // "Plank 4×8" means nothing. Everything else keeps the generator's targets.
+      const bwTarget = targetFor(ex, level, null);
+      return {
+        exerciseId: sl.exerciseId,
+        targetSets: bwTarget?.targetSets ?? sl.targetSets,
+        targetReps: bwTarget?.targetReps ?? sl.targetReps,
+        targetWeight: sl.targetWeight ?? null,
+        targetRest: restFor(rest, isCompound(ex)),
+      };
+    });
     return { name: bp.name, dayOfWeek: weekdays[i] ?? null, autoKey: bp.key, groups: bp.groups, exercises: withRest };
   });
 }

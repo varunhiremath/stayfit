@@ -2,7 +2,7 @@
 // difficulty: 'beginner' | 'intermediate' | 'advanced'
 
 // Hip abduction (outer hip) and adduction (inner thigh). Exported separately so
-// `ensureHipExercises` can add them to databases seeded before they existed.
+// `ensureSeedExercises` can add them to databases seeded before they existed.
 export const HIP_EXERCISES = [
   { name: 'Hip Abduction Machine',  muscleGroup: 'abductors',      equipment: 'machine',    difficulty: 'beginner'     },
   { name: 'Cable Hip Abduction',    muscleGroup: 'abductors',      equipment: 'cable',      difficulty: 'beginner'     },
@@ -16,6 +16,63 @@ export const HIP_EXERCISES = [
   { name: 'Sumo Squat',             muscleGroup: 'adductor',       equipment: 'barbell',    difficulty: 'intermediate' },
   { name: 'Cossack Squat',          muscleGroup: 'adductor',       equipment: 'bodyweight', difficulty: 'intermediate' },
   { name: 'Copenhagen Plank',       muscleGroup: 'adductor',       equipment: 'bodyweight', difficulty: 'advanced'     },
+];
+
+// Bodyweight work you can do in a living room. Exported separately so
+// `ensureSeedExercises` can add them to databases seeded before they existed.
+//
+// The spread is deliberate: every block below covers a push, a pull, a squat
+// and a core movement at three difficulties, so the Home split can build a
+// balanced session and you can trade up a rung as a movement gets easy
+// (knee → incline → full → decline → archer push-up, and so on).
+export const HOME_EXERCISES = [
+  // Push — chest
+  { name: 'Knee Push-Up',           muscleGroup: 'chest',          equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Incline Push-Up',        muscleGroup: 'chest',          equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Wide Push-Up',           muscleGroup: 'chest',          equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Decline Push-Up',        muscleGroup: 'chest',          equipment: 'bodyweight', difficulty: 'intermediate' },
+  { name: 'Archer Push-Up',         muscleGroup: 'chest',          equipment: 'bodyweight', difficulty: 'advanced'     },
+  { name: 'Pseudo Planche Push-Up', muscleGroup: 'chest',          equipment: 'bodyweight', difficulty: 'advanced'     },
+
+  // Push — triceps & shoulders
+  { name: 'Bench Dip',              muscleGroup: 'triceps',        equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Pike Push-Up',           muscleGroup: 'front-deltoids', equipment: 'bodyweight', difficulty: 'intermediate' },
+  { name: 'Wall Handstand Hold',    muscleGroup: 'front-deltoids', equipment: 'bodyweight', difficulty: 'advanced'     },
+
+  // Pull — the hard part without a gym, so it starts from a towel and a door
+  { name: 'Towel Row',              muscleGroup: 'upper-back',     equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Inverted Row',           muscleGroup: 'upper-back',     equipment: 'bodyweight', difficulty: 'intermediate' },
+  { name: 'Negative Pull-Up',       muscleGroup: 'upper-back',     equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Reverse Snow Angel',     muscleGroup: 'back-deltoids',  equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Prone Y Raise',          muscleGroup: 'trapezius',      equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Superman',               muscleGroup: 'lower-back',     equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Bird Dog',               muscleGroup: 'lower-back',     equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Towel Curl',             muscleGroup: 'biceps',         equipment: 'bodyweight', difficulty: 'beginner'     },
+
+  // Legs
+  { name: 'Bodyweight Squat',       muscleGroup: 'quadriceps',     equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Split Squat',            muscleGroup: 'quadriceps',     equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Step-Up',                muscleGroup: 'quadriceps',     equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Wall Sit',               muscleGroup: 'quadriceps',     equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Jump Squat',             muscleGroup: 'quadriceps',     equipment: 'bodyweight', difficulty: 'intermediate' },
+  { name: 'Burpee',                 muscleGroup: 'quadriceps',     equipment: 'bodyweight', difficulty: 'intermediate' },
+  { name: 'Pistol Squat',           muscleGroup: 'quadriceps',     equipment: 'bodyweight', difficulty: 'advanced'     },
+  { name: 'Single-Leg RDL',         muscleGroup: 'hamstring',      equipment: 'bodyweight', difficulty: 'intermediate' },
+  { name: 'Single-Leg Glute Bridge',muscleGroup: 'gluteal',        equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Donkey Kick',            muscleGroup: 'gluteal',        equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Single-Leg Calf Raise',  muscleGroup: 'calves',         equipment: 'bodyweight', difficulty: 'beginner'     },
+
+  // Core
+  { name: 'Dead Bug',               muscleGroup: 'abs',            equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Lying Leg Raise',        muscleGroup: 'abs',            equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Mountain Climber',       muscleGroup: 'abs',            equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Flutter Kick',           muscleGroup: 'abs',            equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Hollow Body Hold',       muscleGroup: 'abs',            equipment: 'bodyweight', difficulty: 'intermediate' },
+  { name: 'V-Up',                   muscleGroup: 'abs',            equipment: 'bodyweight', difficulty: 'intermediate' },
+  { name: 'Bear Crawl',             muscleGroup: 'abs',            equipment: 'bodyweight', difficulty: 'intermediate' },
+  { name: 'Bicycle Crunch',         muscleGroup: 'obliques',       equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Heel Touch',             muscleGroup: 'obliques',       equipment: 'bodyweight', difficulty: 'beginner'     },
+  { name: 'Side Plank Dip',         muscleGroup: 'obliques',       equipment: 'bodyweight', difficulty: 'intermediate' },
 ];
 
 const seed = [
@@ -130,6 +187,11 @@ const seed = [
   // react-body-highlighter slugs (singular adductor is theirs, not a typo), so
   // the body map highlights them.
   ...HIP_EXERCISES,
+
+  // ── Home / calisthenics ───────────────────────────────────────────────────
+  // Appended after the hips for the same reason: ids are positional, so new
+  // movements only ever go on the end.
+  ...HOME_EXERCISES,
 ];
 
 export default seed.map((e, i) => ({

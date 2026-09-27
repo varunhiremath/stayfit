@@ -22,9 +22,9 @@ for (const m of MUSCLES) {
 const byId = new Map(catalog.map((e) => [e.id, e]));
 
 describe('SPLITS catalog', () => {
-  it('exposes the six splits', () => {
-    expect(Object.keys(SPLITS).sort()).toEqual(['arnold', 'bro', 'fullBody', 'ppl', 'ulppl', 'upperLower']);
-    expect(SPLIT_LIST).toHaveLength(6);
+  it('exposes the seven splits', () => {
+    expect(Object.keys(SPLITS).sort()).toEqual(['arnold', 'bro', 'fullBody', 'home', 'ppl', 'ulppl', 'upperLower']);
+    expect(SPLIT_LIST).toHaveLength(7);
     for (const s of SPLIT_LIST) { expect(s.label).toBeTruthy(); expect(s.days.length).toBeGreaterThan(0); }
   });
 });
@@ -99,5 +99,106 @@ describe('planWeek', () => {
 
   it('returns [] for an unknown split', () => {
     expect(planWeek({ split: 'nope', days: 3, exercises: catalog, rng: makeRng(1) })).toEqual([]);
+  });
+});
+
+describe('planWeek — Home / Calisthenics', () => {
+  // The synthetic catalog above has no bodyweight entries, so the home split
+  // needs its own: one bodyweight movement per muscle, plus a hold and some
+  // gym kit that must never be planned.
+  const homeCatalog = [
+    ...MUSCLES.map((m, i) => ({ id: `bw-${m}`, name: `${m} push-up`, muscleGroup: m, difficulty: LEVELS[i % 3], equipment: 'bodyweight' })),
+    { id: 'bw-plank', name: 'Plank', muscleGroup: 'abs', difficulty: 'beginner', equipment: 'bodyweight' },
+    { id: 'bw-wall-sit', name: 'Wall Sit', muscleGroup: 'quadriceps', difficulty: 'beginner', equipment: 'bodyweight' },
+    ...catalog, // barbell / dumbbell / cable — all off-limits at home
+  ];
+  const homeById = new Map(homeCatalog.map((e) => [e.id, e]));
+
+  it('plans three full-body days on Mon/Wed/Fri', () => {
+    const week = planWeek({ split: 'home', days: 3, level: 'beginner', exercises: homeCatalog, rng: makeRng(5) });
+    expect(week.map((d) => d.name)).toEqual(['Full Body A', 'Full Body B', 'Full Body C']);
+    expect(week.map((d) => d.dayOfWeek)).toEqual([1, 3, 5]);
+  });
+
+  it('alternates upper and lower on four days', () => {
+    const week = planWeek({ split: 'home', days: 4, level: 'beginner', exercises: homeCatalog, rng: makeRng(5) });
+    expect(week.map((d) => d.name)).toEqual(['Upper A', 'Lower A', 'Upper B', 'Lower B']);
+  });
+
+  it('splits push/pull/legs/core/full on five days', () => {
+    const week = planWeek({ split: 'home', days: 5, level: 'beginner', exercises: homeCatalog, rng: makeRng(5) });
+    expect(week.map((d) => d.name)).toEqual(['Push', 'Pull', 'Legs', 'Core', 'Full Body']);
+  });
+
+  it('never plans anything that needs equipment', () => {
+    for (const days of [3, 4, 5]) {
+      const week = planWeek({ split: 'home', days, level: 'intermediate', exercises: homeCatalog, rng: makeRng(11) });
+      for (const day of week) {
+        expect(day.exercises.length).toBeGreaterThan(0);
+        for (const slot of day.exercises) {
+          expect(homeById.get(slot.exerciseId).equipment).toBe('bodyweight');
+        }
+      }
+    }
+  });
+
+  it('uses calisthenics reps, not the barbell defaults', () => {
+    const week = planWeek({ split: 'home', days: 3, level: 'beginner', exercises: homeCatalog, rng: makeRng(3) });
+    const reps = week.flatMap((d) => d.exercises.map((s) => s.targetReps));
+    // Beginner bodyweight is 3×12; the barbell beginner default is 3×10.
+    expect(reps.every((r) => r >= 12)).toBe(true);
+  });
+
+  it('counts a plank in seconds', () => {
+    const week = planWeek({ split: 'home', days: 5, level: 'beginner', exercises: homeCatalog, rng: makeRng(2) });
+    const plank = week.flatMap((d) => d.exercises).find((s) => s.exerciseId === 'bw-plank');
+    expect(plank).toBeTruthy();
+    expect(plank.targetReps).toBe(30); // seconds, not reps
+  });
+
+  it('rests a bodyweight compound longer than a core move', () => {
+    const week = planWeek({ split: 'home', days: 5, level: 'beginner', rest: 'standard', exercises: homeCatalog, rng: makeRng(4) });
+    const slots = week.flatMap((d) => d.exercises);
+    const compound = slots.find((s) => homeById.get(s.exerciseId).muscleGroup === 'chest');
+    const core = slots.find((s) => homeById.get(s.exerciseId).muscleGroup === 'abs');
+    expect(compound.targetRest).toBeGreaterThan(core.targetRest);
+  });
+
+  it('is deterministic for a given seed', () => {
+    const a = planWeek({ split: 'home', days: 3, exercises: homeCatalog, rng: makeRng(77) });
+    const b = planWeek({ split: 'home', days: 3, exercises: homeCatalog, rng: makeRng(77) });
+    expect(a).toEqual(b);
+  });
+
+  // Regression: the group lists used to run push → pull → legs → core, and the
+  // round-robin ran out of slots before it ever reached legs. A six-exercise
+  // "Full Body" day was six upper-body movements and no squat.
+  it('puts a push, a pull, a squat and a core move in every full-body day', () => {
+    const PUSH_G = ['chest', 'front-deltoids', 'triceps'];
+    const PULL_G = ['upper-back', 'lower-back', 'trapezius', 'back-deltoids', 'biceps'];
+    const LEG_G = ['quadriceps', 'hamstring', 'gluteal', 'calves'];
+    const CORE_G = ['abs', 'obliques'];
+
+    for (const seed of [1, 2, 3, 42]) {
+      const week = planWeek({ split: 'home', days: 3, level: 'beginner', sessionMinutes: 45, exercises: homeCatalog, rng: makeRng(seed) });
+      for (const day of week) {
+        const groups = day.exercises.map((s) => homeById.get(s.exerciseId).muscleGroup);
+        expect(groups.some((g) => PUSH_G.includes(g)), `seed ${seed}: no push`).toBe(true);
+        expect(groups.some((g) => PULL_G.includes(g)), `seed ${seed}: no pull`).toBe(true);
+        expect(groups.some((g) => LEG_G.includes(g)), `seed ${seed}: no legs`).toBe(true);
+        expect(groups.some((g) => CORE_G.includes(g)), `seed ${seed}: no core`).toBe(true);
+      }
+    }
+  });
+});
+
+describe('Full Body (gym) covers the whole body too', () => {
+  it('reaches legs and core, not just the upper body', () => {
+    const week = planWeek({ split: 'fullBody', days: 3, level: 'beginner', sessionMinutes: 45, exercises: catalog, rng: makeRng(9) });
+    for (const day of week) {
+      const groups = day.exercises.map((s) => byId.get(s.exerciseId).muscleGroup);
+      expect(groups.some((g) => ['quadriceps', 'hamstring', 'gluteal', 'calves'].includes(g))).toBe(true);
+      expect(groups.some((g) => ['abs', 'obliques'].includes(g))).toBe(true);
+    }
   });
 });

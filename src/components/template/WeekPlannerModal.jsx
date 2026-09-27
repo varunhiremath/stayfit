@@ -7,6 +7,7 @@ import { useHaptics } from '../../hooks/useHaptics.js';
 import { createTemplate } from '../../utils/templateActions.js';
 import { makeRng } from '../../utils/routineGenerator.js';
 import { planWeek, SPLIT_LIST, REST_PREFS } from '../../utils/weekPlanner.js';
+import { formatTarget } from '../../utils/bodyweightTargets.js';
 import { playChime } from '../../utils/sound.js';
 
 const LEVELS = ['beginner', 'intermediate', 'advanced'];
@@ -149,7 +150,7 @@ export default function WeekPlannerModal({ isOpen, onClose }) {
                 {day.exercises.map((s) => (
                   <div key={s.exerciseId} className="flex items-center justify-between">
                     <span className="truncate font-sans text-xs" style={{ color: 'var(--color-text-primary)' }}>{exById[s.exerciseId]?.name ?? 'Exercise'}</span>
-                    <span className="ml-2 flex-shrink-0 font-mono text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>{s.targetSets}×{s.targetReps} · {s.targetRest}s</span>
+                    <span className="ml-2 flex-shrink-0 font-mono text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>{formatTarget(s.targetSets, s.targetReps, exById[s.exerciseId])} · {s.targetRest}s</span>
                   </div>
                 ))}
               </div>

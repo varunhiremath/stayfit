@@ -7,6 +7,7 @@ import { useExercises } from '../../hooks/useExercises.js';
 import { useHaptics } from '../../hooks/useHaptics.js';
 import { createTemplate } from '../../utils/templateActions.js';
 import { makeRng, generateRoutine } from '../../utils/routineGenerator.js';
+import { formatTarget } from '../../utils/bodyweightTargets.js';
 import { playChime } from '../../utils/sound.js';
 
 const DAYS = [
@@ -147,7 +148,7 @@ export default function RoutineGeneratorModal({ isOpen, onClose }) {
                   <div key={s.exerciseId} className="flex items-center justify-between rounded-lg px-3 py-2" style={{ background: 'var(--color-ivory)' }}>
                     <span className="truncate font-sans text-sm" style={{ color: 'var(--color-text-primary)' }}>{ex?.name ?? 'Exercise'}</span>
                     <span className="ml-2 flex-shrink-0 font-mono text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                      {s.targetSets}×{s.targetReps}
+                      {formatTarget(s.targetSets, s.targetReps, ex)}
                     </span>
                   </div>
                 );

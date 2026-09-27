@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import seed, { HIP_EXERCISES } from './seedExercises.js';
+import seed, { HIP_EXERCISES, HOME_EXERCISES } from './seedExercises.js';
 import { ALL_MUSCLES } from '../hooks/useRecovery.js';
 
 // The seed's ids are positional (`i + 1`) and are written into `sets.exerciseId`
@@ -32,6 +32,15 @@ describe('seed ids are stable', () => {
     expect(firstHipId).toBeGreaterThan(74);
   });
 
+  it('keeps the home exercises after the hips', () => {
+    const homes = seed.filter((e) => HOME_EXERCISES.some((h) => h.name === e.name));
+    expect(homes).toHaveLength(HOME_EXERCISES.length);
+    const firstHomeId = Math.min(...homes.map((e) => e.id));
+    const lastHipId = Math.max(...seed.filter((e) => HIP_EXERCISES.some((h) => h.name === e.name)).map((e) => e.id));
+    expect(firstHomeId).toBeGreaterThan(lastHipId);
+    expect(lastHipId).toBe(85); // the hips ended here before the home block landed
+  });
+
   it('has no duplicate names or ids', () => {
     expect(new Set(seed.map((e) => e.name)).size).toBe(seed.length);
     expect(new Set(seed.map((e) => e.id)).size).toBe(seed.length);
@@ -47,6 +56,16 @@ describe('seed muscle groups', () => {
     const groups = new Set(seed.map((e) => e.muscleGroup));
     expect(groups.has('abductors')).toBe(true);
     expect(groups.has('adductor')).toBe(true);
+  });
+
+  // The Home split can only build a balanced session if every group it draws
+  // from has at least one bodyweight option.
+  it('offers a bodyweight movement for every muscle group', () => {
+    const bodyweight = new Set(seed.filter((e) => e.equipment === 'bodyweight').map((e) => e.muscleGroup));
+    for (const g of new Set(seed.map((e) => e.muscleGroup))) {
+      if (g === 'cardio' || g === 'forearm') continue; // no sane bodyweight-only grip movement
+      expect(bodyweight.has(g), `no bodyweight exercise for ${g}`).toBe(true);
+    }
   });
 
   it('gives every exercise a name, group and equipment', () => {

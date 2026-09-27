@@ -1,5 +1,5 @@
 import { db } from '../db/db.js';
-import seed, { HIP_EXERCISES } from './seedExercises.js';
+import seed, { HIP_EXERCISES, HOME_EXERCISES } from './seedExercises.js';
 
 const BASE = 'https://wger.de/api/v2';
 const CACHE_KEY = 'wger_synced_at';
@@ -118,23 +118,23 @@ export async function ensureCardioExercises() {
   }
 }
 
-// Add any hip abduction/adduction exercises the library is missing (by name).
-// Same idempotent shape as the cardio ensure, so databases seeded before these
-// existed pick them up on the next open. Ids are auto-assigned — never reuse
+// Add any of `list` the library is missing (matched by name). Same idempotent
+// shape as the cardio ensure, so a database seeded before a batch of exercises
+// existed picks them up on the next open. Ids are auto-assigned — never reuse
 // the positional seed ids here, they belong to the rows already stored.
-export async function ensureHipExercises() {
+export async function ensureSeedExercises(list) {
   const have = new Set((await db.exercises.toArray()).map((e) => e.name));
-  const missing = HIP_EXERCISES.filter((h) => !have.has(h.name)).map((h) => ({
-    ...h,
+  const missing = (list ?? []).filter((x) => !have.has(x.name)).map((x) => ({
+    ...x,
     secondaryMuscles: [],
     description: '',
     isCustom: false,
     wgerId: null,
   }));
-  if (missing.length) {
-    try { await db.exercises.bulkAdd(missing); }
-    catch (err) { if (err?.name !== 'BulkError' && err?.name !== 'ConstraintError') throw err; }
-  }
+  if (!missing.length) return 0;
+  try { await db.exercises.bulkAdd(missing); }
+  catch (err) { if (err?.name !== 'BulkError' && err?.name !== 'ConstraintError') throw err; }
+  return missing.length;
 }
 
 // Seeding can be triggered from several mounts at once (multiple useExercises
@@ -159,7 +159,8 @@ export async function seedDatabase() {
     }
     // Additive for both fresh and existing databases.
     await ensureCardioExercises();
-    await ensureHipExercises();
+    await ensureSeedExercises(HIP_EXERCISES);
+    await ensureSeedExercises(HOME_EXERCISES);
   })();
   try {
     return await seedInFlight;
